@@ -5,15 +5,15 @@ import { AuthContext } from '../../../context/authContext';
 import { toast } from 'react-toastify';
 
 const UserEdit = () => {
-    const { id } = useParams(); // Récupère l'ID de l'utilisateur à partir des paramètres de l'URL
+    const { id } = useParams();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [role, setRole] = useState(0); // 0 pour utilisateur normal, 1 pour admin
+    const [password, setPassword] = useState('');
+    const [role, setRole] = useState(0); // 0 for user, 1 for admin
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
 
-    // Fonction pour récupérer les données de l'utilisateur
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -25,40 +25,41 @@ const UserEdit = () => {
                 const user = response.data;
                 setName(user.name);
                 setEmail(user.email);
-                setRole(user.role || 0); // Définit la valeur par défaut de rôle si non défini
+                setRole(user.role);
             } catch (error) {
-                console.error('Erreur lors de la récupération des données de l\'utilisateur', error.response || error.message);
-                setError('Erreur lors de la récupération des données de l\'utilisateur. Veuillez réessayer.');
-                toast.error('Erreur lors de la récupération des données de l\'utilisateur.');
+                console.error('Erreur lors de la récupération de l’utilisateur', error.response || error.message);
+                setError('Erreur lors de la récupération de l’utilisateur. Veuillez réessayer.');
+                toast.error('Erreur lors de la récupération de l’utilisateur.');
             }
         };
 
         fetchUser();
     }, [id, accessToken]);
 
-    // Fonction pour gérer la soumission du formulaire
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const updatedUser = {
+            name,
+            email,
+            password: password ? password : undefined, // Only include password if it's not empty
+            role,
+        };
+
         try {
-            const response = await axios.put(`http://localhost:8000/api/users/${id}`, {
-                name,
-                email,
-                role
-            }, {
+            const response = await axios.put(`http://localhost:8000/api/users/${id}`, updatedUser, {
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
 
             console.log('Utilisateur modifié:', response.data);
             toast.success('Utilisateur modifié avec succès');
-            navigate('/dashboard/AdminUtilisateur');
+            navigate('/dashboard/Utilisateur');
         } catch (error) {
-            console.error('Erreur lors de la modification de l\'utilisateur', error.response || error.message);
-            setError('Erreur lors de la modification de l\'utilisateur. Veuillez réessayer.');
-            toast.error('Erreur lors de la modification de l\'utilisateur.');
+            console.error('Erreur lors de la modification de l’utilisateur', error.response || error.message);
+            setError('Erreur lors de la modification de l’utilisateur. Veuillez réessayer.');
+            toast.error('Erreur lors de la modification de l’utilisateur.');
         }
     };
 
@@ -88,10 +89,21 @@ const UserEdit = () => {
                     />
                 </div>
                 <div>
+                    <label className="block text-sm font-medium mb-1">Mot de passe</label>
+                    <input 
+                        type="password" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        className="w-full p-2 border border-gray-300 rounded"
+                        placeholder="Laisser vide pour ne pas modifier"
+                    />
+                </div>
+                <div>
                     <label className="block text-sm font-medium mb-1">Rôle</label>
                     <select 
                         value={role} 
-                        onChange={(e) => setRole(Number(e.target.value))} 
+                        onChange={(e) => setRole(parseInt(e.target.value, 10))} 
+                        required 
                         className="w-full p-2 border border-gray-300 rounded"
                     >
                         <option value={0}>Utilisateur</option>

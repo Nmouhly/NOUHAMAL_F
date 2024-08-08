@@ -4,121 +4,86 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
-const ProjectsCreate = () => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [team, setTeam] = useState('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [fundingType, setFundingType] = useState('');
-    const [status, setStatus] = useState('en_cours'); // New state for status
+const UserCreate = () => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [role, setRole] = useState(0); // 0 for user, 1 for admin
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const formData = {
-            title,
-            description,
-            team,
-            start_date: startDate,
-            end_date: endDate,
-            funding_type: fundingType,
-            status, // Include status in form data
+            name,
+            email,
+            password,
+            role,
         };
 
         try {
-            const response = await axios.post('http://localhost:8000/api/projects', formData, {
+            const response = await axios.post('http://localhost:8000/api/users', formData, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            console.log('Project added:', response.data);
-            toast.success('Project added successfully');
-            navigate('/dashboard/ProjectsAdmin');
+            console.log('User created:', response.data);
+            toast.success('User created successfully');
+            navigate('/dashboard/UsersAdmin');
         } catch (error) {
-            console.error('Error adding project', error);
-            setError('Error adding project');
-            toast.error('Error adding project');
+            console.error('Error creating user', error);
+            setError('Error creating user');
+            toast.error('Error creating user');
         }
     };
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Add Project</h1>
+            <h1 className="text-2xl font-bold mb-4">Add User</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium mb-1">Title</label>
+                    <label className="block text-sm font-medium mb-1">Name</label>
                     <input 
                         type="text" 
-                        value={title} 
-                        onChange={(e) => setTitle(e.target.value)} 
+                        value={name} 
+                        onChange={(e) => setName(e.target.value)} 
                         required 
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Description</label>
-                    <textarea 
-                        value={description} 
-                        onChange={(e) => setDescription(e.target.value)} 
-                        required 
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Team</label>
+                    <label className="block text-sm font-medium mb-1">Email</label>
                     <input 
-                        type="text" 
-                        value={team} 
-                        onChange={(e) => setTeam(e.target.value)} 
+                        type="email" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
                         required 
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Start Date</label>
+                    <label className="block text-sm font-medium mb-1">Password</label>
                     <input 
-                        type="date" 
-                        value={startDate} 
-                        onChange={(e) => setStartDate(e.target.value)} 
+                        type="password" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
                         required 
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">End Date</label>
-                    <input 
-                        type="date" 
-                        value={endDate} 
-                        onChange={(e) => setEndDate(e.target.value)} 
-                        required 
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Funding Type</label>
-                    <input 
-                        type="text" 
-                        value={fundingType} 
-                        onChange={(e) => setFundingType(e.target.value)} 
-                        required 
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Status</label>
+                    <label className="block text-sm font-medium mb-1">Role</label>
                     <select 
-                        value={status} 
-                        onChange={(e) => setStatus(e.target.value)} 
+                        value={role} 
+                        onChange={(e) => setRole(parseInt(e.target.value, 10))} 
                         required 
                         className="w-full p-2 border border-gray-300 rounded"
                     >
-                        <option value="en_cours">En Cours</option>
-                        <option value="termine">Terminé</option>
+                        <option value={0}>User</option>
+                        <option value={1}>Admin</option>
                     </select>
                 </div>
                 <button 
@@ -132,4 +97,4 @@ const ProjectsCreate = () => {
     );
 };
 
-export default ProjectsCreate;
+export default UserCreate;

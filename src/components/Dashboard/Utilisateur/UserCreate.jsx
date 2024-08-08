@@ -21,7 +21,7 @@ const UserCreate = () => {
       // Convertir le rôle en nombre si nécessaire
       const roleNumber = role === 'Admin' ? 1 : 0;
       console.log(name,email,password,role);
-      const response = await axios.post('http://localhost:8000/api/login', {
+      const response = await axios.post('http://localhost:8000/api/user/register', {
         name,
         email,
         password,
