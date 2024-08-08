@@ -1,0 +1,40 @@
+.news-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px; /* Ajuster l'espace entre les éléments si nécessaire */
+}
+
+.news-item {
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.news-image {
+  width: 150px; /* Ajuster la taille si nécessaire */
+  height: auto;
+  margin-right: 16px;
+}
+
+.news-content {
+  flex: 1;
+}
+
+.news-content h2 {
+  margin: 0;
+  font-size: 1.25rem; /* Ajuster la taille de la police */
+  font-weight: bold; /* Garder en gras */
+}
+
+.news-snippet {
+  margin-top: 8px;
+  font-size: 0.875rem; /* Ajuster la taille de la police de l'extrait */
+  color: #666;
+}
+
+.news-content button {
+  margin-top: 8px;
+}

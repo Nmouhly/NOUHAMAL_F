@@ -1,0 +1,36 @@
+.news-details {
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.news-container {
+  display: flex;
+  flex-direction: column; /* Affiche le titre au-dessus de l'image et du contenu */
+}
+
+.news-title {
+  font-size: 2rem;
+  margin-bottom: 20px; /* Espace sous le titre */
+}
+
+.news-content-container {
+  display: flex;
+  align-items: flex-start; /* Aligne les éléments au début du conteneur */
+  gap: 20px; /* Espace entre l'image et le texte */
+}
+
+.news-image img {
+  max-width: 400px; /* Taille maximale pour l'image */
+  height: auto;
+  object-fit: cover; /* Assure que l'image est bien adaptée */
+}
+
+.news-content {
+  flex: 1; /* Prend tout l'espace restant */
+}
+
+.news-content p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
