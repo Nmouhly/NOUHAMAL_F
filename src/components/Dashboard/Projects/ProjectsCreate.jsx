@@ -41,7 +41,7 @@ const UserCreate = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Add User</h1>
+            <h1 className="text-2xl font-bold mb-4">Add Project</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

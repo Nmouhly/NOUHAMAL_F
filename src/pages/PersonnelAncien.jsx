@@ -10,7 +10,7 @@ const PersonnelAncien = () => {
         axios.get('http://localhost:8000/api/members')
             .then(response => {
                 console.log('Données récupérées:', response.data); // Affiche les données complètes
-                const filteredMembers = response.data.filter(member => member.statut === 'ancien');
+                const filteredMembers = response.data.filter(member => member.statut === 'Ancien');
                 console.log('Membres filtrés (anciens):', filteredMembers); // Affiche les membres filtrés
                 setMembers(filteredMembers);
             })

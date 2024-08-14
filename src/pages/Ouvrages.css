@@ -1,0 +1,40 @@
+/* src/pages/Publications/Ouvrages.css */
+.ouvrages-table {
+    padding: 20px;
+  }
+  
+  .ouvrages-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .ouvrages-table th,
+  .ouvrages-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .ouvrages-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+  }
+  
+  .ouvrages-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .ouvrages-table tr:hover {
+    background-color: #ddd;
+  }
+  
+  .ouvrages-table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: #02213a;
+    color: white;
+  }
+  
+  .error {
+    color: red;
+  }
+  

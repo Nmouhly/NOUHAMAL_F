@@ -11,7 +11,7 @@ const PersonnelMember = () => {
             .then(response => {
                 console.log('Données récupérées:', response.data); // Vérifiez les données récupérées
                 // Filtrer les membres pour ne garder que ceux avec le statut "actuel"
-                const filteredMembers = response.data.filter(member => member.statut === 'actuel');
+                const filteredMembers = response.data.filter(member => member.statut === 'Membre');
                 console.log('Membres filtrés (actuels):', filteredMembers); // Vérifiez les membres filtrés
                 setMembers(filteredMembers);
             })

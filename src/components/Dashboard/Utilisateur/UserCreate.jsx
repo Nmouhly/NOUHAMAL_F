@@ -8,34 +8,34 @@ const UserCreate = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState(''); // Valeur initiale du rôle
+  const [role, setRole] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { accessToken } = useContext(AuthContext); // Récupérer le token du contexte
+  const { accessToken } = useContext(AuthContext);
 
-  // Fonction pour gérer la soumission du formulaire
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // Convertir le rôle en nombre si nécessaire
       const roleNumber = role === 'Admin' ? 1 : 0;
-      console.log(name,email,password,role);
-      const response = await axios.post('http://localhost:8000/api/user/register', {
-        name,
-        email,
-        password,
-        role: roleNumber, // Inclure le rôle dans la requête
-      }, {
+
+      // Créez un objet FormData
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('role', roleNumber);
+
+      // Envoie les données au backend
+      const response = await axios.post('http://localhost:8000/api/user/register', formData, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}` // Inclure le token dans les en-têtes
+          'Content-Type': 'multipart/form-data', // Définir le type de contenu comme multipart/form-data
+          'Authorization': `Bearer ${accessToken}`
         },
       });
 
-      console.log('Utilisateur ajouté:', response.data);
       toast.success('Utilisateur ajouté avec succès');
-      navigate('/dashboard/Utilisateur'); // Rediriger vers la page d'administration après ajout
+      navigate('/dashboard/Utilisateur');
     } catch (error) {
       console.error('Erreur lors de l\'ajout de l\'utilisateur', error.response?.data || error.message);
       setError('Erreur lors de l\'ajout de l\'utilisateur');

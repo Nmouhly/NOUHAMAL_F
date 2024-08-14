@@ -14,19 +14,18 @@ const NewsEdit = () => {
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
 
-    // Récupérer les données de l'actualité à modifier
     useEffect(() => {
         const fetchNews = async () => {
             try {
                 const response = await axios.get(`http://localhost:8000/api/news/${id}`, {
                     headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
                 });
                 const news = response.data;
                 setTitle(news.title);
                 setContent(news.content);
-                setCurrentImage(news.image ? `http://localhost:8000/storage/news_images/${news.image}` : '');
+                setCurrentImage(news.image ? news.image : '');
             } catch (error) {
                 console.error('Erreur lors de la récupération de l\'actualité:', error.response ? error.response.data : error.message);
                 setError('Erreur lors de la récupération de l\'actualité. Veuillez réessayer.');
@@ -37,41 +36,46 @@ const NewsEdit = () => {
         fetchNews();
     }, [id, accessToken]);
 
-    // Gérer la soumission du formulaire
+    const handleFileChange = (event) => {
+        setImage(event.target.files[0]);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
-        // Validation côté client
+
         if (!title.trim() || !content.trim()) {
             toast.error('Veuillez remplir tous les champs requis.');
             return;
         }
-    
+
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
+
         if (image) {
             formData.append('image', image);
+        } else {
+            formData.append('current_image', currentImage);
         }
-    
+        for (let [key, value] of formData.entries()) {
+            console.log('${key}:',value);
+        }
         try {
-            const response = await axios.put(`http://localhost:8000/api/news/${id}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${accessToken}`
-                }
+            const response = await axios.put('http://localhost:8000/api/news/19', formData, {
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data',
+              },
             });
-    
-            console.log('Actualité modifiée:', response.data);
-            toast.success('Actualité modifiée avec succès');
-            navigate('/dashboard/NewsAdmin');
-        } catch (error) {
+            console.log();
+            setImagePath(response.data); // Supposons que le chemin de l'image est retourné dans la propriété 'path' de la réponse
+          }
+        catch (error) {
             console.error('Erreur lors de la modification de l\'actualité:', error.response ? error.response.data : error.message);
             setError('Erreur lors de la modification de l\'actualité. Veuillez réessayer.');
             toast.error('Erreur lors de la modification de l\'actualité.');
         }
     };
-    
 
     return (
         <div className="max-w-2xl mx-auto p-4">
@@ -113,7 +117,7 @@ const NewsEdit = () => {
                     <label className="block text-sm font-medium mb-1">Nouvelle Image</label>
                     <input 
                         type="file" 
-                        onChange={(e) => setImage(e.target.files[0])} 
+                        onChange={handleFileChange}
                         accept="image/*" 
                         className="w-full p-2 border border-gray-300 rounded"
                     />
@@ -129,4 +133,4 @@ const NewsEdit = () => {
     );
 };
 
-export default NewsEdit;
+export default NewsEdit;

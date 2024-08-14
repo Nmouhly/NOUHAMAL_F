@@ -1,0 +1,43 @@
+/* Revues.css */
+
+.revues-table {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .revues-table h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .revues-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .revues-table th, .revues-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .revues-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .revues-table .pdf-link {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .revues-table .pdf-link:hover {
+    text-decoration: underline;
+  }
+  
+  .error {
+    color: red;
+    text-align: center;
+  }
+  
