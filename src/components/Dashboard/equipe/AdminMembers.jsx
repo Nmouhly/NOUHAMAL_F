@@ -5,11 +5,13 @@ import { AuthContext } from '../../../context/authContext';
 
 const MembreAdmin = () => {
     const [members, setMembers] = useState([]);
+    const [teams, setTeams] = useState([]); // New state for teams
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
 
     useEffect(() => {
         fetchMembers();
+        fetchTeams(); // Fetch the teams
     }, [accessToken]);
 
     const fetchMembers = async () => {
@@ -30,6 +32,31 @@ const MembreAdmin = () => {
             console.error('Erreur lors de la récupération des membres', error);
             setError('Erreur lors de la récupération des membres');
         }
+    };
+
+    const fetchTeams = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/equipe', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (Array.isArray(response.data)) {
+                setTeams(response.data);
+            } else {
+                console.error('Les données reçues ne sont pas un tableau');
+                setError('Erreur de données');
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des équipes', error);
+            setError('Erreur lors de la récupération des équipes');
+        }
+    };
+
+    const getTeamNameById = (id) => {
+        const team = teams.find(team => team.id === id);
+        return team ? team.name : 'Inconnu';
     };
 
     const handleDelete = async (id) => {
@@ -60,7 +87,8 @@ const MembreAdmin = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poste</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bio</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Infos de Contact</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th> {/* Ajouter la colonne pour le statut avant les actions */}
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Équipe</th> {/* New column for the team name */}
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -72,7 +100,8 @@ const MembreAdmin = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">{member.position}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{member.bio}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{member.contact_info}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{member.statut}</td> {/* Afficher le statut */}
+                                <td className="px-6 py-4 whitespace-nowrap">{getTeamNameById(member.team_id)}</td> {/* Display team name */}
+                                <td className="px-6 py-4 whitespace-nowrap">{member.statut}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/MembreEdit/${member.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(member.id)} className="btn btn-danger mb-2">Supprimer</button>
@@ -81,7 +110,7 @@ const MembreAdmin = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="6" className="text-center py-4">Aucun membre disponible</td>
+                            <td colSpan="7" className="text-center py-4">Aucun membre disponible</td> {/* Updated colspan */}
                         </tr>
                     )}
                 </tbody>

@@ -1,22 +1,22 @@
-.revues-list {
+.ouvrages-list {
   padding: 20px;
   font-family: 'Roboto', sans-serif;
 }
 
-.revues-list h1 {
+.ouvrages-list h1 {
   font-size: 2rem;
   margin-bottom: 20px;
   font-weight: bold;
   text-align: center;
   color: #333;
 }
-
-.revues-list ul {
+h1{text-align: center;}
+.ouvrages-list ul {
   list-style-type: none;
   padding-left: 0;
 }
 
-.revues-list li {
+.ouvrages-list li {
   margin-bottom: 15px;
   font-size: 1rem;
   line-height: 1.6;
@@ -24,7 +24,7 @@
   padding-left: 20px;
 }
 
-.revues-list li::before {
+.ouvrages-list li::before {
   content: '•';
   color: #02213a;
   font-size: 1.5rem;
@@ -33,13 +33,13 @@
   top: 0;
 }
 
-.revues-list strong {
+.ouvrages-list strong {
   color: #02213a;
 }
 
 .pdf-link {
   margin-left: 10px;
-  color: #d9534f;
+  color: #05a7bd;
   text-decoration: underline;
 }
 
@@ -50,5 +50,4 @@
 .error {
   color: red;
   font-weight: bold;
-  text-align: center;
 }

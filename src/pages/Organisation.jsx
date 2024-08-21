@@ -10,7 +10,7 @@ const Organisation = () => {
       .then(response => {
         const membersData = response.data;
         // Supposons que le directeur a un rôle spécifique, par exemple "Directeur"
-        const directorData = membersData.find(member => member.position.toLowerCase() === 'directeur');
+        const directorData = membersData.find(member => member.position.toLowerCase() === 'rakrak');
         setDirector(directorData);
       })
       .catch(error => {

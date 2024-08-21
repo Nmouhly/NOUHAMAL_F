@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './seminars-page.css';
  // Import the CSS file
 
 const Seminar = () => {
@@ -33,10 +34,10 @@ const Seminar = () => {
 
     return (
         <div className="seminars-page">
-            <h1>Séminaires</h1>
+            <h1>Séminaires du laboratoire</h1>
             {error && <p className="error">{error}</p>}
-
-            <h2>Séminaires prévus</h2>
+<p>Les séminaires du laboratoire L2IS sont un rendez-vous mensuel où doctorants, permanents et chercheurs invités viennent exposer leurs travaux publiés ou en cours autour des thématiques du laboratoire.</p>
+            <h2>À venir</h2>
             <div className="seminars ongoing">
                 {ongoingSeminars.length > 0 ? (
                     ongoingSeminars.map(seminar => (
@@ -55,7 +56,7 @@ const Seminar = () => {
                 )}
             </div>
 
-            <h2>Séminaires passés</h2>
+            <h2> Passés</h2>
             <div className="seminars completed">
                 {completedSeminars.length > 0 ? (
                     completedSeminars.map(seminar => (

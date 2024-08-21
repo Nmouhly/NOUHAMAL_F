@@ -6,22 +6,19 @@ import { toast } from 'react-toastify';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
-// Fonction pour enlever les balises HTML (si nécessaire)
-const stripHtmlTags = (html) => {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || "";
-};
-
 const PresentationEdit = () => {
     const { id } = useParams();
     const [presentation, setPresentation] = useState({
         title: '',
         content: '',
+        team_id: '' // Ajout du champ team_id
     });
+    const [teams, setTeams] = useState([]);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
 
+    // Fetch presentation details
     useEffect(() => {
         const fetchPresentation = async () => {
             try {
@@ -39,6 +36,26 @@ const PresentationEdit = () => {
         fetchPresentation();
     }, [id, accessToken]);
 
+    // Fetch teams
+    useEffect(() => {
+        const fetchTeams = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/equipe', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                setTeams(response.data);
+            } catch (error) {
+                console.error('Erreur lors de la récupération des équipes', error);
+                setError('Erreur lors de la récupération des équipes.');
+                toast.error('Erreur lors de la récupération des équipes.');
+            }
+        };
+        fetchTeams();
+    }, [accessToken]);
+
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -62,18 +79,16 @@ const PresentationEdit = () => {
 
     const handleTitleChange = (event, editor) => {
         const data = editor.getData();
-        setPresentation({
-            ...presentation,
-            title: data
-        });
+        setPresentation(prev => ({ ...prev, title: data }));
     };
 
     const handleContentChange = (event, editor) => {
         const data = editor.getData();
-        setPresentation({
-            ...presentation,
-            content: data
-        });
+        setPresentation(prev => ({ ...prev, content: data }));
+    };
+
+    const handleTeamChange = (e) => {
+        setPresentation(prev => ({ ...prev, team_id: e.target.value }));
     };
 
     return (
@@ -107,6 +122,21 @@ const PresentationEdit = () => {
                             ]
                         }}
                     />
+                </div>
+                <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">Équipe</label>
+                    <select
+                        value={presentation.team_id}
+                        onChange={handleTeamChange}
+                        className="w-full border border-gray-300 rounded-md p-2 bg-white"
+                    >
+                        <option value="">Sélectionnez une équipe</option>
+                        {teams.map(team => (
+                            <option key={team.id} value={team.id}>
+                                {team.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <button 
                     type="submit" 

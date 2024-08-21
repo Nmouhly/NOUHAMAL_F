@@ -61,6 +61,10 @@ const Sidebar = () => {
               <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
               Actualités
             </Link>
+            <Link className="nav-link" to="/dashboard/Organisation">
+              <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
+              Organisation
+            </Link>
             <Link className="nav-link" to="/dashboard/Member">
               <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
               Members
@@ -86,8 +90,9 @@ const Sidebar = () => {
             <ul className={`submenu ${isPublicationsSubmenuOpen ? 'open' : ''}`}>
               <li><Link to="/dashboard/ouvrage">Ouvrages</Link></li>
               <li><Link to="/dashboard/revues">Revues</Link></li>
-              <li><Link to="/dashboard/publication/conference">Conférences</Link></li>
-              <li><Link to="/dashboard/publication/rapport">Rapports et Brevets</Link></li>
+              <li><Link to="/dashboard/conference">Conférences</Link></li>
+              <li><Link to="/dashboard/report">Rapports</Link></li>
+              <li><Link to="/dashboard/patent">Brevets</Link></li>
               <li><Link to="/dashboard/publication/theses">Thèses et Doctorat</Link></li>
               <li><Link to="/dashboard/publication/habilitation">Habilitation</Link></li>
             </ul>

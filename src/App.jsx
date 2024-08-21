@@ -5,14 +5,30 @@ import Login from './components/auth/Login';
 import AxeEdit from './components/Dashboard/Axes/AxeEdit';
 import AxeCreate from './components/Dashboard/Axes/AxeCreate';
 import Revues from './pages/Revues';
+import Reports from './pages/Reports';
 import AdminRevue from './components/Dashboard/Publication/AdminRevue';
 import RevueCreate from './components/Dashboard/Publication/RevueCreate';
 import RevueEdit from './components/Dashboard/Publication/RevueEdit';
 import AdminAxes from './components/Dashboard/Axes/AdminAxes';
 import Ouvrages from './pages/Ouvrages';
+import PresentationsPage from './pages/PresentationsPage';
+import MembresPage from './pages/MembresPage';
+import AxessPage from './pages/AxesPage';
+import Patents from './pages/Patents';
+import Conference from './pages/Conference';
+import TeamsPage  from './pages/Equipes';
 import AdminOuvrage from './components/Dashboard/Publication/AdminOuvrage';
 import OuvrageEdit from './components/Dashboard/Publication/OuvrageEdit';
 import OuvrageCreat from './components/Dashboard/Publication/OuvrageCreat';
+import AdminPatent from './components/Dashboard/Publication/AdminPatent';
+import PatentEdit from './components/Dashboard/Publication/PatentEdit';
+import PatentCreat from './components/Dashboard/Publication/PatentCreat';
+import AdminReport from './components/Dashboard/Publication/AdminReport';
+import ReportEdit from './components/Dashboard/Publication/ReportEdit.jsx';
+import ReportCreat from './components/Dashboard/Publication/ReportCreat';
+import AdminConference from './components/Dashboard/Publication/AdminConference';
+import ConferenceEdit from './components/Dashboard/Publication/ConferenceEdit';
+import ConferenceCreat from './components/Dashboard/Publication/ConferenceCreat';
 import Axe from './pages/Axe';
 import PresentationCreate from './components/Dashboard/equipe/PresentationCreate';
 import PresentationEdit from './components/Dashboard/equipe/PresentationEdit';
@@ -42,9 +58,9 @@ import UserCreate from './components/Dashboard/Utilisateur/UserCreate';
 import ProjectsEdit from './components/Dashboard/Projects/ProjectsEdit';
 import ProjectsAdmin from './components/Dashboard/Projects/ProjectsAdmin';
 import ProjectsCreate from './components/Dashboard/Projects/ProjectsCreate';
-import NewsEdit from './components/Dashboard/actualité/NewsEdit';
+ import NewsEdit from './components/Dashboard/actualité/NewsEdit';
 import UserEdit from './components/Dashboard/Utilisateur/UserEdit';
-import NewsDetails from './components/Dashboard/actualité/NewsDetails';
+ import NewsDetails from './components/Dashboard/actualité/NewsDetails';
 import VisitorLayout from './components/Dashboard/actualité/VisitorLayout';
 import SimpleLayout from './components/Dashboard/actualité/SimpleLayout';
 import AdminOrganisation from './components/Dashboard/Organisation/AdminOrganisation';
@@ -59,6 +75,7 @@ import PersonnelMembere from './pages/PersonnelMembere';
 import AdminEquipe from './components/Dashboard/equipe/AdminEquipe';
 import EquipeCreat from './components/Dashboard/equipe/EquipeCreat';
 import EquipeEdit from './components/Dashboard/equipe/EquipeEdit';
+import AxesPage from './pages/AxesPage.jsx';
 
 function App() {
   const [accessToken, setAccessToken] = useState(() => {
@@ -101,9 +118,16 @@ function App() {
             <Route path="organisation" element={<Organisation />} />
             <Route path="personnel" element={<Personnel />} />
             <Route path="seminar" element={<Seminar />} />
+            <Route path="/presentations/:teamId" element={<PresentationsPage />} />
+            <Route path="/membre/:teamId" element={<MembresPage />} />
+            <Route path="/axe/:teamId" element={<AxessPage />} />
             <Route path="revues" element={<Revues />} />
             <Route path="axe" element={<Axe />} />
             <Route path="ouvrages" element={<Ouvrages />} />
+            <Route path="conferences" element={<Conference />} />
+            <Route path="listEquipe" element={<TeamsPage  />} />
+            <Route path="patents" element={<Patents />} />
+            <Route path="reports" element={<Reports />} />
             
             <Route path="ProjectsPage" element={<ProjectsPage />} /> {/* Ajout de la route pour ProjectsPage */}
             <Route path="publications" element={<Publications />} />
@@ -129,6 +153,15 @@ function App() {
             <Route path="ouvrage" element={<AdminOuvrage />} />
             <Route path="OuvrageEdit/:id" element={<OuvrageEdit />} />
             <Route path="OuvrageCreate" element={<OuvrageCreat />} />
+            <Route path="patent" element={<AdminPatent />} />
+            <Route path="PatentEdit/:id" element={<PatentEdit />} />
+            <Route path="PatentCreate" element={<PatentCreat />} />
+            <Route path="report" element={<AdminReport />} />
+            <Route path="ReportEdit/:id" element={<ReportEdit />} />
+            <Route path="ReportCreat" element={<ReportCreat />} />
+            <Route path="conference" element={<AdminConference />} />
+            <Route path="ConferenceEdit/:id" element={<ConferenceEdit />} />
+            <Route path="ConferenceCreate" element={<ConferenceCreat />} />
 
             <Route path="NewsCreate" element={<NewsCreate />} />
             <Route path="NewsEdit/:id" element={<NewsEdit />} />

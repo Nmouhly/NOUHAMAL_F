@@ -4,6 +4,9 @@ import React from 'react';
 import logo from '../assets/labol2is.png'; // Assurez-vous que le chemin du logo est correct
 import arrowGif from '../assets/fleche.gif'; // Assurez-vous que le chemin de la flèche est correct
 import HomeNews from './HomeNews';
+import TeamsPage    from '../pages/Equipes';
+
+
 
 const Home = ({ currentUser, logoutUser, isSidebarVisible, toggleSidebar }) => {
   return (
@@ -51,6 +54,7 @@ const Home = ({ currentUser, logoutUser, isSidebarVisible, toggleSidebar }) => {
 
       {/* Liste des actualités */}
       <HomeNews />
+      <TeamsPage />
     </div>
   );
 };

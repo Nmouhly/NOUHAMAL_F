@@ -32,18 +32,12 @@ const VisitorSidebar = () => {
         <img src={logo} alt="Laboratory Logo" className="logo" />
         <ul>
           <li><Link to="/">Accueil</Link></li>
-
-          <li className="no-indent">
-            <button onClick={toggleEquipesSubmenu} className={`submenu-toggle ${isEquipesSubmenuOpen ? 'open' : ''}`}>
-              Équipes
-            </button>
-            <ul className={`submenu ${isEquipesSubmenuOpen ? 'open' : ''}`}>
-              <li><Link to="/presentation">Présentation</Link></li>
-              <li><Link to="/axe">Axes de Recherche</Link></li>
-              <li><Link to="/publication">Publications</Link></li>
-              <li><Link to="/membre">Membres</Link></li>
-            </ul>
-          </li>
+          <li><Link to="/organisation"> Organisation</Link></li>
+          
+           
+            <li><Link to="/listEquipe"> Équipes</Link></li>
+             
+          
 
           <li className="no-indent">
             <button onClick={togglePersonnelSubmenu} className={`submenu-toggle ${isPersonnelSubmenuOpen ? 'open' : ''}`}>
@@ -63,7 +57,7 @@ const VisitorSidebar = () => {
               <li><Link to="/ouvrages">Ouvrages</Link></li>
               <li><Link to="/revues">Revues</Link></li>
               <li><Link to="/conferences">Conférences</Link></li>
-              <li><Link to="/rapports-brevets">Rapports et Brevets</Link></li>
+              <li><Link to="/reports">Rapports</Link></li>
               <li><Link to="/theses-doctorat">Thèses et Doctorat</Link></li>
               <li><Link to="/habilitation">Habilitation</Link></li>
             </ul>
@@ -71,7 +65,7 @@ const VisitorSidebar = () => {
 
           <li><Link to="/ProjectsPage">Projets</Link></li>
           <li><Link to="/informations">Informations</Link></li>
-          <li><Link to="/seminar">Événements</Link></li>
+          <li><Link to="/seminar">Séminaires</Link></li>
         </ul>
       </nav>
     </div>

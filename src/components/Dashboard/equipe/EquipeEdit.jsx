@@ -10,14 +10,14 @@ const EquipeEdit = () => {
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { id } = useParams(); // Récupère l'ID de l'équipe depuis les paramètres d'URL
+  const { id } = useParams();
   const { accessToken } = useContext(AuthContext);
 
   // Récupérer les détails de l'équipe à modifier
   useEffect(() => {
     const fetchTeam = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/teams/${id}`, {
+        const response = await axios.get(`http://localhost:8000/api/equipe/${id}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`
           }
@@ -38,16 +38,15 @@ const EquipeEdit = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('specialization', specialization);
-    formData.append('description', description);
-
     try {
-      const response = await axios.put(`http://localhost:8000/api/teams/${id}`, formData, {
+      const response = await axios.put(`http://localhost:8000/api/equipe/${id}`, {
+        name,
+        specialization,
+        description,
+      }, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${accessToken}`
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
         },
       });
 
@@ -99,7 +98,6 @@ const EquipeEdit = () => {
           <textarea 
             value={description} 
             onChange={(e) => setDescription(e.target.value)} 
-            required 
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>

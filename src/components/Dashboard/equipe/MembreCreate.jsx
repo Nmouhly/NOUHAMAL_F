@@ -7,6 +7,7 @@ import { AuthContext } from '../../../context/authContext';
 const MembreCreate = () => {
   const [name, setName] = useState('');
   const [position, setPosition] = useState('');
+  const [bio, setBio] = useState(''); // New state for bio
   const [contactInfo, setContactInfo] = useState('');
   const [teamId, setTeamId] = useState('');
   const [statut, setStatut] = useState('');
@@ -39,6 +40,7 @@ const MembreCreate = () => {
     const formData = new FormData();
     formData.append('name', name);
     formData.append('position', position);
+    formData.append('bio', bio); // Append bio
     formData.append('contact_info', contactInfo);
     formData.append('team_id', teamId);
     formData.append('statut', statut);
@@ -90,6 +92,15 @@ const MembreCreate = () => {
             type="text" 
             value={position} 
             onChange={(e) => setPosition(e.target.value)} 
+            required 
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Bio</label>
+          <textarea 
+            value={bio} 
+            onChange={(e) => setBio(e.target.value)} // Handle bio change
             required 
             className="w-full p-2 border border-gray-300 rounded"
           />

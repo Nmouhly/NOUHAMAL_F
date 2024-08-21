@@ -1,156 +1,91 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../context/authContext';
+import { toast } from 'react-toastify';
 
 const NewsAdmin = () => {
-    const [newsItems, setNewsItems] = useState([]);
+    const [news, setNews] = useState([]);
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
 
     useEffect(() => {
-        fetchNewsItems();
-    }, [accessToken]);
-
-    const fetchNewsItems = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/api/news', {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-
-            if (Array.isArray(response.data)) {
-                setNewsItems(response.data);
-            } else {
-                console.error('Les données reçues ne sont pas un tableau');
-                setError('Erreur de données');
+        const fetchNews = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/news', {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setNews(response.data);
+            } catch (err) {
+                console.error('Erreur lors de la récupération des actualités:', err.response ? err.response.data : err.message);
+                setError('Erreur lors de la récupération des actualités. Veuillez réessayer.');
+                toast.error('Erreur lors de la récupération des actualités.');
             }
-        } catch (error) {
-            console.error('Erreur lors de la récupération des actualités', error);
-            setError('Erreur lors de la récupération des actualités');
-        }
-    };
+        };
+
+        fetchNews();
+    }, [accessToken]);
 
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')) {
             try {
                 await axios.delete(`http://localhost:8000/api/news/${id}`, {
                     headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                        Authorization: `Bearer ${accessToken}`,
+                    },
                 });
-                setNewsItems(newsItems.filter(news => news.id !== id));
-            } catch (error) {
-                console.error('Erreur lors de la suppression de l\'actualité', error);
-                setError('Erreur lors de la suppression de l\'actualité');
+                setNews(news.filter((item) => item.id !== id));
+                toast.success('Actualité supprimée avec succès.');
+            } catch (err) {
+                console.error('Erreur lors de la suppression de l\'actualité:', err.response ? err.response.data : err.message);
+                toast.error('Erreur lors de la suppression de l\'actualité.');
             }
         }
-    };
-
-    const renderTitle = (title) => {
-        return title.split('').map((char, index) => (
-            <span key={index} style={letterStyle(index)}>{char}</span>
-        ));
-    };
-
-    // Style du conteneur du titre
-    const titleContainerStyle = {
-        display: 'flex',
-        justifyContent: 'center', // Centre horizontalement
-        alignItems: 'center', // Centre verticalement si besoin
-        margin: '2rem 0', // Ajoute une marge autour du titre
-    };
-
-    // Style du titre
-    const titleStyle = {
-        display: 'flex',
-        gap: '0.2rem',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-    };
-
-    // Style des lettres avec animation
-    const letterStyle = (index) => ({
-        display: 'inline-block',
-        opacity: 0,
-        transform: 'translateY(-100%)',
-        animation: `slideIn 0.6s ease forwards ${index * 0.1}s`,
-    });
-
-    // Animation keyframes
-    const animationStyle = `
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    `;
-
-    // Style du tableau
-    const tableStyle = {
-        maxWidth: '100%',
-        overflowX: 'auto',
-    };
-
-    // Style des cellules du tableau
-    const cellStyle = {
-        maxWidth: '200px',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
     };
 
     return (
-        <div>
-            <style>{animationStyle}</style> {/* Injecte les keyframes */}
-            <div style={titleContainerStyle}>
-                <h1 style={titleStyle}>{renderTitle('Actualités')}</h1>
-            </div>
-            <Link to="/dashboard/NewsCreate" className="btn btn-primary mb-4">Ajouter une Actualité</Link>
-            {error && <p className="text-red-500">{error}</p>}
-            <div style={tableStyle}>
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={cellStyle}>Image</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={cellStyle}>Titre</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={cellStyle}>Contenu</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={cellStyle}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {newsItems.length ? (
-                            newsItems.map(news => (
-                                <tr key={news.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap" style={cellStyle}>
-                                        {news.image ? (
-                                            <img 
-                                                src={`http://localhost:8000/storage/news_images/${news.image}`} 
-                                                alt={news.title} 
-                                                style={{ width: '100px', height: 'auto' }} 
-                                            />
-                                        ) : (
-                                            <span>No Image</span>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap" style={cellStyle}>{news.title}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap" style={cellStyle}>{news.content}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <Link to={`/dashboard/NewsEdit/${news.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                        <button onClick={() => handleDelete(news.id)} className="btn btn-primary mb-2">Supprimer</button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="4" className="text-center py-4">Aucune actualité disponible</td>
+        <div className="max-w-6xl mx-auto p-4">
+     <Link to="/dashboard/NewsCreate" className="btn btn-primary mb-4">Ajouter une Actualité</Link>
+            {error && <p className="text-red-500 mb-4">{error}</p>}
+            <table className="w-full border-collapse">
+                <thead>
+                    <tr>
+                        <th className="border px-4 py-2">ID</th>
+                        <th className="border px-4 py-2">Titre</th>
+                        <th className="border px-4 py-2">Image</th>
+                        <th className="border px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {news.length > 0 ? (
+                        news.map((item) => (
+                            <tr key={item.id}>
+                                <td className="border px-4 py-2">{item.id}</td>
+                                <td className="border px-4 py-2">{item.title}</td>
+                                <td className="border px-4 py-2">
+                                    {item.image ? (
+                                        <img
+                                            src={`http://localhost:8000/storage/${item.image}`}
+                                            alt={item.title}
+                                            style={{ width: '100px', height: 'auto' }}
+                                        />
+                                    ) : 'Pas d\'image'}
+                                </td>
+                                <td className="border px-4 py-2">
+                                <Link to={`/dashboard/NewsEdit/${item.id}`} className="btn btn-primary mb-2">Modifier</Link>
+                        <button onClick={() => handleDelete(item.id)} className="btn btn-primary mb-2">Supprimer</button>
+                                </td>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="4" className="border px-4 py-2 text-center">Aucune actualité disponible.</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
         </div>
     );
 };

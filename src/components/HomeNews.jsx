@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import logo from '../assets/logo.png'; // Logo de remplacement
 import './HomeNews.css'; // Importer le fichier CSS
 
 const HomeNews = () => {
@@ -32,10 +31,9 @@ const HomeNews = () => {
                     <div key={item.id} className="news-item">
                         {item.image ? (
                             <img 
-                                src={`http://localhost:8000/storage/news_images/${item.image}`} 
+                                src={`http://localhost:8000/storage/${item.image}`} 
                                 alt={item.title} 
                                 className="news-image" 
-                                onError={(e) => { e.target.src = logo; }} // Remplacer par le logo en cas d'erreur de chargement
                             />
                         ) : (
                             <div className="news-image-placeholder" style={{ display: 'none' }}>
@@ -45,7 +43,7 @@ const HomeNews = () => {
                         <div className="news-content">
                             <h2>{item.title}</h2>
                             <p className="news-snippet">{getSnippet(item.content)}</p>
-                            <Link to={`/news/${item.id}`}>Lire la suite</Link>
+                            <Link to={`/news/${item.id}`} className="news-button">Lire la suite</Link>
                         </div>
                     </div>
                 ))

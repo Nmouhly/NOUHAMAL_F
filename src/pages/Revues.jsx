@@ -9,44 +9,30 @@ const Revues = () => {
     useEffect(() => {
         axios.get('http://localhost:8000/api/revues')
             .then(response => {
-                console.log('Données récupérées:', response.data); // Pour vérifier les données
                 setRevues(response.data);
             })
             .catch(error => {
-                console.error('Erreur lors de la récupération des revues', error);
                 setError('Erreur lors de la récupération des revues');
             });
     }, []);
 
     return (
-        <div className="revues-table">
+        <div className="revues-list">
             <h1>Revues</h1>
             {error && <p className="error">{error}</p>}
             {revues.length > 0 ? (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Titre</th>
-                            <th>Auteur</th>
-                            <th>PDF</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {revues.map(revue => (
-                            <tr key={revue.id}>
-                                <td>{revue.title || 'Titre non disponible'}</td>
-                                <td>{revue.author || 'Auteur non disponible'}</td>
-                                <td>
-                                    {revue.pdf_link ? (
-                                        <a href={revue.pdf_link} target="_blank" rel="noopener noreferrer" className="pdf-link">
-                                            Télécharger le PDF
-                                        </a>
-                                    ) : 'Non disponible'}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <ul>
+                    {revues.map(revue => (
+                        <li key={revue.id}>
+                            <strong>{revue.title || 'Titre non disponible'}.</strong> {revue.author || 'Auteur non disponible'}.
+                            {revue.pdf_link && (
+                                <a href={revue.pdf_link} target="_blank" rel="noopener noreferrer" className="pdf-link">
+                                    Télécharger le PDF
+                                </a>
+                            )}
+                        </li>
+                    ))}
+                </ul>
             ) : (
                 <p>Aucune revue disponible.</p>
             )}

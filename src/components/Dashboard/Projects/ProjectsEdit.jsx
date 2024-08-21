@@ -13,6 +13,7 @@ const ProjectsEdit = () => {
     const [endDate, setEndDate] = useState('');
     const [fundingType, setFundingType] = useState('');
     const [status, setStatus] = useState('en_cours'); // New state for status
+    const [teams, setTeams] = useState([]); // New state for teams
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
@@ -42,6 +43,25 @@ const ProjectsEdit = () => {
 
         fetchProject();
     }, [id, accessToken]);
+
+    useEffect(() => {
+        const fetchTeams = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/equipe', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                setTeams(response.data); // Store the fetched teams
+            } catch (error) {
+                console.error('Erreur lors de la récupération des équipes', error.response || error.message);
+                setError('Erreur lors de la récupération des équipes. Veuillez réessayer.');
+                toast.error('Erreur lors de la récupération des équipes.');
+            }
+        };
+
+        fetchTeams();
+    }, [accessToken]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -99,13 +119,17 @@ const ProjectsEdit = () => {
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Équipe</label>
-                    <input 
-                        type="text" 
+                    <select 
                         value={team} 
                         onChange={(e) => setTeam(e.target.value)} 
                         required 
                         className="w-full p-2 border border-gray-300 rounded"
-                    />
+                    >
+                        <option value="">Sélectionner une équipe</option>
+                        {teams.map((team) => (
+                            <option key={team.id} value={team.name}>{team.name}</option>
+                        ))}
+                    </select>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Date de début</label>

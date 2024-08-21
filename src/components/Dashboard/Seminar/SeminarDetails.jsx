@@ -10,7 +10,7 @@ const SeminarDetails = () => {
     title: '',
     description: '',
     date: '',
-    start_time: '',
+   start_time: '',
     end_time: '',
     location: '',
     speaker: '',
@@ -42,7 +42,7 @@ const SeminarDetails = () => {
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
       toast.success('Séminaire mis à jour avec succès');
-      navigate('/dashboard/Seminar');
+      navigate('/dashboard/SeminarList');
     } catch (error) {
       console.error('Erreur lors de la mise à jour du séminaire', error);
       setError(error.response?.data?.message || 'Erreur lors de la mise à jour du séminaire');
@@ -84,7 +84,7 @@ const SeminarDetails = () => {
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
-        <div>
+         <div>
           <label className="block text-sm font-medium mb-1">Date</label>
           <input 
             type="date" 
@@ -94,7 +94,7 @@ const SeminarDetails = () => {
             required 
             className="w-full p-2 border border-gray-300 rounded"
           />
-        </div>
+         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Heure de début</label>
           <input 
@@ -105,7 +105,7 @@ const SeminarDetails = () => {
             required 
             className="w-full p-2 border border-gray-300 rounded"
           />
-        </div>
+        </div>  
         <div>
           <label className="block text-sm font-medium mb-1">Heure de fin</label>
           <input 
@@ -116,7 +116,7 @@ const SeminarDetails = () => {
             required 
             className="w-full p-2 border border-gray-300 rounded"
           />
-        </div>
+        </div>    
         <div>
           <label className="block text-sm font-medium mb-1">Lieu</label>
           <input 

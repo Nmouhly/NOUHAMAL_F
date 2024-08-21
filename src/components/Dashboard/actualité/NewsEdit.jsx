@@ -1,136 +1,141 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AuthContext } from '../../../context/authContext';
 import { toast } from 'react-toastify';
+import { AuthContext } from '../../../context/authContext';
 
 const NewsEdit = () => {
-    const { id } = useParams();
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-    const [image, setImage] = useState(null);
-    const [currentImage, setCurrentImage] = useState('');
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
-    const { accessToken } = useContext(AuthContext);
+  const { id } = useParams();
+  const [news, setNews] = useState({
+    title: '',
+    content: '',
+    image: ''
+  });
+  const [imagePreview, setImagePreview] = useState(null);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { accessToken } = useContext(AuthContext);
 
-    useEffect(() => {
-        const fetchNews = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8000/api/news/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                });
-                const news = response.data;
-                setTitle(news.title);
-                setContent(news.content);
-                setCurrentImage(news.image ? news.image : '');
-            } catch (error) {
-                console.error('Erreur lors de la récupération de l\'actualité:', error.response ? error.response.data : error.message);
-                setError('Erreur lors de la récupération de l\'actualité. Veuillez réessayer.');
-                toast.error('Erreur lors de la récupération de l\'actualité.');
-            }
-        };
-
-        fetchNews();
-    }, [id, accessToken]);
-
-    const handleFileChange = (event) => {
-        setImage(event.target.files[0]);
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/news/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+        setNews({
+          title: response.data.title,
+          content: response.data.content,
+          image: ''
+        });
+        if (response.data.image) {
+          setImagePreview(`http://localhost:8000/storage/${response.data.image}`);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des informations de la news', error);
+        toast.error('Erreur lors du chargement des informations de la news');
+      }
     };
+    fetchNews();
+  }, [id, accessToken]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNews({
+          ...news,
+          image: reader.result, // Encoded base64 image
+        });
+        setImagePreview(reader.result); // Display the image preview
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-        if (!title.trim() || !content.trim()) {
-            toast.error('Veuillez remplir tous les champs requis.');
-            return;
-        }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await axios.put(`http://localhost:8000/api/news/${id}`, news, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      toast.success('News mise à jour avec succès');
+      navigate('/dashboard/NewsAdmin');
+    } catch (error) {
+      if (error.response && error.response.status === 422) {
+        const validationErrors = error.response.data.errors;
+        setError('Erreur de validation : ' + Object.values(validationErrors).flat().join(', '));
+      } else {
+        setError('Erreur lors de la mise à jour de la news');
+      }
+      toast.error('Erreur lors de la mise à jour de la news');
+    }
+  };
 
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('content', content);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNews({
+      ...news,
+      [name]: value,
+    });
+  };
 
-        if (image) {
-            formData.append('image', image);
-        } else {
-            formData.append('current_image', currentImage);
-        }
-        for (let [key, value] of formData.entries()) {
-            console.log('${key}:',value);
-        }
-        try {
-            const response = await axios.put('http://localhost:8000/api/news/19', formData, {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'multipart/form-data',
-              },
-            });
-            console.log();
-            setImagePath(response.data); // Supposons que le chemin de l'image est retourné dans la propriété 'path' de la réponse
-          }
-        catch (error) {
-            console.error('Erreur lors de la modification de l\'actualité:', error.response ? error.response.data : error.message);
-            setError('Erreur lors de la modification de l\'actualité. Veuillez réessayer.');
-            toast.error('Erreur lors de la modification de l\'actualité.');
-        }
-    };
-
-    return (
-        <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier l'Actualité</h1>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium mb-1">Titre</label>
-                    <input 
-                        type="text" 
-                        value={title} 
-                        onChange={(e) => setTitle(e.target.value)} 
-                        required 
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Contenu</label>
-                    <textarea 
-                        value={content} 
-                        onChange={(e) => setContent(e.target.value)} 
-                        required 
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Image Actuelle</label>
-                    {currentImage && (
-                        <div>
-                            <img 
-                                src={currentImage} 
-                                alt="Image actuelle" 
-                                style={{ width: '100px', height: 'auto', display: 'block' }} 
-                            />
-                        </div>
-                    )}
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Nouvelle Image</label>
-                    <input 
-                        type="file" 
-                        onChange={handleFileChange}
-                        accept="image/*" 
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <button 
-                    type="submit" 
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
-                    Modifier
-                </button>
-            </form>
+  return (
+    <div className="max-w-2xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Modifier la News</h1>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Titre</label>
+          <input 
+            type="text" 
+            name="title" 
+            value={news.title} 
+            onChange={handleChange} 
+            required 
+            className="w-full p-2 border border-gray-300 rounded"
+          />
         </div>
-    );
+        <div>
+          <label className="block text-sm font-medium mb-1">Contenu</label>
+          <textarea 
+            name="content" 
+            value={news.content} 
+            onChange={handleChange} 
+            required 
+            className="w-full p-2 border border-gray-300 rounded"
+            rows="4"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Image</label>
+          {imagePreview && (
+            <div className="mb-2">
+              <img src={imagePreview} alt="Prévisualisation" className="w-full h-auto" />
+            </div>
+          )}
+          <input 
+            type="file" 
+            onChange={handleImageChange} 
+            accept="image/*" 
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+        <button 
+          type="submit" 
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+        >
+          Mettre à jour
+        </button>
+      </form>
+    </div>
+  );
 };
 
-export default NewsEdit;
+export default NewsEdit;
