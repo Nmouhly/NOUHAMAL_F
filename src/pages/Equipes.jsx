@@ -31,7 +31,6 @@ const TeamsPage = () => {
                         <div style={styles.links}>
                         <Link to={`/presentations/${team.id}`} style={styles.link}>Présentation</Link>
                             <Link to={`/axe/${team.id}`} style={styles.link}>Axes de Recherche</Link>
-                            <Link to={`/publication`} style={styles.link}>Publications</Link>
                             <Link to={`/membre/${team.id}`} style={styles.link}>Membres</Link>
                         </div>
                     </div>

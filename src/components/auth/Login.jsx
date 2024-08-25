@@ -19,7 +19,7 @@ export default function Login() {
     const { setAccessToken, setCurrentUser } = useContext(AuthContext);
 
     useEffect(() => {
-        // Charger les emails mémorisés au chargement de la page
+        // Load saved credentials on page load
         const savedCredentials = JSON.parse(localStorage.getItem('savedCredentials')) || {};
         const savedEmails = Object.keys(savedCredentials);
         if (savedEmails.length > 0) {
@@ -32,11 +32,7 @@ export default function Login() {
         const newEmail = e.target.value;
         setEmail(newEmail);
         const savedCredentials = JSON.parse(localStorage.getItem('savedCredentials')) || {};
-        if (savedCredentials[newEmail]) {
-            setPassword(savedCredentials[newEmail]);
-        } else {
-            setPassword('');
-        }
+        setPassword(savedCredentials[newEmail] || '');
     };
 
     const handleSubmit = async (e) => {
@@ -65,14 +61,20 @@ export default function Login() {
                 setEmail('');
                 setPassword('');
                 toast.success(response.data.message);
-                navigate('/dashboard'); // Redirection vers le tableau de bord
+
+                // Redirect based on user role
+                if (response.data.user.role === 1) { // Role 1 = Admin
+                    navigate('/dashboard');
+                } else { // Role 0 = Standard User
+                    navigate('/user/UserProfile');
+                }
             }
         } catch (error) {
             setLoading(false);
             if (error?.response?.status === 422) {
                 setErrors(error.response.data.errors);
             }
-            console.log(error);
+            console.error(error);
         }
     };
 
@@ -87,37 +89,45 @@ export default function Login() {
                         <div className="card-body">
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
-                                    <label htmlFor="exampleInputEmail1" className="form-label">Email address*</label>
-                                    <input type="email"
+                                    <label htmlFor="email" className="form-label">Email address*</label>
+                                    <input
+                                        type="email"
+                                        id="email"
                                         value={email}
                                         onChange={handleEmailChange}
-                                        className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
+                                        className="form-control"
+                                        aria-describedby="emailHelp"
+                                    />
                                     {useValidation(errors, 'email')}
                                 </div>
                                 <div className="mb-3">
-                                    <label htmlFor="exampleInputPassword1" className="form-label">Password*</label>
-                                    <input type="password"
+                                    <label htmlFor="password" className="form-label">Password*</label>
+                                    <input
+                                        type="password"
+                                        id="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="form-control" id="exampleInputPassword1" />
+                                        className="form-control"
+                                    />
                                     {useValidation(errors, 'password')}
                                 </div>
                                 <div className="mb-3 form-check">
-                                    <input type="checkbox"
+                                    <input
+                                        type="checkbox"
+                                        id="rememberMe"
                                         checked={rememberMe}
                                         onChange={(e) => setRememberMe(e.target.checked)}
                                         className="form-check-input"
-                                        id="rememberMe" />
+                                    />
                                     <label className="form-check-label" htmlFor="rememberMe">Remember Me</label>
                                 </div>
-                                {
-                                    loading ?
-                                        <Spinner />
-                                        :
-                                        <div className="d-flex justify-content-between">
-                                            <button type="submit" className="btn btn-primary">Submit</button>
-                                        </div>
-                                }
+                                {loading ? (
+                                    <Spinner />
+                                ) : (
+                                    <div className="d-flex justify-content-between">
+                                        <button type="submit" className="btn btn-primary">Submit</button>
+                                    </div>
+                                )}
                             </form>
                         </div>
                     </div>

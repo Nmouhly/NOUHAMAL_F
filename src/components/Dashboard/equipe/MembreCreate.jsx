@@ -7,11 +7,16 @@ import { AuthContext } from '../../../context/authContext';
 const MembreCreate = () => {
   const [name, setName] = useState('');
   const [position, setPosition] = useState('');
-  const [bio, setBio] = useState(''); // New state for bio
+  const [customPosition, setCustomPosition] = useState('');
+  const [bio, setBio] = useState('');
   const [contactInfo, setContactInfo] = useState('');
   const [teamId, setTeamId] = useState('');
-  const [statut, setStatut] = useState('');
+  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
+  const [statut, setStatut] = useState('Membre');
+  const [image, setImage] = useState(null); // Image handling
   const [teams, setTeams] = useState([]);
+  const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { accessToken } = useContext(AuthContext);
@@ -31,51 +36,107 @@ const MembreCreate = () => {
       }
     };
 
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/users', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        setUsers(response.data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des utilisateurs:', error);
+        toast.error('Erreur lors de la récupération des utilisateurs');
+      }
+    };
+
     fetchTeams();
+    fetchUsers();
   }, [accessToken]);
+
+  const handleEmailChange = (e) => {
+    const selectedEmail = e.target.value;
+    setEmail(selectedEmail);
+
+    const selectedUser = users.find(user => user.email === selectedEmail);
+    if (selectedUser) {
+      setName(selectedUser.name);
+      setUserId(selectedUser.id);
+    } else {
+      setName('');
+      setUserId('');
+    }
+  };
+
+  const handlePositionChange = (e) => {
+    const selectedPosition = e.target.value;
+    setPosition(selectedPosition);
+    if (selectedPosition !== 'Autre') {
+      setCustomPosition('');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!userId) {
+      setError('Veuillez sélectionner un email valide.');
+      toast.error('Veuillez sélectionner un email valide.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('name', name);
-    formData.append('position', position);
-    formData.append('bio', bio); // Append bio
+    formData.append('position', position === 'Autre' ? customPosition : position);
+    formData.append('bio', bio);
     formData.append('contact_info', contactInfo);
     formData.append('team_id', teamId);
+    formData.append('user_id', userId);
+    formData.append('email', email);
     formData.append('statut', statut);
+    if (image) {
+      formData.append('image', image); // Append image to form data
+    }
+    
 
     try {
-      const response = await axios.post('http://localhost:8000/api/members', formData, {
+      await axios.post('http://localhost:8000/api/members', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${accessToken}`
         },
       });
 
-      console.log('Membre ajouté:', response.data);
       toast.success('Membre ajouté avec succès');
       navigate('/dashboard/Member');
     } catch (error) {
-      console.error('Erreur lors de l\'ajout du membre:', {
-        message: error.message,
-        response: error.response ? {
-          status: error.response.status,
-          data: error.response.data,
-          headers: error.response.headers
-        } : 'Aucune réponse disponible',
-        config: error.config
-      });
+      console.error('Erreur lors de l\'ajout du membre:', error);
       setError('Erreur lors de l\'ajout du membre');
       toast.error('Erreur lors de l\'ajout du membre');
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
+    <div className="max-w-2xl mx-auto " >
       <h1 className="text-2xl font-bold mb-4">Ajouter un Membre</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Email</label>
+          <select 
+            value={email} 
+            onChange={handleEmailChange} 
+            required 
+            className="w-full p-2 border border-gray-300 rounded"
+          >
+            <option value="">Sélectionner un email</option>
+            {users.map(user => (
+              <option key={user.id} value={user.email}>
+                {user.email}
+              </option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="block text-sm font-medium mb-1">Nom</label>
           <input 
@@ -88,19 +149,60 @@ const MembreCreate = () => {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Position</label>
-          <input 
-            type="text" 
-            value={position} 
-            onChange={(e) => setPosition(e.target.value)} 
-            required 
+          <select
+            value={position}
+            onChange={handlePositionChange}
+            required
             className="w-full p-2 border border-gray-300 rounded"
-          />
+          >
+            <option value="">Sélectionnez une position</option>
+            <option value="Post Doctorant">Post Doctorant</option>
+            <option value="Doctorant">Doctorant</option>
+            <option value="Professeur des Universités">Professeur des Universités</option>
+            <option value="Maître de Conférences">Maître de Conférences</option>
+            <option value="Ingénieur de Recherche">Ingénieur de Recherche</option>
+            <option value="Assistante de Gestion">Assistante de Gestion</option>
+            <option value="ATER (Attaché Temporaire d'Enseignement et de Recherche)">
+              ATER (Attaché Temporaire d'Enseignement et de Recherche)
+            </option>
+            <option value="Maître de Conférences avec HDR (Habilitation à Diriger des Recherches)">
+              Maître de Conférences avec HDR (Habilitation à Diriger des Recherches)
+            </option>
+            <option value="Technicien">Technicien</option>
+            <option value="Étudiant">Étudiant</option>
+            <option value="Autre">Autre</option>
+          </select>
+          {position === 'Autre' && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-1">Veuillez préciser la position</label>
+              <input
+                type="text"
+                value={customPosition}
+                onChange={(e) => setCustomPosition(e.target.value)}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+                placeholder="Entrez la position personnalisée"
+              />
+            </div>
+          )}
         </div>
+        {/* <div>
+          <label className="block text-sm font-medium mb-1">Statut</label>
+          <select
+            value={statut}
+            onChange={(e) => setStatut(e.target.value)}
+            required
+            className="w-full p-2 border border-gray-300 rounded"
+          >
+            <option value="Membre">Membre</option>
+            <option value="Ancien">Ancien</option>
+          </select>
+        </div> */}
         <div>
           <label className="block text-sm font-medium mb-1">Bio</label>
           <textarea 
             value={bio} 
-            onChange={(e) => setBio(e.target.value)} // Handle bio change
+            onChange={(e) => setBio(e.target.value)} 
             required 
             className="w-full p-2 border border-gray-300 rounded"
           />
@@ -132,24 +234,22 @@ const MembreCreate = () => {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Statut</label>
-          <select 
-            value={statut} 
-            onChange={(e) => setStatut(e.target.value)} 
-            required 
+          <label className="block text-sm font-medium mb-1">Image</label>
+          <input 
+            type="file" 
+            onChange={(e) => setImage(e.target.files[0])} 
+            accept="image/*" 
             className="w-full p-2 border border-gray-300 rounded"
-          >
-            <option value="">Sélectionner un statut</option>
-            <option value="Membre">Membre</option>
-            <option value="Ancien">Ancien</option>
-          </select>
+          />
         </div>
-        <button 
-          type="submit" 
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Ajouter
-        </button>
+        <div className="mt-4">
+          <button 
+            type="submit" 
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Ajouter le Membre
+          </button>
+        </div>
       </form>
     </div>
   );

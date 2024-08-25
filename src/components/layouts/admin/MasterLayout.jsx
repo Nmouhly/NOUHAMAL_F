@@ -13,7 +13,7 @@ const MasterLayout = () => {
   const layoutSidenavContentStyle = {
     paddingLeft: isSidebarVisible ? '300px' : '0',
     transition: 'padding-left 0.3s',
-    top: '-500px',
+    
 
   };
 

@@ -101,50 +101,20 @@ const ConferenceEdit = () => {
       <h1 className="text-2xl font-bold mb-4">Modifier la Conférence</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Titre</label>
-          <input 
-            type="text" 
-            name="title" 
-            value={conference.title} 
-            onChange={handleChange} 
-            required 
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Auteurs</label>
-          <input 
-            type="text" 
-            name="authors" 
-            value={conference.authors} 
-            onChange={handleChange} 
-            required 
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Titre du Papier</label>
-          <input 
-            type="text" 
-            name="paper_title" 
-            value={conference.paper_title} 
-            onChange={handleChange} 
-            required 
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Nom de la Conférence</label>
-          <input 
-            type="text" 
-            name="conference_name" 
-            value={conference.conference_name} 
-            onChange={handleChange} 
-            required 
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
+        {/* Input fields for conference details */}
+        {['title', 'authors', 'paper_title', 'conference_name', 'location', 'reference'].map((field) => (
+          <div key={field}>
+            <label className="block text-sm font-medium mb-1">{field.replace('_', ' ').toUpperCase()}</label>
+            <input 
+              type="text" 
+              name={field} 
+              value={conference[field]} 
+              onChange={handleChange} 
+              required 
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+        ))}
         <div>
           <label className="block text-sm font-medium mb-1">Date</label>
           <input 
@@ -153,27 +123,6 @@ const ConferenceEdit = () => {
             value={conference.date} 
             onChange={handleChange} 
             required 
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Lieu</label>
-          <input 
-            type="text" 
-            name="location" 
-            value={conference.location} 
-            onChange={handleChange} 
-            required 
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Référence</label>
-          <input 
-            type="text" 
-            name="reference" 
-            value={conference.reference} 
-            onChange={handleChange} 
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>

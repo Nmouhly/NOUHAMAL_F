@@ -11,6 +11,15 @@ import RevueCreate from './components/Dashboard/Publication/RevueCreate';
 import RevueEdit from './components/Dashboard/Publication/RevueEdit';
 import AdminAxes from './components/Dashboard/Axes/AdminAxes';
 import Ouvrages from './pages/Ouvrages';
+import UserProfile from './components/User/UserProfile.jsx';
+import MasterUser from './components/User/MasterUser.jsx';
+import UserPrivateRoute from './UserPrivateRoute.jsx';
+import UserOuvrage from './components/User/publication/UserOuvrage';
+import UserRevues from './components/User/publication/UserRevues';
+import UserThèse from './components/User/publication/UserThèse';
+import UserRapport from './components/User/publication/UserRapport';
+import UserHabilitation from './components/User/publication/UserHabilitation';
+import UserConférence from './components/User/publication/UserConférence';
 import PresentationsPage from './pages/PresentationsPage';
 import MembresPage from './pages/MembresPage';
 import AxessPage from './pages/AxesPage';
@@ -76,6 +85,7 @@ import AdminEquipe from './components/Dashboard/equipe/AdminEquipe';
 import EquipeCreat from './components/Dashboard/equipe/EquipeCreat';
 import EquipeEdit from './components/Dashboard/equipe/EquipeEdit';
 import AxesPage from './pages/AxesPage.jsx';
+import MemberProfile from "./pages/MemberProfile";
 
 function App() {
   const [accessToken, setAccessToken] = useState(() => {
@@ -137,6 +147,7 @@ function App() {
             <Route path="publication" element={<Publication />} />
             <Route path="membre" element={<Membre />} />
             <Route path="personnelMember" element={<PersonnelMembere />} />
+            <Route path="/member/:id" element={<MemberProfile />} />
             <Route path="personnelAncien" element={<PersonnelAncien />} />
           </Route>
 
@@ -190,6 +201,15 @@ function App() {
             <Route path="EquipeEdit/:id" element={<EquipeEdit />} />
             <Route path="Utilisateur" element={<AdminUtilisateur />} />
           </Route>
+          <Route path="/user/*" element={<UserPrivateRoute><MasterUser /></UserPrivateRoute>}>
+           <Route path="UserProfile" element={<UserProfile />} />
+              <Route path="UserOuvrage" element={<UserOuvrage />} /> 
+            <Route path="UserRevues" element={<UserRevues />} />
+            <Route path="UserThèse" element={<UserThèse />} />
+            <Route path="UserRapport" element={<UserRapport />} />
+            <Route path="UserHabilitation" element={<UserHabilitation />} />
+            <Route path="UserConférence" element={<UserConférence />} />
+       </Route>
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>

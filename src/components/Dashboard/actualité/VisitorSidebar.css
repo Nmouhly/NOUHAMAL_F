@@ -11,14 +11,14 @@
   box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-  transition: width 0.5s ease, opacity 0.5s ease; /* Ajout de la transition pour la largeur et la visibilité */
+  transition: width 0.5s ease, opacity 0.5s ease; 
   opacity: 1;
 }
 
 .visitor-sidebar.hidden {
   width: 0;
   opacity: 0;
-  overflow: hidden; /* Empêche le défilement lorsque la barre est cachée */
+  overflow: hidden; 
 }
 
 .visitor-sidebar::-webkit-scrollbar {
