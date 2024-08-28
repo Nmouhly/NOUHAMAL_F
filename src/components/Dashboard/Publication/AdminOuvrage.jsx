@@ -58,7 +58,8 @@ const OuvrageAdmin = () => {
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lien PDF</th> {/* Nouvelle colonne pour le lien PDF */}
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th> {/* Nouvelle colonne pour le lien PDF */}
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Utilisateur</th> {/* Nouvelle colonne pour id_user */}
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -68,15 +69,29 @@ const OuvrageAdmin = () => {
                             <tr key={ouvrage.id}>
                                 <td className="px-6 py-4 whitespace-nowrap">{ouvrage.title}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{ouvrage.author}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {ouvrage.pdf_link ? (
-                                        <a href={ouvrage.pdf_link} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                                            Voir le PDF
-                                        </a>
-                                    ) : (
-                                        'Pas de lien'
-                                    )}
-                                </td>
+                                <td>
+  {ouvrage.DOI ? (
+    <a
+      href={`https://doi.org/${ouvrage.DOI}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => {
+        const isValidDOI = ouvrage.DOI.startsWith('10.');
+        if (!isValidDOI) {
+          e.preventDefault();
+          alert(
+            'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
+          );
+        }
+      }}
+    >
+      {ouvrage.DOI}
+    </a>
+  ) : (
+    'Pas de DOI disponible'
+  )}
+</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.id_user}</td> {/* Affichage de l'id_user */}
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/OuvrageEdit/${ouvrage.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(ouvrage.id)} className="btn btn-danger mb-2">Supprimer</button>
@@ -85,7 +100,7 @@ const OuvrageAdmin = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="4" className="text-center py-4">Aucun ouvrage disponible</td>
+                            <td colSpan="5" className="text-center py-4">Aucun ouvrage disponible</td> {/* Mise à jour du colspan pour inclure la nouvelle colonne */}
                         </tr>
                     )}
                 </tbody>

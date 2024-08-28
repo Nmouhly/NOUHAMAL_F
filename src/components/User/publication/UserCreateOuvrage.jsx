@@ -4,46 +4,45 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
-const OuvrageCreate = () => {
+const UserCreateOuvrage = () => {
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
     const [DOI, setDOI] = useState('');
-    const [idUser, setIdUser] = useState('');
-    const [members, setMembers] = useState([]); // Pour stocker les membres
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { accessToken } = useContext(AuthContext);
+    const { currentUser, accessToken } = useContext(AuthContext);
 
+    // Fonction pour récupérer les informations du membre
+    const fetchMemberInfo = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8000/api/members/user/${currentUser.id}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            setAuthor(response.data.name); // Définir le nom du membre comme auteur
+        } catch (error) {
+            console.error('Erreur lors de la récupération des informations du membre:', error);
+            setError('Erreur lors de la récupération des informations du membre');
+            toast.error('Erreur lors de la récupération des informations du membre');
+        }
+    };
+
+    // Utiliser useEffect pour récupérer les informations du membre lorsque le composant est monté
     useEffect(() => {
-        // Requête pour récupérer les membres ayant le statut "Membre"
-        const fetchMembers = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/api/members', {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                });
-                setMembers(response.data.filter(member => member.statut === 'Membre'));
-            } catch (error) {
-                console.error('Erreur lors de la récupération des membres:', error);
-            }
-        };
-
-        fetchMembers();
-    }, [accessToken]);
+        fetchMemberInfo();
+    }, [currentUser.id, accessToken]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const data = {
-            title,
-            author,
-            DOI: DOI,
-            id_user: idUser
-        };
-
         try {
-            const response = await axios.post('http://localhost:8000/api/ouvrages', data, {
+            const response = await axios.post('http://localhost:8000/api/ouvrages', {
+                title,
+                author,
+                DOI: DOI,
+                id_user: currentUser.id,  // Envoi de l'ID utilisateur
+            }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
@@ -52,7 +51,7 @@ const OuvrageCreate = () => {
 
             console.log('Ouvrage ajouté:', response.data);
             toast.success('Ouvrage ajouté avec succès');
-            navigate('/dashboard/ouvrage');
+            navigate('/user/UserOuvrage');
         } catch (error) {
             console.error('Erreur lors de l\'ajout de l\'ouvrage:', {
                 message: error.message,
@@ -68,35 +67,11 @@ const OuvrageCreate = () => {
         }
     };
 
-    const handleMemberChange = (e) => {
-        const selectedMember = members.find(member => member.email === e.target.value);
-        if (selectedMember) {
-            setAuthor(selectedMember.name);
-            setIdUser(selectedMember.user_id);
-        }
-    };
-
     return (
         <div className="max-w-2xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Ajouter un Ouvrage</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                    <label className="block text-sm font-medium mb-1">Email du Membre</label>
-                    <select
-                        value={members.email}
-                        onChange={handleMemberChange}
-                        required
-                        className="w-full p-2 border border-gray-300 rounded"
-                    >
-                        <option value="">Sélectionner un email</option>
-                        {members.map((member) => (
-                            <option key={member.id} value={member.email}>
-                                {member.email}
-                            </option>
-                        ))}
-                    </select>
-                </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Titre</label>
                     <input
@@ -112,13 +87,10 @@ const OuvrageCreate = () => {
                     <input
                         type="text"
                         value={author}
-                        onChange={(e) => setAuthor(e.target.value)}
-                        required
+                        readOnly
                         className="w-full p-2 border border-gray-300 rounded"
-                        readOnly // Rendre le champ en lecture seule
                     />
                 </div>
-                
                 <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
@@ -139,4 +111,4 @@ const OuvrageCreate = () => {
     );
 };
 
-export default OuvrageCreate;
+export default UserCreateOuvrage;

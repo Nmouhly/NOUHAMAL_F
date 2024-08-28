@@ -36,6 +36,14 @@ h1{text-align: center;}
 .ouvrages-list strong {
   color: #02213a;
 }
+.profile-image {
+  width: 150px; /* Largeur fixe pour l'image */
+  height: 150px; /* Hauteur fixe pour l'image pour maintenir la forme ronde */
+  border-radius: 50%; /* Assure que l'image reste ronde */
+  object-fit: cover; /* Couper l'image pour remplir le conteneur sans déformation */
+  display: block; /* Assure que l'image est un bloc et non inline */
+  margin: 0 auto; /* Centre l'image horizontalement */
+}
 
 .pdf-link {
   margin-left: 10px;

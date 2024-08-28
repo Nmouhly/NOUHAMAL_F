@@ -12,9 +12,12 @@ import RevueEdit from './components/Dashboard/Publication/RevueEdit';
 import AdminAxes from './components/Dashboard/Axes/AdminAxes';
 import Ouvrages from './pages/Ouvrages';
 import UserProfile from './components/User/UserProfile.jsx';
+import UserInfo from './components/User/UserInfo.jsx';
+import EditUser from './components/User/EditUser.jsx';
 import MasterUser from './components/User/MasterUser.jsx';
 import UserPrivateRoute from './UserPrivateRoute.jsx';
 import UserOuvrage from './components/User/publication/UserOuvrage';
+import UserCreateOuvrage from './components/User/publication/UserCreateOuvrage';
 import UserRevues from './components/User/publication/UserRevues';
 import UserThèse from './components/User/publication/UserThèse';
 import UserRapport from './components/User/publication/UserRapport';
@@ -203,7 +206,10 @@ function App() {
           </Route>
           <Route path="/user/*" element={<UserPrivateRoute><MasterUser /></UserPrivateRoute>}>
            <Route path="UserProfile" element={<UserProfile />} />
+           <Route path="UserInfo" element={<UserInfo />} />
+           <Route path="edit-user/:id" element={<EditUser />} />
               <Route path="UserOuvrage" element={<UserOuvrage />} /> 
+              <Route path="UserCreateOuvrage" element={<UserCreateOuvrage />} /> 
             <Route path="UserRevues" element={<UserRevues />} />
             <Route path="UserThèse" element={<UserThèse />} />
             <Route path="UserRapport" element={<UserRapport />} />

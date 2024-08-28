@@ -58,6 +58,10 @@ const UserSidebar = () => {
               <div className="sb-nav-link-icon"><i className="fas fa-project-diagram"></i></div>
               Dashboard
             </Link>
+            <Link className="nav-link" to="/user/UserInfo">
+              <div className="sb-nav-link-icon"><i className="fas fa-project-diagram"></i></div>
+             Settings
+            </Link>
 
             {/* Publications */}
             <div className="nav-link section-title" onClick={togglePublicationsSubmenu}>

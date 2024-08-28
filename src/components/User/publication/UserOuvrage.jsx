@@ -5,108 +5,114 @@ import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
 const UserOuvrage = () => {
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
-    const [pdfLink, setPdfLink] = useState('');
-    const [error, setError] = useState('');
+    const [ouvrages, setOuvrages] = useState([]);
     const navigate = useNavigate();
     const { currentUser, accessToken } = useContext(AuthContext);
 
-    // Fonction pour récupérer les informations du membre
-    const fetchMemberInfo = async () => {
+    // Fonction pour récupérer les ouvrages de l'utilisateur
+    const fetchOuvrages = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/members/user/${currentUser.id}`, {
+            const response = await axios.get(`http://localhost:8000/api/ouvrages/user/${currentUser.id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            setAuthor(response.data.name); // Définir le nom du membre comme auteur
+            setOuvrages(response.data);
         } catch (error) {
-            console.error('Erreur lors de la récupération des informations du membre:', error);
-            setError('Erreur lors de la récupération des informations du membre');
-            toast.error('Erreur lors de la récupération des informations du membre');
+            console.error('Erreur lors de la récupération des ouvrages:', error);
+            toast.error('Erreur lors de la récupération des ouvrages');
         }
     };
 
-    // Utiliser useEffect pour récupérer les informations du membre lorsque le composant est monté
+    // Utiliser useEffect pour récupérer les ouvrages lorsque le composant est monté
     useEffect(() => {
-        fetchMemberInfo();
+        fetchOuvrages();
     }, [currentUser.id, accessToken]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleDelete = async (id) => {
         try {
-            const response = await axios.post('http://localhost:8000/api/ouvrages', {
-                title,
-                author,
-                pdf_link: pdfLink,
-                id_user: currentUser.id,  // Envoi de l'ID utilisateur
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-            });
-
-            console.log('Ouvrage ajouté:', response.data);
-            toast.success('Ouvrage ajouté avec succès');
-            navigate('/dashboard/ouvrage');
+            await axios.delete(`http://localhost:8000/api/ouvrages/${id}`);
+            toast.success('Ouvrage supprimé avec succès');
+            fetchOuvrages(); // Recharger la liste des ouvrages
         } catch (error) {
-            console.error('Erreur lors de l\'ajout de l\'ouvrage:', {
-                message: error.message,
-                response: error.response ? {
-                    status: error.response.status,
-                    data: error.response.data,
-                    headers: error.response.headers
-                } : 'Aucune réponse disponible',
-                config: error.config
-            });
-            setError('Erreur lors de l\'ajout de l\'ouvrage');
-            toast.error('Erreur lors de l\'ajout de l\'ouvrage');
+            console.error('Erreur lors de la suppression de l\'ouvrage:', error);
+            toast.error('Erreur lors de la suppression de l\'ouvrage');
         }
+    };
+
+    const handleEdit = (id) => {
+        navigate(`/dashboard/ouvrage/edit/${id}`);
     };
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Ajouter un Ouvrage</h1>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium mb-1">Titre</label>
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Auteur</label>
-                    <input
-                        type="text"
-                        value={author}
-                        readOnly
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Lien PDF</label>
-                    <input
-                        type="url"
-                        value={pdfLink}
-                        onChange={(e) => setPdfLink(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
-                    Ajouter
-                </button>
-            </form>
+            <h1 className="text-2xl font-bold mb-4">Liste des Ouvrages</h1>
+            <button
+                onClick={() => navigate('/user/UserCreateOuvrage')}
+                className="mb-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            >
+                Ajouter un Ouvrage
+            </button>
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                    <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                    {ouvrages.length ? (
+                        ouvrages.map(ouvrage => (
+                            <tr key={ouvrage.id}>
+                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.title}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.author}</td>
+                                <td>
+  {ouvrage.DOI ? (
+    <a
+      href={`https://doi.org/${ouvrage.DOI}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => {
+        const isValidDOI = ouvrage.DOI.startsWith('10.');
+        if (!isValidDOI) {
+          e.preventDefault();
+          alert(
+            'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
+          );
+        }
+      }}
+    >
+      {ouvrage.DOI}
+    </a>
+  ) : (
+    'Pas de DOI disponible'
+  )}
+</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                                    <button
+                                        onClick={() => handleEdit(ouvrage.id)}
+                                        className="text-blue-500 hover:text-blue-600"
+                                    >
+                                        Modifier
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(ouvrage.id)}
+                                        className="text-red-500 hover:text-red-600"
+                                    >
+                                        Supprimer
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="4" className="text-center py-4">Aucun ouvrage disponible</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
         </div>
     );
 };

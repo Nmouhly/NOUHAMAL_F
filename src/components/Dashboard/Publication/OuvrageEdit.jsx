@@ -9,7 +9,7 @@ const OuvrageEdit = () => {
   const [ouvrage, setOuvrage] = useState({
     title: '',
     author: '',
-    pdf_link: ''
+    DOI: ''
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -95,11 +95,11 @@ const OuvrageEdit = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Lien PDF</label>
+          <label className="block text-sm font-medium mb-1">DOI</label>
           <input 
-            type="url" 
-            name="pdf_link" 
-            value={ouvrage.pdf_link} 
+            type="text" 
+            name="DOI" 
+            value={ouvrage.DOI} 
             onChange={handleChange} 
             className="w-full p-2 border border-gray-300 rounded"
           />
