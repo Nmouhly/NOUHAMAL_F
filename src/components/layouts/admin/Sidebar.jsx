@@ -89,6 +89,7 @@ const Sidebar = () => {
             </div>
             <ul className={`submenu ${isPublicationsSubmenuOpen ? 'open' : ''}`}>
               <li><Link to="/dashboard/ouvrage">Ouvrages</Link></li>
+              <li><Link to="/dashboard/JobOffer">offres d'emploi</Link></li>
               <li><Link to="/dashboard/revues">Revues</Link></li>
               <li><Link to="/dashboard/conference">Conférences</Link></li>
               <li><Link to="/dashboard/report">Rapports</Link></li>

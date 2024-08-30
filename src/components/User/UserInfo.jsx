@@ -71,10 +71,10 @@ function UserInfo() {
                             <strong style={styles.label}>Contact Info</strong>
                             <p style={styles.userDetail}>{userData.contact_info}</p>
                         </div>
-                        <div style={styles.userDetailContainer}>
+                        {/* <div style={styles.userDetailContainer}>
                             <strong style={styles.label}>Status</strong>
                             <p style={styles.userDetail}>{userData.statut}</p>
-                        </div>
+                        </div> */}
                         <button onClick={handleEditClick} style={styles.editButton}>
                             Edit
                         </button>

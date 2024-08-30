@@ -11,14 +11,31 @@ const MemberProfile = () => {
   const [ouvrages, setOuvrages] = useState([]);
   const [error, setError] = useState('');
 
+  // useEffect(() => {
+  //   // Récupérer les informations du membre
+  //   axios.get(`http://localhost:8000/api/members/${id}`)
+  //     .then(response => {
+  //       setMember(response.data);
+
+  //       // Récupérer les ouvrages associés à l'utilisateur du membre
+  //       return axios.get(`http://localhost:8000/api/ouvrages/user/${response.data.user_id}`);
+  //     })
+  //     .then(response => {
+  //       setOuvrages(response.data);
+  //     })
+  //     .catch(() => {
+  //       setError('Erreur lors de la récupération du profil membre ou des ouvrages.');
+  //     });
+  // }, [id]);
   useEffect(() => {
     // Récupérer les informations du membre
     axios.get(`http://localhost:8000/api/members/${id}`)
       .then(response => {
         setMember(response.data);
-
-        // Récupérer les ouvrages associés à l'utilisateur du membre
-        return axios.get(`http://localhost:8000/api/ouvrages/user/${response.data.user_id}`);
+        console.log("id_user:", response.data.user_id);
+  
+        // Récupérer les ouvrages associés à l'utilisateur du membre et les ouvrages où il est contributeur
+        return axios.get(`http://localhost:8000/api/ouvrages/user-or-contributor/${response.data.user_id}`);
       })
       .then(response => {
         setOuvrages(response.data);

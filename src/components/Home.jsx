@@ -5,6 +5,7 @@ import logo from '../assets/labol2is.png'; // Assurez-vous que le chemin du logo
 import arrowGif from '../assets/fleche.gif'; // Assurez-vous que le chemin de la flèche est correct
 import HomeNews from './HomeNews';
 //import TeamsPage    from '../pages/Equipes';
+import JobOffersList from '..//pages/JobOffersList';
 import Statistics from '../pages/Statistics';
 
 
@@ -56,6 +57,15 @@ const Home = ({ currentUser, logoutUser, isSidebarVisible, toggleSidebar }) => {
 
       {/* Liste des actualités */}
       <HomeNews />
+      <div className="flex flex-col items-center">
+        <h2 style={{ color: '#1A237E', fontSize: '2rem', marginTop: '2rem' }}>Offres d'Emploi</h2>
+        <img
+          src={arrowGif}
+          alt="Flèche animée"
+          style={{ height: '60px', width: 'auto' }} // Ajustez la taille selon vos besoins
+        />
+      </div>
+      <JobOffersList />
       {/* <TeamsPage /> */}
       <Statistics />
 

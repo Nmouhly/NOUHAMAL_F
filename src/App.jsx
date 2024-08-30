@@ -14,6 +14,8 @@ import Ouvrages from './pages/Ouvrages';
 import UserProfile from './components/User/UserProfile.jsx';
 import UserInfo from './components/User/UserInfo.jsx';
 import EditUser from './components/User/EditUser.jsx';
+// import JobOffersList from './components/JobOffersList';
+import JobOfferDetails from './pages/JobOfferDetails';
 import MasterUser from './components/User/MasterUser.jsx';
 import UserPrivateRoute from './UserPrivateRoute.jsx';
 import UserOuvrage from './components/User/publication/UserOuvrage';
@@ -33,8 +35,11 @@ import AdminOuvrage from './components/Dashboard/Publication/AdminOuvrage';
 import OuvrageEdit from './components/Dashboard/Publication/OuvrageEdit';
 import OuvrageCreat from './components/Dashboard/Publication/OuvrageCreat';
 import AdminPatent from './components/Dashboard/Publication/AdminPatent';
+import AdminJobOffer from './components/Dashboard/Publication/AdminJobOffer';
+import JobOfferEdit from './components/Dashboard/Publication/JobOfferEdit';
 import PatentEdit from './components/Dashboard/Publication/PatentEdit';
 import PatentCreat from './components/Dashboard/Publication/PatentCreat';
+import JobOfferCreat from './components/Dashboard/Publication/JobOfferCreat';
 import AdminReport from './components/Dashboard/Publication/AdminReport';
 import ReportEdit from './components/Dashboard/Publication/ReportEdit.jsx';
 import ReportCreat from './components/Dashboard/Publication/ReportCreat';
@@ -47,7 +52,7 @@ import PresentationEdit from './components/Dashboard/equipe/PresentationEdit';
 import PresentationAdmin from './components/Dashboard/equipe/PresentationAdmin';
 import Presentation from './pages/Presentation';
 import Register from './components/auth/Register';
-import Personnel from './pages/Personnel';
+// import Personnel from './pages/Personnel';
 import Seminar from './pages/Seminar';
 import Equipes from './pages/Equipes';
 import Evenements from './pages/Evenements';
@@ -129,7 +134,7 @@ function App() {
             <Route path="evenements" element={<Evenements />} />
             <Route path="informations" element={<Informations />} />
             <Route path="organisation" element={<Organisation />} />
-            <Route path="personnel" element={<Personnel />} />
+            {/* <Route path="personnel" element={<Personnel />} /> */}
             <Route path="seminar" element={<Seminar />} />
             <Route path="/presentations/:teamId" element={<PresentationsPage />} />
             <Route path="/membre/:teamId" element={<MembresPage />} />
@@ -145,6 +150,8 @@ function App() {
             <Route path="ProjectsPage" element={<ProjectsPage />} /> {/* Ajout de la route pour ProjectsPage */}
             <Route path="publications" element={<Publications />} />
             <Route path="news/:id" element={<NewsDetails />} /> 
+            <Route path="/job-offers/:id"  element={<JobOfferDetails />}/>
+
             <Route path="presentation" element={<Presentation />} />
             <Route path="axe" element={<Axe />} />
             <Route path="publication" element={<Publication />} />
@@ -170,6 +177,9 @@ function App() {
             <Route path="patent" element={<AdminPatent />} />
             <Route path="PatentEdit/:id" element={<PatentEdit />} />
             <Route path="PatentCreate" element={<PatentCreat />} />
+            <Route path="JobOffer" element={<AdminJobOffer />} />
+            <Route path="JobOfferEdit/:id" element={<JobOfferEdit />} />
+            <Route path="JobOfferCreate" element={<JobOfferCreat />} />
             <Route path="report" element={<AdminReport />} />
             <Route path="ReportEdit/:id" element={<ReportEdit />} />
             <Route path="ReportCreat" element={<ReportCreat />} />

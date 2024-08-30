@@ -14,8 +14,8 @@ function EditUser() {
         team_id: '',
         bio: '',
         contact_info: '',
-        statut: '',
-        image: null, // Assuming image handling is done separately
+       // statut: '',
+        image: '', // Assuming image handling is done separately
     });
     const [loading, setLoading] = useState(true);
 
@@ -53,17 +53,16 @@ function EditUser() {
             // Update the members table
             await axios.put(`http://localhost:8000/api/member/${userData.id}`, {
                 position: userData.position,
-                team_id: userData.team_id,
+               
                 bio: userData.bio,
                 contact_info: userData.contact_info,
-                statut: userData.statut,
-                email: userData.email, // Ensure the email is also updated in the members table
+              
                 user_id: currentUser.id,
                 image: userData.image, // Assuming you're handling image upload separately
             });
 
             alert('User information updated successfully.');
-            navigate('/user-info'); // Redirect back to the user information page
+            navigate('/user/UserInfo'); // Redirect back to the user information page
         } catch (error) {
             console.error('Erreur lors de la mise à jour des données:', error);
             alert('An error occurred while updating user information.');
@@ -72,10 +71,6 @@ function EditUser() {
 
     return (
         <div style={styles.container}>
-            <div>{userData.id}</div>
-            <div>{currentUser.id}</div>
-            
-
             {loading ? (
                 <p style={styles.loadingText}>Loading user information...</p>
             ) : (
@@ -140,7 +135,7 @@ function EditUser() {
                             style={styles.input}
                         />
                     </div>
-                    <div style={styles.userDetailContainer}>
+                    {/* <div style={styles.userDetailContainer}>
                         <strong style={styles.label}>Status</strong>
                         <input
                             type="text"
@@ -149,7 +144,7 @@ function EditUser() {
                             onChange={handleInputChange}
                             style={styles.input}
                         />
-                    </div>
+                    </div> */}
                     <button onClick={handleSaveClick} style={styles.saveButton}>
                         Save
                     </button>
@@ -161,7 +156,7 @@ function EditUser() {
 
 const styles = {
     container: {
-        padding: '90px',
+        padding: '20px',
         borderRadius: '10px',
         backgroundColor: '#f9f9f9',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -192,7 +187,7 @@ const styles = {
     input: {
         flex: '3',
         padding: '8px',
-        fontSize: '18px',
+        fontSize: '16px',
         color: '#555',
         border: '1px solid #ccc',
         borderRadius: '4px',
@@ -201,7 +196,7 @@ const styles = {
     textarea: {
         flex: '3',
         padding: '8px',
-        fontSize: '18px',
+        fontSize: '16px',
         color: '#555',
         border: '1px solid #ccc',
         borderRadius: '4px',

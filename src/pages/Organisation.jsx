@@ -6,11 +6,11 @@ const Organisation = () => {
   const [director, setDirector] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/members')
+    axios.get('http://localhost:8000/api/users')
       .then(response => {
         const membersData = response.data;
         // Supposons que le directeur a un rôle spécifique, par exemple "Directeur"
-        const directorData = membersData.find(member => member.position.toLowerCase() === 'rakrak');
+        const directorData = membersData.find(users => users.email === 'directeurlaboratoirel2is@gmail.com');
         setDirector(directorData);
       })
       .catch(error => {
@@ -35,7 +35,7 @@ const Organisation = () => {
         {director ? (
           <div className="bg-white rounded-lg shadow-md p-6 mb-8"> {/* Augmenter la marge inférieure ici */}
             <h3 className="text-2xl font-bold mb-2">{director.name}</h3>
-            <p className="text-xl font-semibold mb-2">{director.position}</p>
+            <p className="text-xl font-semibold mb-2">{director.email}</p>
             <p className="text-gray-700 mb-4">{director.bio}</p>
             <div className="text-sm text-gray-500">
               <p>{director.contact_info}</p>

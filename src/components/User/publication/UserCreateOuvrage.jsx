@@ -6,42 +6,56 @@ import { AuthContext } from '../../../context/authContext';
 
 const UserCreateOuvrage = () => {
     const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
     const [DOI, setDOI] = useState('');
+    const [members, setMembers] = useState([]); // Liste des membres
+    const [selectedAuthors, setSelectedAuthors] = useState([]); // Auteurs sélectionnés
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs des membres sélectionnés
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { currentUser, accessToken } = useContext(AuthContext);
 
-    // Fonction pour récupérer les informations du membre
-    const fetchMemberInfo = async () => {
+    // Fonction pour récupérer les informations des membres
+    const fetchMembers = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/members/user/${currentUser.id}`, {
+            const response = await axios.get('http://localhost:8000/api/members', {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            setAuthor(response.data.name); // Définir le nom du membre comme auteur
+            setMembers(response.data.filter(member => member.name !== currentUser.name)); // Exclure le currentUser
         } catch (error) {
-            console.error('Erreur lors de la récupération des informations du membre:', error);
-            setError('Erreur lors de la récupération des informations du membre');
-            toast.error('Erreur lors de la récupération des informations du membre');
+            console.error('Erreur lors de la récupération des membres:', error);
+            setError('Erreur lors de la récupération des membres');
+            toast.error('Erreur lors de la récupération des membres');
         }
     };
 
-    // Utiliser useEffect pour récupérer les informations du membre lorsque le composant est monté
     useEffect(() => {
-        fetchMemberInfo();
-    }, [currentUser.id, accessToken]);
+        fetchMembers();
+    }, [accessToken]);
+
+    useEffect(() => {
+        // Ajouter le currentUser comme auteur par défaut
+        setSelectedAuthors([currentUser.name]);
+        setSelectedAuthorIds([currentUser.id]); // Ajouter l'ID de l'utilisateur courant
+    }, [currentUser]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Vérifier que l'utilisateur a sélectionné des auteurs
+        if (selectedAuthorIds.length === 0) {
+            setError('Veuillez sélectionner au moins un auteur.');
+            toast.error('Veuillez sélectionner au moins un auteur.');
+            return;
+        }
+
         try {
             const response = await axios.post('http://localhost:8000/api/ouvrages', {
                 title,
-                author,
-                DOI: DOI,
-                id_user: currentUser.id,  // Envoi de l'ID utilisateur
+                author: [currentUser.name, ...selectedAuthors].join(', '), // Ajouter le currentUser à la liste des auteurs
+                DOI,
+                id_user: selectedAuthorIds.join(','),  // Convertir le tableau en chaîne
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,10 +81,27 @@ const UserCreateOuvrage = () => {
         }
     };
 
+    const handleAuthorSelection = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions);
+        const names = selectedOptions.map(option => option.value);
+        const ids = selectedOptions.map(option => option.getAttribute('data-id'));
+
+        setSelectedAuthors(names);
+        setSelectedAuthorIds([currentUser.id, ...ids]); // Ajouter l'ID de l'utilisateur courant avec les IDs des autres membres sélectionnés
+    };
+
     return (
         <div className="max-w-2xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Ajouter un Ouvrage</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
+            
+            {/* Afficher les IDs des membres sélectionnés */}
+            {selectedAuthorIds.length > 0 && (
+                <div className="mb-4">
+                    <strong>IDs des auteurs sélectionnés :</strong> {selectedAuthorIds.join(', ')}
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium mb-1">Titre</label>
@@ -83,13 +114,22 @@ const UserCreateOuvrage = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur</label>
-                    <input
-                        type="text"
-                        value={author}
-                        readOnly
+                    <label className="block text-sm font-medium mb-1">Auteur(s)</label>
+                    <select
+                        multiple
+                        value={selectedAuthors}
+                        onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
-                    />
+                    >
+                        {members.map(member => (
+                            <option key={member.id} value={member.name} data-id={member.user_id}>
+                                {member.name}
+                            </option>
+                        ))}
+                    </select>
+                    <p className="text-sm text-gray-500 mt-2">
+                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée tout en cliquant sur les noms souhaités.
+                    </p>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>

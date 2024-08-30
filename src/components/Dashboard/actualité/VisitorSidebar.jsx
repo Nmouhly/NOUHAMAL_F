@@ -65,7 +65,7 @@ const VisitorSidebar = () => {
 
           <li><Link to="/ProjectsPage">Projets</Link></li>
           <li><Link to="/informations">Informations</Link></li>
-          <li><Link to="/seminar">Séminaires</Link></li>
+          <li><Link to="/evenements">Événements </Link></li>
         </ul>
       </nav>
     </div>

@@ -12,7 +12,7 @@ const UserOuvrage = () => {
     // Fonction pour récupérer les ouvrages de l'utilisateur
     const fetchOuvrages = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/ouvrages/user/${currentUser.id}`, {
+            const response = await axios.get(`http://localhost:8000/api/ouvrages/user-or-contributor/${currentUser.id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
