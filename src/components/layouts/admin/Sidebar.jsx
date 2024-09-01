@@ -53,6 +53,14 @@ const Sidebar = () => {
         </div>
         <div className="sb-sidenav-menu">
           <div className="nav">
+          <Link className="nav-link" to="/dashboard/SidebarConfig">
+              <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
+              Sidebar
+            </Link>
+            <Link className="nav-link" to="/dashboard/AdminHomeDescription">
+              <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
+              Home
+            </Link>
             <Link className="nav-link" to="/dashboard/Utilisateur">
               <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
               Utilisateurs

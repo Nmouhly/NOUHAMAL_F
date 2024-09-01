@@ -41,7 +41,7 @@ const UserOuvrage = () => {
     };
 
     const handleEdit = (id) => {
-        navigate(`/dashboard/ouvrage/edit/${id}`);
+        navigate(`/user/UserEditOuvrage/${id}`);
     };
 
     return (

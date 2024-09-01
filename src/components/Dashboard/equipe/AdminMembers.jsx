@@ -83,11 +83,12 @@ const MembreAdmin = () => {
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th> {/* New column for image */}
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poste</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bio</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Infos de Contact</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Équipe</th> {/* New column for the team name */}
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Équipe</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -96,11 +97,18 @@ const MembreAdmin = () => {
                     {members.length ? (
                         members.map(member => (
                             <tr key={member.id}>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    {member.image ? (
+                                        <img src={`http://localhost:8000/storage/${member.image}`} alt={member.name} className="w-12 h-12 object-cover rounded-full" />
+                                    ) : (
+                                        <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                                    )}
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap">{member.name}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{member.position}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{member.bio}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{member.contact_info}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{getTeamNameById(member.team_id)}</td> {/* Display team name */}
+                                <td className="px-6 py-4 whitespace-nowrap">{getTeamNameById(member.team_id)}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{member.statut}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/MembreEdit/${member.id}`} className="btn btn-primary mb-2">Modifier</Link>
@@ -110,7 +118,7 @@ const MembreAdmin = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="7" className="text-center py-4">Aucun membre disponible</td> {/* Updated colspan */}
+                            <td colSpan="8" className="text-center py-4">Aucun membre disponible</td> {/* Updated colspan */}
                         </tr>
                     )}
                 </tbody>

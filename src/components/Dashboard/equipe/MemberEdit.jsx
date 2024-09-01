@@ -166,20 +166,7 @@ const MemberEdit = () => {
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Image</label>
-          {imagePreview && (
-            <div className="mb-2">
-              <img src={imagePreview} alt="Prévisualisation" className="w-full h-auto" />
-            </div>
-          )}
-          <input 
-            type="file" 
-            onChange={handleImageChange} 
-            accept="image/*" 
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
+        
         <button 
           type="submit" 
           className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"

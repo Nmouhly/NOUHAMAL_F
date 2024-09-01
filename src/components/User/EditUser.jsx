@@ -14,8 +14,7 @@ function EditUser() {
         team_id: '',
         bio: '',
         contact_info: '',
-       // statut: '',
-        image: '', // Assuming image handling is done separately
+        image: '',
     });
     const [loading, setLoading] = useState(true);
 
@@ -44,25 +43,21 @@ function EditUser() {
 
     const handleSaveClick = async () => {
         try {
-            // Update the users table
             await axios.put(`http://localhost:8000/api/user/${currentUser.id}`, {
                 name: userData.name,
                 email: userData.email,
             });
 
-            // Update the members table
             await axios.put(`http://localhost:8000/api/member/${userData.id}`, {
                 position: userData.position,
-               
                 bio: userData.bio,
                 contact_info: userData.contact_info,
-              
                 user_id: currentUser.id,
-                image: userData.image, // Assuming you're handling image upload separately
+                image: userData.image,
             });
 
             alert('User information updated successfully.');
-            navigate('/user/UserInfo'); // Redirect back to the user information page
+            navigate('/user/UserInfo');
         } catch (error) {
             console.error('Erreur lors de la mise à jour des données:', error);
             alert('An error occurred while updating user information.');
@@ -135,16 +130,6 @@ function EditUser() {
                             style={styles.input}
                         />
                     </div>
-                    {/* <div style={styles.userDetailContainer}>
-                        <strong style={styles.label}>Status</strong>
-                        <input
-                            type="text"
-                            name="statut"
-                            value={userData.statut}
-                            onChange={handleInputChange}
-                            style={styles.input}
-                        />
-                    </div> */}
                     <button onClick={handleSaveClick} style={styles.saveButton}>
                         Save
                     </button>

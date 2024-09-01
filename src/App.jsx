@@ -5,7 +5,11 @@ import Login from './components/auth/Login';
 import AxeEdit from './components/Dashboard/Axes/AxeEdit';
 import AxeCreate from './components/Dashboard/Axes/AxeCreate';
 import Revues from './pages/Revues';
+import SidebarConfig from './components/Dashboard/SidebarConfig.jsx';
 import Reports from './pages/Reports';
+import AdminHomeDescription from './components/Dashboard/AdminHomeDescription.jsx';
+import CreateDescription from './components/Dashboard/CreateDescription.jsx';
+import EditDescription from './components/Dashboard/EditDescription.jsx';
 import AdminRevue from './components/Dashboard/Publication/AdminRevue';
 import RevueCreate from './components/Dashboard/Publication/RevueCreate';
 import RevueEdit from './components/Dashboard/Publication/RevueEdit';
@@ -20,6 +24,10 @@ import MasterUser from './components/User/MasterUser.jsx';
 import UserPrivateRoute from './UserPrivateRoute.jsx';
 import UserOuvrage from './components/User/publication/UserOuvrage';
 import UserCreateOuvrage from './components/User/publication/UserCreateOuvrage';
+import UserCreateRevue from './components/User/publication/UserCreateRevues';
+import UserEditOuvrage from './components/User/publication/UserEditOuvrage';
+import UserEditRevue from './components/User/publication/UserEditRevue';
+
 import UserRevues from './components/User/publication/UserRevues';
 import UserThèse from './components/User/publication/UserThèse';
 import UserRapport from './components/User/publication/UserRapport';
@@ -168,6 +176,10 @@ function App() {
 
           <Route path="/dashboard" element={<AdminPrivateRoute><MasterLayout /></AdminPrivateRoute>}>
             <Route path="NewsAdmin" element={<NewsAdmin />} />
+            <Route path="SidebarConfig" element={<SidebarConfig />} />
+            <Route path="AdminHomeDescription" element={<AdminHomeDescription />} />
+            <Route path="CreateDescription" element={<CreateDescription />} />
+            <Route path="EditDescription/:id" element={<EditDescription />} />
             <Route path="SeminarDetails/:id" element={<SeminarDetails />} />
             <Route path="SeminarForm" element={<SeminarForm />} />
             <Route path="SeminarList" element={<SeminarList />} />
@@ -220,6 +232,9 @@ function App() {
            <Route path="edit-user/:id" element={<EditUser />} />
               <Route path="UserOuvrage" element={<UserOuvrage />} /> 
               <Route path="UserCreateOuvrage" element={<UserCreateOuvrage />} /> 
+              <Route path="UserCreateRevue" element={<UserCreateRevue/>} /> 
+              <Route path="UserEditOuvrage/:id" element={<UserEditOuvrage />} /> 
+              <Route path="UserEditRevue/:id" element={<UserEditRevue />} /> 
             <Route path="UserRevues" element={<UserRevues />} />
             <Route path="UserThèse" element={<UserThèse />} />
             <Route path="UserRapport" element={<UserRapport />} />

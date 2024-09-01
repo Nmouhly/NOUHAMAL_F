@@ -1,17 +1,42 @@
 // components/Home.js
 
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import logo from '../assets/labol2is.png'; // Assurez-vous que le chemin du logo est correct
 import arrowGif from '../assets/fleche.gif'; // Assurez-vous que le chemin de la flèche est correct
 import HomeNews from './HomeNews';
+import parse from 'html-react-parser';
 //import TeamsPage    from '../pages/Equipes';
 import JobOffersList from '..//pages/JobOffersList';
+import axios from 'axios';
 import Statistics from '../pages/Statistics';
 
 
-
-
 const Home = ({ currentUser, logoutUser, isSidebarVisible, toggleSidebar }) => {
+    const [descriptions, setDescriptions] = useState([]);
+    const [error, setError] = useState('');
+    useEffect(() => {
+        const fetchDescriptions = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/home-descriptions');
+                if (Array.isArray(response.data)) {
+                    setDescriptions(response.data);
+                } else {
+                    throw new Error('Les données reçues ne sont pas un tableau');
+                }
+            } catch (error) {
+                const errorMessage = error.response 
+                    ? (error.response.data.message || 'Erreur inconnue du serveur') + ' - Code: ' + error.response.status
+                    : error.message || 'Erreur inconnue';
+                console.error('Erreur lors de la récupération des descriptions', errorMessage);
+                setError('Erreur lors de la récupération des descriptions : ' + errorMessage);
+            }
+        };
+    
+        fetchDescriptions();
+    }, []);
+    
+
   return (
     <div className="p-4 flex flex-col items-center">
       {/* Section Logo */}
@@ -31,19 +56,18 @@ const Home = ({ currentUser, logoutUser, isSidebarVisible, toggleSidebar }) => {
         L2IS - Laboratoire d'Ingénierie Informatique et Systèmes
       </h1>
 
-      {/* Description */}
-      <p>
-        Le Laboratoire de l'Ingénierie Informatique et des Systèmes (L2IS) est un centre de recherche affilié à la Faculté des Sciences et Techniques de Marrakech. Nos travaux de recherche s'appuient sur des domaines variés tels que l'Internet des Objets (IoT), l'Intelligence Artificielle, la Data Science et le Big Data, l'Ingénierie Pédagogique Universitaire, les Réseaux et la Sécurité, le Calcul Haute Performance (HPC), le Cloud DevOps, et le Management et la Gouvernance des Systèmes d'Information. Le L2IS se distingue par son engagement à aborder des problématiques complexes au croisement des technologies de l'information, des communications et des sciences de l'ingénieur.
-      </p>
-      <p>
-        Le L2IS regroupe un ensemble de chercheurs, professeurs et administrateurs qui assurent le bon déroulement des projets. Nous avons également une équipe dynamique de doctorants contribuant activement aux recherches.
-      </p>
-      <p>
-        Le L2IS collabore avec divers partenaires industriels et académiques pour des projets de recherche appliquée. Parmi nos initiatives notables, nous menons des projets collaboratifs visant à développer des solutions innovantes pour des problématiques spécifiques, renforçant ainsi notre rôle dans le domaine de la recherche et du développement technologique.
-      </p>
-      <p>
-        Créé en 2020, le L2IS est un laboratoire en pleine expansion, dédié à l'avancement des connaissances et à l'application des sciences informatiques et des systèmes dans divers domaines d'innovation.
-      </p>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+            {descriptions.length ? (
+                descriptions.map((desc) => (
+                    <div key={desc.id} className="max-w-4xl text-center mb-8">
+                        <div className="prose lg:prose-xl">
+                            {parse(desc.content)}
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <p>Aucune description disponible</p>
+)}
       
       {/* Flèche animée */}
       <div className="flex flex-col items-center">
