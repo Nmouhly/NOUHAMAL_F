@@ -4,18 +4,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
-const RevueEdit = () => {
+const UserEditBrevet = () => {
     const [title, setTitle] = useState('');
-    const [DOI, setDOI] = useState('');
-    const [members, setMembers] = useState([]); // Liste des membres
-    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs des membres sélectionnés
-    const [selectedAuthors, setSelectedAuthors] = useState([]); // Noms des membres sélectionnés
+    const [doi, setDoi] = useState('');
+    const [members, setMembers] = useState([]);
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
+    const [selectedAuthors, setSelectedAuthors] = useState([]);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
-    const { id } = useParams(); // Récupérer l'ID de la revue depuis les paramètres d'URL
+    const { id } = useParams();
 
-    // Fonction pour récupérer les informations des membres
+    // Fetch members data
     const fetchMembers = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
@@ -25,52 +25,62 @@ const RevueEdit = () => {
             });
             setMembers(response.data);
         } catch (error) {
-            console.error('Erreur lors de la récupération des membres:', error);
-            setError('Erreur lors de la récupération des membres');
-            toast.error('Erreur lors de la récupération des membres');
+            console.error('Error fetching members:', error);
+            setError('Error fetching members');
+            toast.error('Error fetching members');
         }
     };
 
-    // Fonction pour récupérer les informations de la revue à éditer
-    const fetchRevueDetails = async () => {
+    // Fetch brevet details for editing
+    const fetchBrevetDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/revues/${id}`, {
+            const response = await axios.get(`http://localhost:8000/api/brevets/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            const revue = response.data;
-            setTitle(revue.title);
-            setDOI(revue.DOI);
-            setSelectedAuthors(revue.author.split(', '));
-            setSelectedAuthorIds(revue.id_user.split(','));
+            const brevet = response.data;
+            setTitle(brevet.title);
+            setDoi(brevet.doi);
+
+            const selectedMembers = brevet.author.split(', ');
+            const selectedMemberIds = members
+                .filter(member => selectedMembers.includes(member.name))
+                .map(member => member.user_id);
+
+            setSelectedAuthors(selectedMembers);
+            setSelectedAuthorIds(selectedMemberIds);
         } catch (error) {
-            console.error('Erreur lors de la récupération de la revue:', error);
-            setError('Erreur lors de la récupération de la revue');
-            toast.error('Erreur lors de la récupération de la revue');
+            console.error('Error fetching brevet details:', error);
+            setError('Error fetching brevet details');
+            toast.error('Error fetching brevet details');
         }
     };
 
     useEffect(() => {
         fetchMembers();
-        fetchRevueDetails();
-    }, [accessToken, id]);
+    }, [accessToken]);
+
+    useEffect(() => {
+        if (members.length > 0) {
+            fetchBrevetDetails();
+        }
+    }, [members]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (selectedAuthorIds.length === 0) {
-            setError('Veuillez sélectionner au moins un auteur.');
-            toast.error('Veuillez sélectionner au moins un auteur.');
+            setError('Please select at least one author.');
+            toast.error('Please select at least one author.');
             return;
         }
 
         try {
-            const response = await axios.put(`http://localhost:8000/api/revues/${id}`, {
+            const response = await axios.put(`http://localhost:8000/api/brevetsUser/${id}`, {
                 title,
-                DOI,
                 author: selectedAuthors.join(', '),
-                id_user: selectedAuthorIds.join(','),
+                doi,
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -78,27 +88,25 @@ const RevueEdit = () => {
                 },
             });
 
-            console.log('Revue mise à jour:', response.data);
-            toast.success('Revue mise à jour avec succès');
-            navigate('/dashboard/revues');
+            console.log('Brevet updated:', response.data);
+            toast.success('Brevet updated successfully');
+            navigate('/user/UserBrevet');
         } catch (error) {
-            console.error('Erreur lors de la mise à jour de la revue:', {
-                message: error.message,
-                response: error.response ? {
-                    status: error.response.status,
-                    data: error.response.data,
-                    headers: error.response.headers
-                } : 'Aucune réponse disponible',
-                config: error.config
-            });
-            setError('Erreur lors de la mise à jour de la revue');
-            toast.error('Erreur lors de la mise à jour de la revue');
+            if (error.response && error.response.data) {
+                console.error('Error updating brevet:', error.response.data);
+                setError(`Error updating brevet: ${error.response.data.message || 'Invalid data provided.'}`);
+                toast.error(`Error updating brevet: ${error.response.data.message || 'Invalid data provided.'}`);
+            } else {
+                console.error('Error updating brevet:', error.message);
+                setError('Error updating brevet');
+                toast.error('Error updating brevet');
+            }
         }
     };
 
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
-        const names = selectedOptions.map(option => option.textContent);
+        const names = selectedOptions.map(option => option.value);
         const ids = selectedOptions.map(option => option.getAttribute('data-id'));
 
         setSelectedAuthors(names);
@@ -107,18 +115,12 @@ const RevueEdit = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier une Revue</h1>
+            <h1 className="text-2xl font-bold mb-4">Edit Brevet</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-            
-            {selectedAuthors.length > 0 && (
-                <div className="mb-4">
-                    <strong>Auteurs sélectionnés :</strong> {selectedAuthors.join(', ')}
-                </div>
-            )}
-
+            <p className="text-sm text-gray-500 mb-4">Brevet ID: {id}</p>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium mb-1">Titre</label>
+                    <label className="block text-sm font-medium mb-1">Title</label>
                     <input
                         type="text"
                         value={title}
@@ -128,10 +130,10 @@ const RevueEdit = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s)</label>
+                    <label className="block text-sm font-medium mb-1">Authors</label>
                     <select
                         multiple
-                        value={selectedAuthors} // pour pré-remplir les auteurs sélectionnés
+                        value={selectedAuthors}
                         onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
@@ -142,15 +144,15 @@ const RevueEdit = () => {
                         ))}
                     </select>
                     <p className="text-sm text-gray-500 mt-2">
-                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée tout en cliquant sur les noms souhaités.
+                        To select multiple authors, hold down the <strong>Ctrl</strong> key (or <strong>Cmd</strong> on Mac) while clicking the names.
                     </p>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
                         type="text"
-                        value={DOI}
-                        onChange={(e) => setDOI(e.target.value)}
+                        value={doi}
+                        onChange={(e) => setDoi(e.target.value)}
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
@@ -158,11 +160,11 @@ const RevueEdit = () => {
                     type="submit"
                     className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                 >
-                    Mettre à jour
+                    Update
                 </button>
             </form>
         </div>
     );
 };
 
-export default RevueEdit;
+export default UserEditBrevet;

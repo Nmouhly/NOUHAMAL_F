@@ -6,6 +6,7 @@ import AxeEdit from './components/Dashboard/Axes/AxeEdit';
 import AxeCreate from './components/Dashboard/Axes/AxeCreate';
 import Revues from './pages/Revues';
 import SidebarConfig from './components/Dashboard/SidebarConfig.jsx';
+import These from './pages/Thèses.jsx';
 import Reports from './pages/Reports';
 import AdminHomeDescription from './components/Dashboard/AdminHomeDescription.jsx';
 import CreateDescription from './components/Dashboard/CreateDescription.jsx';
@@ -24,11 +25,19 @@ import MasterUser from './components/User/MasterUser.jsx';
 import UserPrivateRoute from './UserPrivateRoute.jsx';
 import UserOuvrage from './components/User/publication/UserOuvrage';
 import UserCreateOuvrage from './components/User/publication/UserCreateOuvrage';
+import UserCreateRapport from './components/User/publication/UserCreateRapport';
+import UserCreateThèse from './components/User/publication/UserCreateThèse';
+import UserEditThese from './components/User/publication/UserEditThese';
+import UserCreateHabilitation from './components/User/publication/UserCreateHabilitation';
 import UserCreateRevue from './components/User/publication/UserCreateRevues';
 import UserEditOuvrage from './components/User/publication/UserEditOuvrage';
 import UserEditRevue from './components/User/publication/UserEditRevue';
+import UserEditRapport from './components/User/publication/UserEditRapport';
 
 import UserRevues from './components/User/publication/UserRevues';
+import UserBrevet from './components/User/publication/UserBrevet';
+import UserCreateBrevet from './components/User/publication/UserCreateBrevet';
+import UserEditBrevet from './components/User/publication/UserEditBrevet';
 import UserThèse from './components/User/publication/UserThèse';
 import UserRapport from './components/User/publication/UserRapport';
 import UserHabilitation from './components/User/publication/UserHabilitation';
@@ -137,7 +146,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<VisitorLayout />}>
+          
             <Route index element={<Home />} />
+            <Route path="theses" element={<These />} />
             <Route path="equipes" element={<Equipes />} />
             <Route path="evenements" element={<Evenements />} />
             <Route path="informations" element={<Informations />} />
@@ -230,17 +241,26 @@ function App() {
            <Route path="UserProfile" element={<UserProfile />} />
            <Route path="UserInfo" element={<UserInfo />} />
            <Route path="edit-user/:id" element={<EditUser />} />
-              <Route path="UserOuvrage" element={<UserOuvrage />} /> 
+              <Route path="UserOuvrage" element={<UserOuvrage />} />
+              <Route path="UserBrevet" element={<UserBrevet />} />  
               <Route path="UserCreateOuvrage" element={<UserCreateOuvrage />} /> 
+              <Route path="UserCreateRapport" element={<UserCreateRapport />} /> 
+              <Route path="UserCreateBrevet" element={<UserCreateBrevet />} /> 
+              <Route path="UserEditBrevet/:id" element={<UserEditBrevet />} /> 
+              <Route path="UserCreateHabilitation" element={<UserCreateHabilitation />} /> 
+               <Route path="UserCreateThèse" element={<UserCreateThèse />} /> 
               <Route path="UserCreateRevue" element={<UserCreateRevue/>} /> 
               <Route path="UserEditOuvrage/:id" element={<UserEditOuvrage />} /> 
               <Route path="UserEditRevue/:id" element={<UserEditRevue />} /> 
+              <Route path="UserEditThese/:id" element={<UserEditThese />} /> 
+              <Route path="UserEditRapport/:id" element={<UserEditRapport />} /> 
             <Route path="UserRevues" element={<UserRevues />} />
             <Route path="UserThèse" element={<UserThèse />} />
             <Route path="UserRapport" element={<UserRapport />} />
             <Route path="UserHabilitation" element={<UserHabilitation />} />
             <Route path="UserConférence" element={<UserConférence />} />
        </Route>
+       
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>

@@ -58,7 +58,8 @@ const RevueAdmin = () => {
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lien PDF</th> {/* Nouvelle colonne pour le lien PDF */}
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Utilisateur</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -68,15 +69,27 @@ const RevueAdmin = () => {
                             <tr key={revue.id}>
                                 <td className="px-6 py-4 whitespace-nowrap">{revue.title}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{revue.author}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {revue.pdf_link ? (
-                                        <a href={revue.pdf_link} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                                            Voir le PDF
+                                <td>
+                                    {revue.DOI ? (
+                                        <a
+                                            href={`https://doi.org/${revue.DOI}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => {
+                                                const isValidDOI = revue.DOI.startsWith('10.');
+                                                if (!isValidDOI) {
+                                                    e.preventDefault();
+                                                    alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                                }
+                                            }}
+                                        >
+                                            {revue.DOI}
                                         </a>
                                     ) : (
-                                        'Pas de lien'
+                                        'Pas de DOI disponible'
                                     )}
                                 </td>
+                                <td className="px-6 py-4 whitespace-nowrap">{revue.id_user}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/RevuesEdit/${revue.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(revue.id)} className="btn btn-danger mb-2">Supprimer</button>
@@ -85,7 +98,7 @@ const RevueAdmin = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="4" className="text-center py-4">Aucune revue disponible</td>
+                            <td colSpan="5" className="text-center py-4">Aucune revue disponible</td>
                         </tr>
                     )}
                 </tbody>

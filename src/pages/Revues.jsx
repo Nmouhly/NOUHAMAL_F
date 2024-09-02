@@ -25,10 +25,12 @@ const Revues = () => {
                     {revues.map(revue => (
                         <li key={revue.id}>
                             <strong>{revue.title || 'Titre non disponible'}.</strong> {revue.author || 'Auteur non disponible'}.
-                            {revue.pdf_link && (
-                                <a href={revue.pdf_link} target="_blank" rel="noopener noreferrer" className="pdf-link">
-                                    Télécharger le PDF
+                            {revue.DOI ? (
+                                <a href={`https://doi.org/${revue.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">
+                                    DOI
                                 </a>
+                            ) : (
+                                <span>DOI non disponible</span>
                             )}
                         </li>
                     ))}

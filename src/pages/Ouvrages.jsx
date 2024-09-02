@@ -25,7 +25,11 @@ const Ouvrages = () => {
                     {ouvrages.map(ouvrage => (
                         <li key={ouvrage.id}>
                             <strong>{ouvrage.title || 'Titre non disponible'}.</strong> {ouvrage.author || 'Auteur non disponible'}.
-                            <a href={ouvrage.pdf_link} target="_blank" rel="noopener noreferrer" className="pdf-link">PDF</a>
+                            {ouvrage.DOI ? (
+                                <a href={`https://doi.org/${ouvrage.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">DOI</a>
+                            ) : (
+                                <span>DOI non disponible</span>
+                            )}
                         </li>
                     ))}
                 </ul>

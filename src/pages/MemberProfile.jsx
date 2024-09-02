@@ -9,40 +9,33 @@ const MemberProfile = () => {
   const { id } = useParams();
   const [member, setMember] = useState(null);
   const [ouvrages, setOuvrages] = useState([]);
+  const [revues, setRevues] = useState([]);
   const [error, setError] = useState('');
 
-  // useEffect(() => {
-  //   // Récupérer les informations du membre
-  //   axios.get(`http://localhost:8000/api/members/${id}`)
-  //     .then(response => {
-  //       setMember(response.data);
-
-  //       // Récupérer les ouvrages associés à l'utilisateur du membre
-  //       return axios.get(`http://localhost:8000/api/ouvrages/user/${response.data.user_id}`);
-  //     })
-  //     .then(response => {
-  //       setOuvrages(response.data);
-  //     })
-  //     .catch(() => {
-  //       setError('Erreur lors de la récupération du profil membre ou des ouvrages.');
-  //     });
-  // }, [id]);
   useEffect(() => {
-    // Récupérer les informations du membre
-    axios.get(`http://localhost:8000/api/members/${id}`)
-      .then(response => {
-        setMember(response.data);
-        console.log("id_user:", response.data.user_id);
-  
+    const fetchData = async () => {
+      try {
+        // Récupérer les informations du membre
+        const memberResponse = await axios.get(`http://localhost:8000/api/members/${id}`);
+        setMember(memberResponse.data);
+        console.log("id_user:", memberResponse.data.user_id);
+
         // Récupérer les ouvrages associés à l'utilisateur du membre et les ouvrages où il est contributeur
-        return axios.get(`http://localhost:8000/api/ouvrages/user-or-contributor/${response.data.user_id}`);
-      })
-      .then(response => {
-        setOuvrages(response.data);
-      })
-      .catch(() => {
-        setError('Erreur lors de la récupération du profil membre ou des ouvrages.');
-      });
+        const ouvragesResponse = await axios.get(`http://localhost:8000/api/ouvrages/user-or-contributor/${memberResponse.data.user_id}`);
+        setOuvrages(ouvragesResponse.data);
+        console.log("Ouvr:", ouvragesResponse.data);
+
+        // Récupérer les revues associées à l'utilisateur du membre et les revues où il est contributeur
+        const revuesResponse = await axios.get(`http://localhost:8000/api/revues/user-or-contributor/${memberResponse.data.user_id}`);
+        setRevues(revuesResponse.data);
+        console.log("Revues:", revuesResponse.data); // Ajout pour vérifier les données
+      } catch (error) {
+        console.error('Erreur lors de la récupération des données:', error);
+        setError('Erreur lors de la récupération du profil membre, des ouvrages ou des revues.');
+      }
+    };
+
+    fetchData();
   }, [id]);
 
   if (error) {
@@ -60,7 +53,7 @@ const MemberProfile = () => {
                   <img
                     src={member.image ? `http://localhost:8000/storage/${member.image}` : defaultImage}
                     alt={member.name}
-                    className="profile-image" // Utilisez la classe CSS définie pour l'image
+                    className="profile-image"
                   />
                 </td>
               </tr>
@@ -90,12 +83,26 @@ const MemberProfile = () => {
                   {ouvrages.length > 0 && (
                     <div style={styles.infoItem}>
                       <ul className="ouvrages-list">
-                        <h3 style={styles.publicationsTitle}>Publications</h3>
+                        <h3 style={styles.publicationsTitle}>Ouvrages</h3>
                         <hr style={styles.sectionDivider} />
                         {ouvrages.map(ouvrage => (
                           <li key={ouvrage.id}>
                             <strong>{ouvrage.title || 'Titre non disponible'}.</strong> {ouvrage.author || 'Auteur non disponible'}.
-                            <a href={ouvrage.pdf_link} target="_blank" rel="noopener noreferrer" className="pdf-link">PDF</a>
+                            <a href={`https://doi.org/${ouvrage.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">DOI</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {revues.length > 0 && (
+                    <div style={styles.infoItem}>
+                      <ul className="revues-list">
+                        <h3 style={styles.publicationsTitle}>Revues</h3>
+                        <hr style={styles.sectionDivider} />
+                        {revues.map(revue => (
+                          <li key={revue.id}>
+                            <strong>{revue.title || 'Titre non disponible'}.</strong> {revue.author || 'Auteur non disponible'}.
+                            <a href={`https://doi.org/${revue.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">DOI</a>
                           </li>
                         ))}
                       </ul>
@@ -115,7 +122,7 @@ const MemberProfile = () => {
 
 const styles = {
   publicationsTitle: {
-    marginLeft: '-55px', // Ajustez cette valeur selon vos besoins
+    marginLeft: '-55px',
   },
   container: {
     padding: '40px',

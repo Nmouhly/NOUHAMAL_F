@@ -71,27 +71,27 @@ const UserSidebar = () => {
             <ul className={`submenu ${isPublicationsSubmenuOpen ? 'open' : ''}`}>
               <li><Link to="/user/UserOuvrage">Ouvrages</Link></li>
               <li><Link to="/user/UserRevues">Revues</Link></li>
-              <li><Link to="/user/UserConférence">Conférences</Link></li>
-              <li><Link to="/user/UserRapport">Rapports et Brevets</Link></li>
+              <li><Link to="/user/UserBrevet">Brevets</Link></li>
+              <li><Link to="/user/UserRapport">Rapports </Link></li>
               <li><Link to="/user/UserThèse">Thèses et Doctorat</Link></li>
               <li><Link to="/user/UserHabilitation">Habilitation</Link></li>
             </ul>
 
             {/* Messages */}
-            <Link className="nav-link" to="/dashboard/MessagesAdmin">
+            {/* <Link className="nav-link" to="/dashboard/MessagesAdmin">
               <div className="sb-nav-link-icon"><i className="fas fa-envelope"></i></div>
               Messages
-            </Link>
+            </Link> */}
 
-            <Link className="nav-link" to="/dashboard/ProjectsAdmin">
+            {/* <Link className="nav-link" to="/dashboard/ProjectsAdmin">
               <div className="sb-nav-link-icon"><i className="fas fa-project-diagram"></i></div>
               Projets Industriels
             </Link>
-            
-            <Link className="nav-link" to="/dashboard/SeminarList">
+             */}
+            {/* <Link className="nav-link" to="/dashboard/SeminarList">
               <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
               Evénements
-            </Link>
+            </Link> */}
             <button className="nav-link" onClick={logoutUser}>
               <div className="sb-nav-link-icon"><i className="fas fa-sign-out-alt"></i></div>
               Déconnexion

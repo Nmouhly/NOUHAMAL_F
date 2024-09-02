@@ -4,8 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
-const RevueEdit = () => {
+const UserEditRapport = () => {
     const [title, setTitle] = useState('');
+    const [summary, setSummary] = useState(''); // Ajouter l'état pour le résumé
     const [DOI, setDOI] = useState('');
     const [members, setMembers] = useState([]); // Liste des membres
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs des membres sélectionnés
@@ -13,7 +14,7 @@ const RevueEdit = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
-    const { id } = useParams(); // Récupérer l'ID de la revue depuis les paramètres d'URL
+    const { id } = useParams(); // Récupérer l'ID du rapport depuis les paramètres d'URL
 
     // Fonction pour récupérer les informations des membres
     const fetchMembers = async () => {
@@ -31,30 +32,42 @@ const RevueEdit = () => {
         }
     };
 
-    // Fonction pour récupérer les informations de la revue à éditer
-    const fetchRevueDetails = async () => {
+    // Fonction pour récupérer les informations du rapport à éditer
+    const fetchRapportDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/revues/${id}`, {
+            const response = await axios.get(`http://localhost:8000/api/reports/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            const revue = response.data;
-            setTitle(revue.title);
-            setDOI(revue.DOI);
-            setSelectedAuthors(revue.author.split(', '));
-            setSelectedAuthorIds(revue.id_user.split(','));
+            const rapport = response.data;
+            setTitle(rapport.title);
+            setDOI(rapport.DOI);
+            setSummary(rapport.summary); // Ajouter le résumé
+
+            const selectedMembers = rapport.author.split(', ');
+            const selectedMemberIds = members
+                .filter(member => selectedMembers.includes(member.name))
+                .map(member => member.user_id);
+
+            setSelectedAuthors(selectedMembers);
+            setSelectedAuthorIds(selectedMemberIds);
         } catch (error) {
-            console.error('Erreur lors de la récupération de la revue:', error);
-            setError('Erreur lors de la récupération de la revue');
-            toast.error('Erreur lors de la récupération de la revue');
+            console.error('Erreur lors de la récupération des détails du rapport:', error);
+            setError('Erreur lors de la récupération des détails du rapport');
+            toast.error('Erreur lors de la récupération des détails du rapport');
         }
     };
 
     useEffect(() => {
         fetchMembers();
-        fetchRevueDetails();
-    }, [accessToken, id]);
+    }, [accessToken]);
+
+    useEffect(() => {
+        if (members.length > 0) {
+            fetchRapportDetails();
+        }
+    }, [members]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -66,11 +79,12 @@ const RevueEdit = () => {
         }
 
         try {
-            const response = await axios.put(`http://localhost:8000/api/revues/${id}`, {
+            const response = await axios.put(`http://localhost:8000/api/reports/${id}`, {
                 title,
-                DOI,
+                summary, // Ajouter le résumé
                 author: selectedAuthors.join(', '),
-                id_user: selectedAuthorIds.join(','),
+                DOI,
+                id_user: selectedAuthorIds.join(','),  // Convertir le tableau en chaîne
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -78,11 +92,11 @@ const RevueEdit = () => {
                 },
             });
 
-            console.log('Revue mise à jour:', response.data);
-            toast.success('Revue mise à jour avec succès');
-            navigate('/dashboard/revues');
+            console.log('Rapport mis à jour:', response.data);
+            toast.success('Rapport mis à jour avec succès');
+            navigate('/user/UserRapport');
         } catch (error) {
-            console.error('Erreur lors de la mise à jour de la revue:', {
+            console.error('Erreur lors de la mise à jour du rapport:', {
                 message: error.message,
                 response: error.response ? {
                     status: error.response.status,
@@ -91,14 +105,14 @@ const RevueEdit = () => {
                 } : 'Aucune réponse disponible',
                 config: error.config
             });
-            setError('Erreur lors de la mise à jour de la revue');
-            toast.error('Erreur lors de la mise à jour de la revue');
+            setError('Erreur lors de la mise à jour du rapport');
+            toast.error('Erreur lors de la mise à jour du rapport');
         }
     };
 
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
-        const names = selectedOptions.map(option => option.textContent);
+        const names = selectedOptions.map(option => option.value);
         const ids = selectedOptions.map(option => option.getAttribute('data-id'));
 
         setSelectedAuthors(names);
@@ -107,15 +121,9 @@ const RevueEdit = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier une Revue</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier un Rapport</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-            
-            {selectedAuthors.length > 0 && (
-                <div className="mb-4">
-                    <strong>Auteurs sélectionnés :</strong> {selectedAuthors.join(', ')}
-                </div>
-            )}
-
+            <p className="text-sm text-gray-500 mb-4">ID du rapport : {id}</p>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium mb-1">Titre</label>
@@ -128,10 +136,19 @@ const RevueEdit = () => {
                     />
                 </div>
                 <div>
+                    <label className="block text-sm font-medium mb-1">Résumé</label>
+                    <textarea
+                        value={summary}
+                        onChange={(e) => setSummary(e.target.value)}
+                        required
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
+                </div>
+                <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
                         multiple
-                        value={selectedAuthors} // pour pré-remplir les auteurs sélectionnés
+                        value={selectedAuthors}
                         onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
@@ -165,4 +182,4 @@ const RevueEdit = () => {
     );
 };
 
-export default RevueEdit;
+export default UserEditRapport;

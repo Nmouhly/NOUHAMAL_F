@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
-const RevueEdit = () => {
+const UserCreateRapport = () => {
     const [title, setTitle] = useState('');
+    const [summary, setSummary] = useState('');
     const [DOI, setDOI] = useState('');
     const [members, setMembers] = useState([]); // Liste des membres
+    const [selectedAuthors, setSelectedAuthors] = useState([]); // Auteurs sélectionnés
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs des membres sélectionnés
-    const [selectedAuthors, setSelectedAuthors] = useState([]); // Noms des membres sélectionnés
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { accessToken } = useContext(AuthContext);
-    const { id } = useParams(); // Récupérer l'ID de la revue depuis les paramètres d'URL
+    const { currentUser, accessToken } = useContext(AuthContext);
 
     // Fonction pour récupérer les informations des membres
     const fetchMembers = async () => {
@@ -23,7 +23,7 @@ const RevueEdit = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            setMembers(response.data);
+            setMembers(response.data.filter(member => member.name !== currentUser.name)); // Exclure le currentUser
         } catch (error) {
             console.error('Erreur lors de la récupération des membres:', error);
             setError('Erreur lors de la récupération des membres');
@@ -31,34 +31,20 @@ const RevueEdit = () => {
         }
     };
 
-    // Fonction pour récupérer les informations de la revue à éditer
-    const fetchRevueDetails = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8000/api/revues/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            const revue = response.data;
-            setTitle(revue.title);
-            setDOI(revue.DOI);
-            setSelectedAuthors(revue.author.split(', '));
-            setSelectedAuthorIds(revue.id_user.split(','));
-        } catch (error) {
-            console.error('Erreur lors de la récupération de la revue:', error);
-            setError('Erreur lors de la récupération de la revue');
-            toast.error('Erreur lors de la récupération de la revue');
-        }
-    };
-
     useEffect(() => {
         fetchMembers();
-        fetchRevueDetails();
-    }, [accessToken, id]);
+    }, [accessToken]);
+
+    useEffect(() => {
+        // Ajouter le currentUser comme auteur par défaut
+        setSelectedAuthors([currentUser.name]);
+        setSelectedAuthorIds([currentUser.id]); // Ajouter l'ID de l'utilisateur courant
+    }, [currentUser]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Vérifier que l'utilisateur a sélectionné des auteurs
         if (selectedAuthorIds.length === 0) {
             setError('Veuillez sélectionner au moins un auteur.');
             toast.error('Veuillez sélectionner au moins un auteur.');
@@ -66,11 +52,12 @@ const RevueEdit = () => {
         }
 
         try {
-            const response = await axios.put(`http://localhost:8000/api/revues/${id}`, {
+            const response = await axios.post('http://localhost:8000/api/reports', {
                 title,
+                summary,
                 DOI,
-                author: selectedAuthors.join(', '),
-                id_user: selectedAuthorIds.join(','),
+                author: [currentUser.name, ...selectedAuthors].join(', '), // Ajouter le currentUser à la liste des auteurs
+                id_user: selectedAuthorIds.join(','),  // Convertir le tableau en chaîne
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -78,11 +65,11 @@ const RevueEdit = () => {
                 },
             });
 
-            console.log('Revue mise à jour:', response.data);
-            toast.success('Revue mise à jour avec succès');
-            navigate('/dashboard/revues');
+            console.log('Rapport ajouté:', response.data);
+            toast.success('Rapport ajouté avec succès');
+            navigate('/user/UserRapport');
         } catch (error) {
-            console.error('Erreur lors de la mise à jour de la revue:', {
+            console.error('Erreur lors de l\'ajout du rapport:', {
                 message: error.message,
                 response: error.response ? {
                     status: error.response.status,
@@ -91,28 +78,29 @@ const RevueEdit = () => {
                 } : 'Aucune réponse disponible',
                 config: error.config
             });
-            setError('Erreur lors de la mise à jour de la revue');
-            toast.error('Erreur lors de la mise à jour de la revue');
+            setError('Erreur lors de l\'ajout du rapport');
+            toast.error('Erreur lors de l\'ajout du rapport');
         }
     };
 
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
-        const names = selectedOptions.map(option => option.textContent);
+        const names = selectedOptions.map(option => option.value);
         const ids = selectedOptions.map(option => option.getAttribute('data-id'));
 
         setSelectedAuthors(names);
-        setSelectedAuthorIds(ids);
+        setSelectedAuthorIds([currentUser.id, ...ids]); // Ajouter l'ID de l'utilisateur courant avec les IDs des autres membres sélectionnés
     };
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier une Revue</h1>
+            <h1 className="text-2xl font-bold mb-4">Ajouter un Rapport</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             
-            {selectedAuthors.length > 0 && (
+            {/* Afficher les IDs des membres sélectionnés */}
+            {selectedAuthorIds.length > 0 && (
                 <div className="mb-4">
-                    <strong>Auteurs sélectionnés :</strong> {selectedAuthors.join(', ')}
+                    <strong>IDs des auteurs sélectionnés :</strong> {selectedAuthorIds.join(', ')}
                 </div>
             )}
 
@@ -128,10 +116,19 @@ const RevueEdit = () => {
                     />
                 </div>
                 <div>
+                    <label className="block text-sm font-medium mb-1">Résumé</label>
+                    <textarea
+                        value={summary}
+                        onChange={(e) => setSummary(e.target.value)}
+                        required
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
+                </div>
+                <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
                         multiple
-                        value={selectedAuthors} // pour pré-remplir les auteurs sélectionnés
+                        value={selectedAuthors}
                         onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
@@ -158,11 +155,11 @@ const RevueEdit = () => {
                     type="submit"
                     className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                 >
-                    Mettre à jour
+                    Ajouter
                 </button>
             </form>
         </div>
     );
 };
 
-export default RevueEdit;
+export default UserCreateRapport;
