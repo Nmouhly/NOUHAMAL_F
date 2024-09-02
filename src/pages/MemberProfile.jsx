@@ -3,13 +3,17 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import defaultImage from '../assets/photo.png';
 import { FaEnvelope, FaUserGraduate, FaBuilding } from 'react-icons/fa';
-import './Ouvrage.css'; // Assurez-vous d'importer le fichier CSS
+
 
 const MemberProfile = () => {
   const { id } = useParams();
   const [member, setMember] = useState(null);
   const [ouvrages, setOuvrages] = useState([]);
   const [revues, setRevues] = useState([]);
+  const [habilitations, setHabilitations] = useState([]);
+  const [rapports, setRapports] = useState([]);
+  const [theses, setTheses] = useState([]);
+  const [brevets, setBrevets] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -28,10 +32,31 @@ const MemberProfile = () => {
         // Récupérer les revues associées à l'utilisateur du membre et les revues où il est contributeur
         const revuesResponse = await axios.get(`http://localhost:8000/api/revues/user-or-contributor/${memberResponse.data.user_id}`);
         setRevues(revuesResponse.data);
-        console.log("Revues:", revuesResponse.data); // Ajout pour vérifier les données
+        console.log("Revues:", revuesResponse.data);
+
+        // Récupérer les habilitations associées
+        const habilitationsResponse = await axios.get(`http://localhost:8000/api/habilitations/user-or-contributor/${memberResponse.data.user_id}`);
+        setHabilitations(habilitationsResponse.data);
+        console.log("Habilitations:", habilitationsResponse.data);
+
+        // Récupérer les rapports associés
+        const rapportsResponse = await axios.get(`http://localhost:8000/api/rapports/user-or-contributor/${memberResponse.data.user_id}`);
+        setRapports(rapportsResponse.data);
+        console.log("Rapports:", rapportsResponse.data);
+
+        // Récupérer les thèses associées
+        const thesesResponse = await axios.get(`http://localhost:8000/api/theses/user-or-contributor/${memberResponse.data.user_id}`);
+        setTheses(thesesResponse.data);
+        console.log("Thèses:", thesesResponse.data);
+
+        // Récupérer les brevets associés
+        const brevetsResponse = await axios.get(`http://localhost:8000/api/brevets/user-or-contributor/${memberResponse.data.user_id}`);
+        setBrevets(brevetsResponse.data);
+        console.log("Brevets:", brevetsResponse.data);
+
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error);
-        setError('Erreur lors de la récupération du profil membre, des ouvrages ou des revues.');
+        setError('Erreur lors de la récupération du profil membre ou des publications.');
       }
     };
 
@@ -80,6 +105,8 @@ const MemberProfile = () => {
                       <span>{member.email}</span>
                     </div>
                   )}
+                  
+                  {/* Affichage des ouvrages */}
                   {ouvrages.length > 0 && (
                     <div style={styles.infoItem}>
                       <ul className="ouvrages-list">
@@ -94,6 +121,8 @@ const MemberProfile = () => {
                       </ul>
                     </div>
                   )}
+
+                  {/* Affichage des revues */}
                   {revues.length > 0 && (
                     <div style={styles.infoItem}>
                       <ul className="revues-list">
@@ -108,6 +137,71 @@ const MemberProfile = () => {
                       </ul>
                     </div>
                   )}
+
+                
+                  {/* Affichage des rapports */}
+                  {rapports.length > 0 && (
+                    <div style={styles.infoItem}>
+                      <ul className="rapports-list">
+                        <h3 style={styles.publicationsTitle}>Rapports</h3>
+                        <hr style={styles.sectionDivider} />
+                        {rapports.map(rapport => (
+                          <li key={rapport.id}>
+                            <strong>{rapport.title || 'Titre non disponible'}.</strong> {rapport.author || 'Auteur non disponible'}.
+                            <a href={`https://doi.org/${rapport.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">DOI</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Affichage des thèses */}
+                  {theses.length > 0 && (
+                    <div style={styles.infoItem}>
+                      <ul className="theses-list">
+                        <h3 style={styles.publicationsTitle}>Thèses</h3>
+                        <hr style={styles.sectionDivider} />
+                        {theses.map(these => (
+                          <li key={these.id}>
+                            <strong>{these.title || 'Titre non disponible'}.</strong> {these.author || 'Auteur non disponible'}.
+                            <a href={`https://doi.org/${these.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">DOI</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Affichage des brevets */}
+                  {brevets.length > 0 && (
+                    <div style={styles.infoItem}>
+                      <ul className="brevets-list">
+                        <h3 style={styles.publicationsTitle}>Brevets</h3>
+                        <hr style={styles.sectionDivider} />
+                        {brevets.map(brevet => (
+                          <li key={brevet.id}>
+                            <strong>{brevet.title || 'Titre non disponible'}.</strong> {brevet.author || 'Auteur non disponible'}.
+                            <a href={`https://doi.org/${brevet.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">DOI</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                    {/* Affichage des habilitations */}
+                    {habilitations.length > 0 && (
+                    <div style={styles.infoItem}>
+                      <ul className="habilitations-list">
+                        <h3 style={styles.publicationsTitle}>Habilitations</h3>
+                        <hr style={styles.sectionDivider} />
+                        {habilitations.map(habilitation => (
+                          <li key={habilitation.id}>
+                            <strong>{habilitation.title || 'Titre non disponible'}.</strong> {habilitation.author || 'Auteur non disponible'}.
+                            <a href={`https://doi.org/${habilitation.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">DOI</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                 </td>
               </tr>
             </tbody>
@@ -122,16 +216,21 @@ const MemberProfile = () => {
 
 const styles = {
   publicationsTitle: {
-    marginLeft: '-55px',
+    margin: '10px 0',
+    fontSize: '1.5rem',
+    fontWeight: '600',
+    textAlign: 'left',
+    color: '#333',
   },
   container: {
     padding: '40px',
-    maxWidth: '800px',
+    maxWidth: '900px',
     margin: '0 auto',
     textAlign: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: '10px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '12px',
+    boxShadow: '0 6px 18px rgba(0, 0, 0, 0.15)',
+     alignItems: 'center',
   },
   table: {
     width: '100%',
@@ -142,35 +241,40 @@ const styles = {
     padding: '20px',
   },
   name: {
-    fontSize: '2rem',
-    fontWeight: '700',
+    fontSize: '2.5rem',
+    fontWeight: 'bold',
     margin: '20px 0',
+    color: '#222',
   },
   infoContainer: {
     textAlign: 'left',
+    padding: '0 20px',
   },
   sectionDivider: {
     border: '2px solid #05a7bd',
-    width: '150px',
-    marginTop: '5px',
-    marginLeft: '-35px',
+    width: '175px',
+    margin: '-1px left',
   },
   infoItem: {
     display: 'flex',
     alignItems: 'center',
     fontSize: '1rem',
-    color: '#333',
+    color: '#555',
     margin: '10px 0',
   },
   icon: {
-    marginRight: '10px',
-    color: '#007BFF',
-    fontSize: '20px',
+    marginRight: '15px',
+    color: '#87CEEB',
+    fontSize: '24px',
+    minWidth: '30px',  // Ensure icon size consistency
+    minHeight: '30px', // Ensure icon size consistency
   },
   error: {
     color: 'red',
     textAlign: 'center',
   },
 };
+
+
 
 export default MemberProfile;

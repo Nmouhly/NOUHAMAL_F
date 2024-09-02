@@ -102,8 +102,10 @@ const Sidebar = () => {
               <li><Link to="/dashboard/conference">Conférences</Link></li>
               <li><Link to="/dashboard/report">Rapports</Link></li>
               <li><Link to="/dashboard/patent">Brevets</Link></li>
-              <li><Link to="/dashboard/publication/theses">Thèses et Doctorat</Link></li>
-              <li><Link to="/dashboard/publication/habilitation">Habilitation</Link></li>
+             
+              <li><Link to="/dashboard/theses">Thèses et Doctorat</Link></li>
+
+              <li><Link to="/dashboard/habilitation">Habilitation</Link></li>
             </ul>
 
             <Link className="nav-link" to="/dashboard/ProjectsAdmin">

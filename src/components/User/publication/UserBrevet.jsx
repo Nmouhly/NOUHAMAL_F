@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const UserBrevet = () => {
     const [brevets, setBrevets] = useState([]);
@@ -55,29 +55,51 @@ const UserBrevet = () => {
             <h1 className="text-2xl font-bold mb-4">Liste des Brevets</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
-            <div className="mb-4">
-                <Link to="/user/UserCreateBrevet" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                    Ajouter un Brevet
-                </Link>
-            </div>
+            <button
+                onClick={() => navigate('/user/UserCreateBrevet')}
+                className="mb-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            >
+                Ajouter un Brevet
+            </button>
 
-            <table className="w-full border border-gray-300">
-                <thead>
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                     <tr>
-                        <th className="p-2 border-b">Titre</th>
-                        <th className="p-2 border-b">Auteur(s)</th>
-                        <th className="p-2 border-b">DOI</th>
-                        <th className="p-2 border-b">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur(s)</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {brevets.length > 0 ? (
+                <tbody className="bg-white divide-y divide-gray-200">
+                    {brevets.length ? (
                         brevets.map(brevet => (
                             <tr key={brevet.id}>
-                                <td className="p-2 border-b">{brevet.title}</td>
-                                <td className="p-2 border-b">{brevet.author}</td>
-                                <td className="p-2 border-b">{brevet.doi}</td>
-                                <td className="p-2 border-b flex space-x-2">
+                                <td className="px-6 py-4 whitespace-nowrap">{brevet.title}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{brevet.author}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    {brevet.doi ? (
+                                        <a
+                                            href={`https://doi.org/${brevet.doi}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => {
+                                                const isValidDOI = brevet.doi.startsWith('10.');
+                                                if (!isValidDOI) {
+                                                    e.preventDefault();
+                                                    alert(
+                                                        'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            {brevet.doi}
+                                        </a>
+                                    ) : (
+                                        'Pas de DOI disponible'
+                                    )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                                     <button
                                         onClick={() => handleEdit(brevet.id)}
                                         className="text-blue-500 hover:text-blue-600"
@@ -95,7 +117,7 @@ const UserBrevet = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="4" className="p-2 border-b text-center">Aucun brevet trouvé</td>
+                            <td colSpan="4" className="text-center py-4">Aucun brevet trouvé</td>
                         </tr>
                     )}
                 </tbody>

@@ -4,7 +4,7 @@ import './Thèses.css'; // Assurez-vous que le fichier CSS est bien importé
 import logoDoctorat from '../assets/doctorat.png'; // Importation de l'image
 import Habilitation from './Habilitation';
 
-const Theses = () => {
+const Thèses = () => {
   const [theses, setTheses] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -71,4 +71,4 @@ const Theses = () => {
   );
 };
 
-export default Theses;
+export default Thèses;

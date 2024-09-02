@@ -4,9 +4,18 @@ import ProjectsPage from './pages/ProjectsPage';
 import Login from './components/auth/Login';
 import AxeEdit from './components/Dashboard/Axes/AxeEdit';
 import AxeCreate from './components/Dashboard/Axes/AxeCreate';
+import BrevetAdmin from './components/Dashboard/Publication/BrevetAdmin.jsx';
+import BrevetCreate from './components/Dashboard/Publication/BrevetCreate.jsx';
+import BrevetEdit from './components/Dashboard/Publication/BrevetEdit.jsx';
 import Revues from './pages/Revues';
+import AdminHabilitation from './components/Dashboard/Publication/AdminHabilitation.jsx';
+import HabilitationEdit from './components/Dashboard/Publication/HabilitationEdit.jsx';
+import HabilitationCreate from './components/Dashboard/Publication/HabilitationCreate.jsx';
+import AdminThèse from './components/Dashboard/Publication/AdminThèse.jsx';
+import ThèseCreate from './components/Dashboard/Publication/ThèseCreate.jsx';
+import ThèseEdit from './components/Dashboard/Publication/ThèseEdit.jsx';
 import SidebarConfig from './components/Dashboard/SidebarConfig.jsx';
-import These from './pages/Thèses.jsx';
+import Thèse from './pages/Thèses.jsx';
 import Reports from './pages/Reports';
 import AdminHomeDescription from './components/Dashboard/AdminHomeDescription.jsx';
 import CreateDescription from './components/Dashboard/CreateDescription.jsx';
@@ -148,7 +157,7 @@ function App() {
           <Route path="/" element={<VisitorLayout />}>
           
             <Route index element={<Home />} />
-            <Route path="theses" element={<These />} />
+            <Route path="theses" element={<Thèse/>} />
             <Route path="equipes" element={<Equipes />} />
             <Route path="evenements" element={<Evenements />} />
             <Route path="informations" element={<Informations />} />
@@ -189,9 +198,18 @@ function App() {
             <Route path="NewsAdmin" element={<NewsAdmin />} />
             <Route path="SidebarConfig" element={<SidebarConfig />} />
             <Route path="AdminHomeDescription" element={<AdminHomeDescription />} />
+            <Route path="habilitation" element={<AdminHabilitation />} />
+            <Route path="HabilitationCreate" element={<HabilitationCreate />} />
+            <Route path="patent" element={<BrevetAdmin />} />
+            <Route path="BrevetEdit/:id" element={<BrevetEdit />} />
+            <Route path="BrevetCreate" element={<BrevetCreate />} />
+            <Route path="HabilitationEdit/:id" element={<HabilitationEdit />} />
             <Route path="CreateDescription" element={<CreateDescription />} />
             <Route path="EditDescription/:id" element={<EditDescription />} />
             <Route path="SeminarDetails/:id" element={<SeminarDetails />} />
+            <Route path="theses" element={<AdminThèse/>}/>
+            <Route path="TheseCreate" element={<ThèseCreate/>}/>
+            <Route path="TheseEdit/:id" element={<ThèseEdit/>}/>
             <Route path="SeminarForm" element={<SeminarForm />} />
             <Route path="SeminarList" element={<SeminarList />} />
             <Route path="ouvrage" element={<AdminOuvrage />} />

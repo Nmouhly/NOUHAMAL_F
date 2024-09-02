@@ -1,8 +1,10 @@
+/* Conteneur principal */
 .ouvrages-list {
   padding: 20px;
   font-family: 'Roboto', sans-serif;
 }
 
+/* Titre principal */
 .ouvrages-list h1 {
   font-size: 2rem;
   margin-bottom: 20px;
@@ -10,12 +12,14 @@
   text-align: center;
   color: #333;
 }
-h1{text-align: center;}
+
+/* Liste des ouvrages */
 .ouvrages-list ul {
   list-style-type: none;
   padding-left: 0;
 }
 
+/* Élément de liste */
 .ouvrages-list li {
   margin-bottom: 15px;
   font-size: 1rem;
@@ -24,6 +28,7 @@ h1{text-align: center;}
   padding-left: 20px;
 }
 
+/* Puce personnalisée pour chaque ouvrage */
 .ouvrages-list li::before {
   content: '•';
   color: #02213a;
@@ -33,28 +38,48 @@ h1{text-align: center;}
   top: 0;
 }
 
+/* Style pour le titre d'ouvrage */
 .ouvrages-list strong {
   color: #02213a;
 }
+
+/* Style pour l'image de profil */
 .profile-image {
-  width: 150px; /* Largeur fixe pour l'image */
-  height: 150px; /* Hauteur fixe pour l'image pour maintenir la forme ronde */
-  border-radius: 50%; /* Assure que l'image reste ronde */
-  object-fit: cover; /* Couper l'image pour remplir le conteneur sans déformation */
-  display: block; /* Assure que l'image est un bloc et non inline */
-  margin: 0 auto; /* Centre l'image horizontalement */
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
 }
 
-.pdf-link {
+/* Style pour les liens DOI */
+.doi-link {
   margin-left: 10px;
-  color: #05a7bd;
+  color: #21a9bb; /* Couleur mise à jour */
   text-decoration: underline;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
 }
 
-.pdf-link:hover {
+.doi-link:hover {
+  color: #6baedc; /* Une couleur légèrement plus foncée au survol */
   text-decoration: none;
 }
 
+/* Style pour les liens PDF */
+.pdf-link {
+  margin-left: 10px;
+  color: #008496; /* Couleur mise à jour */
+  text-decoration: underline;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.pdf-link:hover {
+  color: #6baedc; /* Une couleur légèrement plus foncée au survol */
+  text-decoration: none;
+}
+
+/* Style pour les erreurs */
 .error {
   color: red;
   font-weight: bold;
