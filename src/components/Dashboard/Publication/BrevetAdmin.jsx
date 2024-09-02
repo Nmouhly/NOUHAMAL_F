@@ -51,7 +51,7 @@ const BrevetAdmin = () => {
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Gestion des Brevets</h1>
-            <Link to="/dashboard/brevet-create" className="btn btn-primary mb-4">Ajouter un Brevet</Link>
+            <Link to="/dashboard/BrevetCreate" className="btn btn-primary mb-4">Ajouter un Brevet</Link>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -91,7 +91,7 @@ const BrevetAdmin = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">{brevet.id_user}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/brevet-edit/${brevet.id}`} className="btn btn-primary mb-2">Modifier</Link>
+                                    <Link to={`/dashboard/BrevetEdit/${brevet.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger mb-2">Supprimer</button>
                                 </td>
                             </tr>

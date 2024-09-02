@@ -4,74 +4,69 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
-const RevueCreate = () => {
+const ReportCreate = () => {
     const [title, setTitle] = useState('');
-    const [DOI, setDOI] = useState('');
-    const [members, setMembers] = useState([]); // Liste des membres
-    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs des membres sélectionnés
-    const [selectedAuthors, setSelectedAuthors] = useState([]); // Noms des membres sélectionnés
+    const [summary, setSummary] = useState('');
+    const [doi, setDoi] = useState('');
+    const [members, setMembers] = useState([]);
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
+    const [selectedAuthors, setSelectedAuthors] = useState([]);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
 
-    // Fonction pour récupérer les informations des membres
-    const fetchMembers = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/api/members', {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            setMembers(response.data);
-        } catch (error) {
-            console.error('Erreur lors de la récupération des membres:', error);
-            setError('Erreur lors de la récupération des membres');
-            toast.error('Erreur lors de la récupération des membres');
-        }
-    };
-
     useEffect(() => {
+        const fetchMembers = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/members', {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setMembers(response.data);
+            } catch (error) {
+                const errorMsg = 'Erreur lors de la récupération des membres';
+                console.error(errorMsg, error);
+                setError(errorMsg);
+                toast.error(errorMsg);
+            }
+        };
+
         fetchMembers();
     }, [accessToken]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Vérifier que l'utilisateur a sélectionné des auteurs
         if (selectedAuthorIds.length === 0) {
-            setError('Veuillez sélectionner au moins un auteur.');
-            toast.error('Veuillez sélectionner au moins un auteur.');
+            const errorMsg = 'Veuillez sélectionner au moins un auteur.';
+            setError(errorMsg);
+            toast.error(errorMsg);
             return;
         }
 
         try {
-            const response = await axios.post('http://localhost:8000/api/revues', {
+            const response = await axios.post('http://localhost:8000/api/reports', {
                 title,
-                DOI,
-                author: selectedAuthors.join(', '), // Noms des auteurs sélectionnés
-                id_user: selectedAuthorIds.join(','),  // Convertir le tableau en chaîne
+                author: selectedAuthors.join(', '),
+                summary,
+                DOI: doi,
+                id_user: selectedAuthorIds.join(','),
             }, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
+                    Authorization: `Bearer ${accessToken}`,
                 },
             });
 
-            console.log('Revue ajoutée:', response.data);
-            toast.success('Revue ajoutée avec succès');
-            navigate('/dashboard/revues');
+            console.log('Rapport créé:', response.data);
+            toast.success('Rapport créé avec succès');
+            navigate('/dashboard/reports');
         } catch (error) {
-            console.error('Erreur lors de l\'ajout de la revue:', {
-                message: error.message,
-                response: error.response ? {
-                    status: error.response.status,
-                    data: error.response.data,
-                    headers: error.response.headers
-                } : 'Aucune réponse disponible',
-                config: error.config
-            });
-            setError('Erreur lors de l\'ajout de la revue');
-            toast.error('Erreur lors de l\'ajout de la revue');
+            const errorMsg = 'Erreur lors de la création du rapport';
+            console.error(errorMsg, error);
+            setError(errorMsg);
+            toast.error(errorMsg);
         }
     };
 
@@ -86,10 +81,9 @@ const RevueCreate = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Ajouter une Revue</h1>
+            <h1 className="text-2xl font-bold mb-4">Créer un Rapport</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-            
-            {/* Afficher les noms des auteurs sélectionnés */}
+
             {selectedAuthors.length > 0 && (
                 <div className="mb-4">
                     <strong>Auteurs sélectionnés :</strong> {selectedAuthors.join(', ')}
@@ -111,6 +105,7 @@ const RevueCreate = () => {
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
                         multiple
+                        value={selectedAuthors}
                         onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
@@ -125,11 +120,19 @@ const RevueCreate = () => {
                     </p>
                 </div>
                 <div>
+                    <label className="block text-sm font-medium mb-1">Résumé</label>
+                    <textarea
+                        value={summary}
+                        onChange={(e) => setSummary(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
+                </div>
+                <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
                         type="text"
-                        value={DOI}
-                        onChange={(e) => setDOI(e.target.value)}
+                        value={doi}
+                        onChange={(e) => setDoi(e.target.value)}
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
@@ -137,11 +140,11 @@ const RevueCreate = () => {
                     type="submit"
                     className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                 >
-                    Ajouter
+                    Créer
                 </button>
             </form>
         </div>
     );
 };
 
-export default RevueCreate;
+export default ReportCreate;

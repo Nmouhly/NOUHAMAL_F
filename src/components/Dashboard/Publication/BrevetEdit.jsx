@@ -32,6 +32,7 @@ const BrevetEdit = () => {
 
     const fetchBrevetDetails = async () => {
         try {
+            
             const response = await axios.get(`http://localhost:8000/api/brevets/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`

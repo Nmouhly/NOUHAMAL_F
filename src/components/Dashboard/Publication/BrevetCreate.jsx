@@ -59,7 +59,7 @@ const BrevetCreate = () => {
 
             console.log('Brevet ajouté:', response.data);
             toast.success('Brevet ajouté avec succès');
-            navigate('/dashboard/brevet-admin'); // Corrected route
+            navigate('/dashboard/patent'); // Corrected route
         } catch (error) {
             console.error('Erreur lors de l\'ajout du brevet:', {
                 message: error.message,

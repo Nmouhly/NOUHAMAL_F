@@ -69,10 +69,10 @@ const Sidebar = () => {
               <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
               Actualités
             </Link>
-            <Link className="nav-link" to="/dashboard/Organisation">
+            {/* <Link className="nav-link" to="/dashboard/Organisation">
               <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
               Organisation
-            </Link>
+            </Link> */}
             <Link className="nav-link" to="/dashboard/Member">
               <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
               Members
