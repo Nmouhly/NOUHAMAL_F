@@ -77,6 +77,16 @@ const styles = {
     homeLinkHover: {
         backgroundColor: '#008ac7',
         transform: 'scale(1.05)'
+    },
+    emailMessage: {
+        marginTop: '30px',
+        fontSize: '1.1rem',
+        color: '#555'
+    },
+    emailLink: {
+        color: 'white',
+        textDecoration: 'none'
+        
     }
 };
 
@@ -133,8 +143,17 @@ const JobOfferDetails = () => {
                 style={applied ? { ...styles.applyButton, ...styles.applyButtonHover } : styles.applyButton}
                 onClick={handleApplyClick}
             >
-                Postuler
+                <a 
+                    href="https://mail.google.com/mail/?view=cm&fs=1&to=l2is.uca@gmail.com&su=Candidature%20pour%20le%20poste&body=Bonjour,%20Veuillez%20trouver%20ci-joint%20mon%20CV%20et%20ma%20lettre%20de%20motivation.%20Cordialement."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={styles.emailLink}
+                >
+                    Postuler
+                </a>
+                
             </button>
+          
         </div>
     );
 };

@@ -7,23 +7,26 @@ import { AuthContext } from '../../../context/authContext';
 const UserEditOuvrage = () => {
     const [title, setTitle] = useState('');
     const [DOI, setDOI] = useState('');
-    const [members, setMembers] = useState([]); // Liste des membres
-    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs des membres sélectionnés
-    const [selectedAuthors, setSelectedAuthors] = useState([]); // Noms des membres sélectionnés
+    const [members, setMembers] = useState([]);
+    const [selectedAuthors, setSelectedAuthors] = useState([]);
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
+    const [optionalAuthors, setOptionalAuthors] = useState([]);
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { accessToken } = useContext(AuthContext);
-    const { id } = useParams(); // Récupérer l'ID de l'ouvrage depuis les paramètres d'URL
+    const { id } = useParams();  // Get the ouvrage ID from the URL params
+    const { currentUser, accessToken } = useContext(AuthContext);
 
-    // Fonction pour récupérer les informations des membres
+    const cleanSelectedAuthorIds = (ids) => ids.filter(id => id !== null && id !== undefined && id !== "");
+
+    // Fetch the list of members
     const fetchMembers = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
+                    'Authorization': `Bearer ${accessToken}`,
+                },
             });
-            setMembers(response.data);
+            setMembers(response.data.filter(member => member.name !== currentUser.name));
         } catch (error) {
             console.error('Erreur lors de la récupération des membres:', error);
             setError('Erreur lors de la récupération des membres');
@@ -31,41 +34,52 @@ const UserEditOuvrage = () => {
         }
     };
 
-    // Fonction pour récupérer les informations de l'ouvrage à éditer
+    // Fetch ouvrage details to edit
     const fetchOuvrageDetails = async () => {
         try {
             const response = await axios.get(`http://localhost:8000/api/ouvragesUsers/${id}`, {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+            });
+
+            const { title, DOI, author, id_user } = response.data;
+            const authors = author.split(', ');
+            const authorIds = id_user.split(',');
+
+            // Set state for fetched data
+            setTitle(title);
+            setDOI(DOI);
+
+            // Separate selected and optional authors
+            const selected = [];
+            const selectedIds = [];
+            const optional = [];
+
+            authors.forEach((author, index) => {
+                if (authorIds[index]) {
+                    selected.push(author);
+                    selectedIds.push(authorIds[index]);
+                } else {
+                    optional.push(author);
                 }
             });
-            const ouvrage = response.data;
-            setTitle(ouvrage.title);
-            setDOI(ouvrage.DOI);
 
-            const selectedMembers = ouvrage.author.split(', ');
-            const selectedMemberIds = members
-                .filter(member => selectedMembers.includes(member.name))
-                .map(member => member.user_id);
+            setSelectedAuthors([currentUser.name, ...selected]);
+            setSelectedAuthorIds([currentUser.id, ...cleanSelectedAuthorIds(selectedIds)]);
+            setOptionalAuthors(optional);
 
-            setSelectedAuthors(selectedMembers);
-            setSelectedAuthorIds(selectedMemberIds);
         } catch (error) {
-            console.error('Erreur lors de la récupération des détails de l\'ouvrage:', error);
-            setError('Erreur lors de la récupération des détails de l\'ouvrage');
-            toast.error('Erreur lors de la récupération des détails de l\'ouvrage');
+            console.error('Erreur lors de la récupération de l\'ouvrage:', error);
+            setError('Erreur lors de la récupération de l\'ouvrage');
+            toast.error('Erreur lors de la récupération de l\'ouvrage');
         }
     };
 
     useEffect(() => {
         fetchMembers();
-    }, [accessToken]);
-
-    useEffect(() => {
-        if (members.length > 0) {
-            fetchOuvrageDetails();
-        }
-    }, [members]);
+        fetchOuvrageDetails();
+    }, [accessToken, id]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -77,31 +91,22 @@ const UserEditOuvrage = () => {
         }
 
         try {
-            const response = await axios.put(`http://localhost:8000/api/ouvrages/${id}`, {
+            await axios.put(`http://localhost:8000/api/ouvrages/${id}`, {
                 title,
                 author: selectedAuthors.join(', '),
                 DOI,
-                id_user: selectedAuthorIds.join(','),  // Convertir le tableau en chaîne
+                id_user: [...cleanSelectedAuthorIds(selectedAuthorIds)].join(','),
             }, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
+                    'Authorization': `Bearer ${accessToken}`,
                 },
             });
 
-            console.log('Ouvrage mis à jour:', response.data);
             toast.success('Ouvrage mis à jour avec succès');
             navigate('/user/UserOuvrage');
         } catch (error) {
-            console.error('Erreur lors de la mise à jour de l\'ouvrage:', {
-                message: error.message,
-                response: error.response ? {
-                    status: error.response.status,
-                    data: error.response.data,
-                    headers: error.response.headers
-                } : 'Aucune réponse disponible',
-                config: error.config
-            });
+            console.error('Erreur lors de la mise à jour de l\'ouvrage:', error);
             setError('Erreur lors de la mise à jour de l\'ouvrage');
             toast.error('Erreur lors de la mise à jour de l\'ouvrage');
         }
@@ -112,15 +117,41 @@ const UserEditOuvrage = () => {
         const names = selectedOptions.map(option => option.value);
         const ids = selectedOptions.map(option => option.getAttribute('data-id'));
 
-        setSelectedAuthors(names);
-        setSelectedAuthorIds(ids);
+        setSelectedAuthors([currentUser.name, ...names]);
+        setSelectedAuthorIds([currentUser.id, ...cleanSelectedAuthorIds(ids)]);
     };
+
+    const handleAddOptionalAuthor = () => {
+        setOptionalAuthors([...optionalAuthors, '']);
+    };
+
+    const handleOptionalAuthorChange = (index, value) => {
+        const newOptionalAuthors = [...optionalAuthors];
+        newOptionalAuthors[index] = value;
+        setOptionalAuthors(newOptionalAuthors);
+    };
+
+    const handleRemoveOptionalAuthor = (index) => {
+        const newOptionalAuthors = optionalAuthors.filter((_, i) => i !== index);
+        setOptionalAuthors(newOptionalAuthors);
+    };
+
+    const membersWithOptionalAuthors = [
+        ...members,
+        ...optionalAuthors
+            .filter(author => author.trim() !== '')
+            .map((author, index) => ({
+                id: `optional_${index}`,
+                name: author,
+            }))
+    ];
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier un Ouvrage</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier l'Ouvrage</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-            <p className="text-sm text-gray-500 mb-4">ID de l'ouvrage : {id}</p>
+
+
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium mb-1">Titre</label>
@@ -140,7 +171,7 @@ const UserEditOuvrage = () => {
                         onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
-                        {members.map(member => (
+                        {membersWithOptionalAuthors.map(member => (
                             <option key={member.id} value={member.name} data-id={member.user_id}>
                                 {member.name}
                             </option>
@@ -151,6 +182,37 @@ const UserEditOuvrage = () => {
                     </p>
                 </div>
                 <div>
+                    <label className="block text-sm font-medium mb-1">Auteur(s) Facultatif(s)</label>
+                    <div className="space-y-2">
+                        {optionalAuthors.map((author, index) => (
+                            <div key={index} className="flex items-center mb-2">
+                                <input
+                                    type="text"
+                                    value={author}
+                                    onChange={(e) => handleOptionalAuthorChange(index, e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveOptionalAuthor(index)}
+                                    className="ml-2 bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                                >
+                                    &minus;
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex space-x-2">
+                        <button
+                            type="button"
+                            onClick={handleAddOptionalAuthor}
+                            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                        >
+                            Ajouter Autre Auteur(s) Facultatif(s)
+                        </button>
+                    </div>
+                </div>
+                <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
                         type="text"
@@ -159,12 +221,14 @@ const UserEditOuvrage = () => {
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
-                    Mettre à jour
-                </button>
+                <div>
+                    <button
+                        type="submit"
+                        className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
+                    >
+                        Enregistrer
+                    </button>
+                </div>
             </form>
         </div>
     );
