@@ -10,11 +10,11 @@ const SeminarDetails = () => {
     title: '',
     description: '',
     date: '',
-   start_time: '',
+    start_time: '',
     end_time: '',
     location: '',
     speaker: '',
-    status: '' // Utiliser les valeurs 'v' pour "Prévu" et 'p' pour "Passé"
+    status: '',
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -26,7 +26,12 @@ const SeminarDetails = () => {
         const response = await axios.get(`http://localhost:8000/api/seminars/${id}`, {
           headers: { 'Authorization': `Bearer ${accessToken}` },
         });
-        setSeminar(response.data);
+        const data = response.data;
+        setSeminar({
+          ...data,
+          start_time: data.start_time.slice(0, 5), // Ensure HH:mm format
+          end_time: data.end_time.slice(0, 5),     // Ensure HH:mm format
+        });
       } catch (error) {
         console.error('Erreur lors du chargement des informations du séminaire', error);
         toast.error(`Erreur lors du chargement des informations du séminaire: ${error.response?.data?.message || error.message}`);
@@ -34,9 +39,24 @@ const SeminarDetails = () => {
     };
     fetchSeminar();
   }, [id, accessToken]);
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log('Submitting seminar:', seminar); // Log the seminar object
+    console.log('Start Time:', seminar.start_time); // Log start_time
+    console.log('End Time:', seminar.end_time); // Log end_time
+  
+    // Ensure time fields are in the correct format
+    if (!/^\d{2}:\d{2}$/.test(seminar.start_time)) {
+      setError('Heure de début doit être au format HH:mm');
+      return;
+    }
+    if (!/^\d{2}:\d{2}$/.test(seminar.end_time)) {
+      setError('Heure de fin doit être au format HH:mm');
+      return;
+    }
+  
     try {
       const response = await axios.put(`http://localhost:8000/api/seminars/${id}`, seminar, {
         headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -45,11 +65,13 @@ const SeminarDetails = () => {
       navigate('/dashboard/SeminarList');
     } catch (error) {
       console.error('Erreur lors de la mise à jour du séminaire', error);
-      setError(error.response?.data?.message || 'Erreur lors de la mise à jour du séminaire');
-      toast.error(`Erreur lors de la mise à jour du séminaire: ${error.response?.data?.message || error.message}`);
+      if (error.response && error.response.data.errors) {
+        console.error('Validation Errors:', error.response.data.errors);
+        setError('Les données soumises sont invalides. Vérifiez les champs suivants: ' + JSON.stringify(error.response.data.errors));
+      }
     }
   };
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSeminar({
@@ -63,6 +85,7 @@ const SeminarDetails = () => {
       <h1 className="text-2xl font-bold mb-4">Modifier le Séminaire</h1>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Title Field */}
         <div>
           <label className="block text-sm font-medium mb-1">Titre</label>
           <input 
@@ -74,17 +97,18 @@ const SeminarDetails = () => {
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
+        {/* Description Field */}
         <div>
           <label className="block text-sm font-medium mb-1">Description</label>
           <textarea 
             name="description" 
             value={seminar.description} 
             onChange={handleChange} 
-            required 
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
-         <div>
+        {/* Date Field */}
+        <div>
           <label className="block text-sm font-medium mb-1">Date</label>
           <input 
             type="date" 
@@ -94,7 +118,8 @@ const SeminarDetails = () => {
             required 
             className="w-full p-2 border border-gray-300 rounded"
           />
-         </div>
+        </div>
+        {/* Start Time Field */}
         <div>
           <label className="block text-sm font-medium mb-1">Heure de début</label>
           <input 
@@ -105,7 +130,8 @@ const SeminarDetails = () => {
             required 
             className="w-full p-2 border border-gray-300 rounded"
           />
-        </div>  
+        </div>
+        {/* End Time Field */}
         <div>
           <label className="block text-sm font-medium mb-1">Heure de fin</label>
           <input 
@@ -116,7 +142,8 @@ const SeminarDetails = () => {
             required 
             className="w-full p-2 border border-gray-300 rounded"
           />
-        </div>    
+        </div>
+        {/* Location Field */}
         <div>
           <label className="block text-sm font-medium mb-1">Lieu</label>
           <input 
@@ -128,6 +155,7 @@ const SeminarDetails = () => {
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
+        {/* Speaker Field */}
         <div>
           <label className="block text-sm font-medium mb-1">Intervenant</label>
           <input 
@@ -139,6 +167,7 @@ const SeminarDetails = () => {
             className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
+        {/* Status Field */}
         <div>
           <label className="block text-sm font-medium mb-1">Statut</label>
           <select 

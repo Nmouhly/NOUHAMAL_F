@@ -87,7 +87,7 @@ const Sidebar = () => {
               <li><Link to="/dashboard/equipe">Équipe</Link></li>
               <li><Link to="/dashboard/PresentationAdmin">Présentation</Link></li>
               <li><Link to="/dashboard/axe">Axes de Recherche</Link></li>
-              <li><Link to="/dashboard/publication">Publications</Link></li>
+             
             </ul>
 
             {/* Publications */}

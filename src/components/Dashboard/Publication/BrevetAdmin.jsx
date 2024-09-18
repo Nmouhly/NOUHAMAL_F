@@ -51,6 +51,7 @@ const BrevetAdmin = () => {
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Gestion des Brevets</h1>
+        
             <Link to="/dashboard/BrevetCreate" className="btn btn-primary mb-4">Ajouter un Brevet</Link>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <table className="min-w-full divide-y divide-gray-200">

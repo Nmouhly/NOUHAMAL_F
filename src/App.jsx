@@ -223,7 +223,7 @@ function App() {
             <Route path="JobOfferCreate" element={<JobOfferCreat />} />
             <Route path="report" element={<AdminReport />} />
             <Route path="ReportEdit/:id" element={<ReportEdit />} />
-            <Route path="ReportCreat" element={<ReportCreat />} />
+            <Route path="ReportCreate" element={<ReportCreat />} />
             <Route path="conference" element={<AdminConference />} />
             <Route path="ConferenceEdit/:id" element={<ConferenceEdit />} />
             <Route path="ConferenceCreate" element={<ConferenceCreat />} />

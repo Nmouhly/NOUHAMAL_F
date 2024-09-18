@@ -4,17 +4,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
-const BrevetEdit = () => {
+const OuvrageEdit = () => {
     const [title, setTitle] = useState('');
-    const [doi, setDoi] = useState('');
-    const [members, setMembers] = useState([]);
-    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
-    const [selectedAuthors, setSelectedAuthors] = useState([]);
+    const [DOI, setDOI] = useState('');
+    const [members, setMembers] = useState([]); // Liste des membres
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs des membres sélectionnés
+    const [selectedAuthors, setSelectedAuthors] = useState([]); // Noms des membres sélectionnés
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
-    const { id } = useParams();
+    const { id } = useParams(); // Récupérer l'ID de l'ouvrage depuis les paramètres d'URL
 
+    // Fonction pour récupérer les informations des membres
     const fetchMembers = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
@@ -30,29 +31,29 @@ const BrevetEdit = () => {
         }
     };
 
-    const fetchBrevetDetails = async () => {
+    // Fonction pour récupérer les informations de l'ouvrage à éditer
+    const fetchOuvrageDetails = async () => {
         try {
-            
             const response = await axios.get(`http://localhost:8000/api/brevets/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            const brevet = response.data;
-            setTitle(brevet.title);
-            setDoi(brevet.doi);
-            setSelectedAuthors(brevet.author.split(', '));
-            setSelectedAuthorIds(brevet.id_user.split(','));
+            const ouvrage = response.data;
+            setTitle(ouvrage.title);
+            setDOI(ouvrage.DOI);
+            setSelectedAuthors(ouvrage.author.split(', '));
+            setSelectedAuthorIds(ouvrage.id_user.split(','));
         } catch (error) {
-            console.error('Erreur lors de la récupération du brevet:', error);
-            setError('Erreur lors de la récupération du brevet');
-            toast.error('Erreur lors de la récupération du brevet');
+            console.error('Erreur lors de la récupération de l\'ouvrage:', error);
+            setError('Erreur lors de la récupération de l\'ouvrage');
+            toast.error('Erreur lors de la récupération de l\'ouvrage');
         }
     };
 
     useEffect(() => {
         fetchMembers();
-        fetchBrevetDetails();
+        fetchOuvrageDetails();
     }, [accessToken, id]);
 
     const handleSubmit = async (e) => {
@@ -65,9 +66,9 @@ const BrevetEdit = () => {
         }
 
         try {
-            await axios.put(`http://localhost:8000/api/brevetsUser/${id}`, {
+            const response = await axios.put(`http://localhost:8000/api/brevets/${id}`, {
                 title,
-                doi,
+                DOI,
                 author: selectedAuthors.join(', '),
                 id_user: selectedAuthorIds.join(','),
             }, {
@@ -77,10 +78,11 @@ const BrevetEdit = () => {
                 },
             });
 
-            toast.success('Brevet mis à jour avec succès');
+            console.log('Ouvrage mis à jour:', response.data);
+            toast.success('Ouvrage mis à jour avec succès');
             navigate('/dashboard/patent');
         } catch (error) {
-            console.error('Erreur lors de la mise à jour du brevet:', {
+            console.error('Erreur lors de la mise à jour de l\'ouvrage:', {
                 message: error.message,
                 response: error.response ? {
                     status: error.response.status,
@@ -89,8 +91,8 @@ const BrevetEdit = () => {
                 } : 'Aucune réponse disponible',
                 config: error.config
             });
-            setError('Erreur lors de la mise à jour du brevet');
-            toast.error('Erreur lors de la mise à jour du brevet');
+            setError('Erreur lors de la mise à jour de l\'ouvrage');
+            toast.error('Erreur lors de la mise à jour de l\'ouvrage');
         }
     };
 
@@ -105,7 +107,7 @@ const BrevetEdit = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier un Brevet</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier un Ouvrage</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             
             {selectedAuthors.length > 0 && (
@@ -129,7 +131,7 @@ const BrevetEdit = () => {
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
                         multiple
-                        value={selectedAuthors} 
+                        value={selectedAuthors} // pour pré-remplir les auteurs sélectionnés
                         onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
@@ -147,8 +149,8 @@ const BrevetEdit = () => {
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
                         type="text"
-                        value={doi}
-                        onChange={(e) => setDoi(e.target.value)}
+                        value={DOI}
+                        onChange={(e) => setDOI(e.target.value)}
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
@@ -163,4 +165,4 @@ const BrevetEdit = () => {
     );
 };
 
-export default BrevetEdit;
+export default OuvrageEdit;
