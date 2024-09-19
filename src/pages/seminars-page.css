@@ -8,7 +8,13 @@
     color: #333;
     line-height: 1.6;
 }
-
+.titlee {
+    margin-left:200px;
+    border-bottom:2px solid #d7005a; 
+    padding-bottom: 15px; 
+    margin-bottom: 20px;
+    Width:500px;
+  }
 .seminars-page h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;

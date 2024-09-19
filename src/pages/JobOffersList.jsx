@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
+import arrowGif from '../assets/fleche.gif';
 
 const JobOffersList = () => {
     const [jobOffers, setJobOffers] = useState([]);
@@ -32,6 +33,14 @@ const JobOffersList = () => {
 
     return (
         <div className="job-offers-list">
+             <div className="flex flex-col items-center">
+                <h2 style={{ color: '#1A237E', fontSize: '2rem', marginTop: '2rem' }}>Offres d'Emploi</h2>
+                <img
+                    src={arrowGif}
+                    alt="Flèche animée"
+                    style={{ height: '60px', width: 'auto' }} // Ajustez la taille selon vos besoins
+                />
+            </div>
             {jobOffers.length > 0 ? (
                 jobOffers.map(offer => (
                     <div key={offer.id} className="job-offer-item">

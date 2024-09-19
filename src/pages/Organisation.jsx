@@ -20,31 +20,42 @@ const Organisation = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-4">Organisation</h1>
-      <h2 className="text-2xl font-semibold text-center mt-8">
-        L’équipe dirigeante L2IS
-      </h2>
-      <div className="flex justify-center mt-4">
-        <img
-          src={arrowGif}
-          alt="Flèche animée"
-          style={{ height: '60px', width: 'auto' }} // Ajustez la taille selon vos besoins
-        />
-      </div>
-      <div className="mt-8">
-        {director ? (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8"> {/* Augmenter la marge inférieure ici */}
-            <h3 className="text-2xl font-bold mb-2">{director.name}</h3>
-            <p className="text-xl font-semibold mb-2">{director.email}</p>
-            <p className="text-gray-700 mb-4">{director.bio}</p>
-            <div className="text-sm text-gray-500">
-              <p>{director.contact_info}</p>
+     
+     <div className="flex flex-col items-center">
+                <h2 style={{ color: '#1A237E', fontSize: '2rem', marginTop: '2rem' }}>L’équipe dirigeante L2IS</h2>
+                <img
+                    src={arrowGif}
+                    alt="Flèche animée"
+                    style={{ height: '60px', width: 'auto' }} // Ajustez la taille selon vos besoins
+                />
             </div>
-          </div>
-        ) : (
-          <p>Chargement des informations du directeur...</p>
-        )}
+            <div className="mt-8">
+  {director ? (
+    <div
+      style={{
+        maxWidth: '2000px', // Decreased by 23px from 300px (300px - 23px)
+        padding: '10px', // Maintain padding
+        margin: '10px auto', // Center the container with space around it
+        border: '1px  #ccc', // Border for visibility
+        borderRadius: '5px', // Slightly round the corners
+        boxShadow: '0 6px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow
+        background: 'linear-gradient(135deg, #f0f4f8, #ffffff)',
+        
+      }}
+      className="mb-8"
+    >
+      <h3 className="text-2xl font-bold mb-2">{director.name}</h3>
+      <p className="text-xl font-semibold mb-2">{director.email}</p>
+      <p className="text-gray-700 mb-4">{director.bio}</p>
+      <div className="text-sm text-gray-500">
+        <p>{director.contact_info}</p>
       </div>
+    </div>
+  ) : (
+    <p>Chargement des informations du directeur...</p>
+  )}
+</div>
+
       
       {/* Ajout de la carte */}
       <div className="mt-8"> {/* Ajout de la marge supérieure pour espacer */}

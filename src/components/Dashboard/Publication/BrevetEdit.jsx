@@ -4,9 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
-const OuvrageEdit = () => {
+const BrevetEdit = () => {
     const [title, setTitle] = useState('');
-    const [DOI, setDOI] = useState('');
+    const [doi, setDoi] = useState('');
     const [members, setMembers] = useState([]); // Liste des membres
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs des membres sélectionnés
     const [selectedAuthors, setSelectedAuthors] = useState([]); // Noms des membres sélectionnés
@@ -41,13 +41,13 @@ const OuvrageEdit = () => {
             });
             const ouvrage = response.data;
             setTitle(ouvrage.title);
-            setDOI(ouvrage.DOI);
+            setDoi(ouvrage.doi);
             setSelectedAuthors(ouvrage.author.split(', '));
             setSelectedAuthorIds(ouvrage.id_user.split(','));
         } catch (error) {
-            console.error('Erreur lors de la récupération de l\'ouvrage:', error);
-            setError('Erreur lors de la récupération de l\'ouvrage');
-            toast.error('Erreur lors de la récupération de l\'ouvrage');
+            console.error('Erreur lors de la récupération du brevet:', error);
+            setError('Erreur lors de la récupération du brevet');
+            toast.error('Erreur lors de la récupération du brevet');
         }
     };
 
@@ -68,7 +68,7 @@ const OuvrageEdit = () => {
         try {
             const response = await axios.put(`http://localhost:8000/api/brevets/${id}`, {
                 title,
-                DOI,
+                doi,
                 author: selectedAuthors.join(', '),
                 id_user: selectedAuthorIds.join(','),
             }, {
@@ -78,11 +78,11 @@ const OuvrageEdit = () => {
                 },
             });
 
-            console.log('Ouvrage mis à jour:', response.data);
-            toast.success('Ouvrage mis à jour avec succès');
+            console.log('Brevet mis à jour:', response.data);
+            toast.success('Brevet  mis à jour avec succès');
             navigate('/dashboard/patent');
         } catch (error) {
-            console.error('Erreur lors de la mise à jour de l\'ouvrage:', {
+            console.error('Erreur lors de la mise à jour du brevet:', {
                 message: error.message,
                 response: error.response ? {
                     status: error.response.status,
@@ -91,8 +91,8 @@ const OuvrageEdit = () => {
                 } : 'Aucune réponse disponible',
                 config: error.config
             });
-            setError('Erreur lors de la mise à jour de l\'ouvrage');
-            toast.error('Erreur lors de la mise à jour de l\'ouvrage');
+            setError('Erreur lors de la mise à jour du brevet');
+            toast.error('Erreur lors de la mise à jour du brevet');
         }
     };
 
@@ -107,7 +107,7 @@ const OuvrageEdit = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier un Ouvrage</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier un Brevet </h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             
             {selectedAuthors.length > 0 && (
@@ -149,8 +149,8 @@ const OuvrageEdit = () => {
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
                         type="text"
-                        value={DOI}
-                        onChange={(e) => setDOI(e.target.value)}
+                        value={doi}
+                        onChange={(e) => setDoi(e.target.value)}
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
@@ -165,4 +165,4 @@ const OuvrageEdit = () => {
     );
 };
 
-export default OuvrageEdit;
+export default BrevetEdit;

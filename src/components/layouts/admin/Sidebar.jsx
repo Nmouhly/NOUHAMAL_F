@@ -112,10 +112,6 @@ const Sidebar = () => {
               <div className="sb-nav-link-icon"><i className="fas fa-project-diagram"></i></div>
               Projets Industriels
             </Link>
-            <Link className="nav-link" to="/dashboard/informa">
-              <div className="sb-nav-link-icon"><i className="fas fa-info-circle"></i></div>
-              Informations
-            </Link>
             <Link className="nav-link" to="/dashboard/SeminarList">
               <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
               Séminaires

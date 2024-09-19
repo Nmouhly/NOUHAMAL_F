@@ -53,13 +53,32 @@ const CreateDescription = () => {
                         value={content}
                         onChange={setContent}
                         placeholder="Enter content here..."
-                        className="border px-4 py-2 w-full"
+                        className="react-quill-editor border px-4 py-2 w-full"
                     />
                 </div>
                 <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Add
                 </button>
             </form>
+            <style jsx>{`
+                .react-quill-editor .ql-editor {
+                    text-align: left; /* Align text to the left */
+                    padding: 0;      /* Remove padding */
+                    margin: 0;       /* Remove margin */
+                }
+                
+                /* Optional: Adjust the styling for block elements within the editor */
+                .react-quill-editor .ql-editor p {
+                    margin: 0; /* Remove margin from paragraphs */
+                }
+
+                .react-quill-editor .ql-editor h1,
+                .react-quill-editor .ql-editor h2,
+                .react-quill-editor .ql-editor h3 {
+                    margin-top: 0; /* Remove top margin from headers */
+                    margin-bottom: 0; /* Remove bottom margin from headers */
+                }
+            `}</style>
         </div>
     );
 };

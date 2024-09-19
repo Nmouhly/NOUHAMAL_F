@@ -34,9 +34,8 @@ const Seminar = () => {
 
     return (
         <div className="seminars-page">
-            <h1>Séminaires du laboratoire</h1>
+            <h1 className="titlee">Séminaires du laboratoire</h1>
             {error && <p className="error">{error}</p>}
-<p>Les séminaires du laboratoire L2IS sont un rendez-vous mensuel où doctorants, permanents et chercheurs invités viennent exposer leurs travaux publiés ou en cours autour des thématiques du laboratoire.</p>
             <h2>À venir</h2>
             <div className="seminars ongoing">
                 {ongoingSeminars.length > 0 ? (

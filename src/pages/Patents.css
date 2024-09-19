@@ -1,5 +1,5 @@
 .patents-page {
-    max-width: 900px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 20px;
     font-family: 'Roboto', sans-serif;
@@ -15,19 +15,18 @@
 }
 
 .patents-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Toujours deux colonnes */
+    gap: 40px; /* Augmenter l'espace entre les cartes */
 }
 
 .patent-card {
     background-color: #f9f9f9;
-    padding: 20px;
-    margin: 10px 0;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 30px; /* Augmenter l'espace à l'intérieur de chaque carte */
+    margin: 20px 0;
+    border-radius: 10px; /* Bordures arrondies pour un style plus moderne */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Ombre plus marquée */
     width: 100%;
-    max-width: 400px;
 }
 
 .patent-card h3 {
@@ -41,17 +40,17 @@
     font-size: 1rem;
 }
 
-.pdf-link {
+.doi-link {
     color: #007bff;
     text-decoration: none;
     font-weight: bold;
 }
 
-.pdf-link:hover {
+.doi-link:hover {
     text-decoration: underline;
 }
 
-.no-pdf {
+.no-doi {
     font-style: italic;
     color: #666;
 }
@@ -67,11 +66,11 @@
         padding: 10px;
     }
 
-    .patent-card {
-        max-width: 100%;
+    .patents-container {
+        grid-template-columns: 1fr; /* Une seule colonne sur petits écrans */
     }
 
-    .patents-container {
-        flex-direction: column;
+    .patent-card {
+        max-width: 100%;
     }
 }

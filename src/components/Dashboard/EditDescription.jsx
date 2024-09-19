@@ -14,6 +14,8 @@ const EditDescription = () => {
 
     useEffect(() => {
         fetchDescription();
+        // Ensure that the styles are applied when component mounts
+        addCustomQuillStyles();
     }, [id]);
 
     const fetchDescription = async () => {
@@ -62,6 +64,20 @@ const EditDescription = () => {
             console.error('Error updating description:', errorMessage);
             toast.error(`Error updating description: ${errorMessage}`);
         }
+    };
+
+    const addCustomQuillStyles = () => {
+        const styleElement = document.createElement('style');
+        styleElement.innerHTML = `
+            .ql-editor a {
+                color: #00bfff !important; /* Light sky blue color with !important */
+                text-decoration: none; /* Optional: remove underline */
+            }
+            .ql-editor a:hover {
+                text-decoration: underline; /* Optional: underline on hover */
+            }
+        `;
+        document.head.appendChild(styleElement);
     };
 
     return (

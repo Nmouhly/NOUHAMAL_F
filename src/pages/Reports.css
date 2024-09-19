@@ -15,9 +15,9 @@
 }
 
 .reports-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns layout */
+    gap: 20px; /* Space between the cards */
 }
 
 .report-card {
@@ -27,7 +27,6 @@
     border-radius: 5px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px;
 }
 
 .report-card h3 {
@@ -67,11 +66,11 @@
         padding: 10px;
     }
 
-    .report-card {
-        max-width: 100%;
+    .reports-container {
+        grid-template-columns: 1fr; /* One column layout for small screens */
     }
 
-    .reports-container {
-        flex-direction: column;
+    .report-card {
+        max-width: 100%;
     }
 }

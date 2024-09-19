@@ -94,9 +94,9 @@ const VisitorSidebar = () => {
           {visibility.projets && (
             <li><Link to="/ProjectsPage">Projets</Link></li>
           )}
-          {/* {visibility.informations && (
+          {visibility.informations && (
             <li><Link to="/informations">Informations</Link></li>
-          )} */}
+          )}
           {visibility.evenements && (
             <li><Link to="/evenements">Événements</Link></li>
           )}

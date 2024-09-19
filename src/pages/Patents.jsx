@@ -7,7 +7,7 @@ const Patents = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/patents')
+        axios.get('http://localhost:8000/api/brevets')
             .then(response => {
                 console.log('Données récupérées:', response.data); // Pour vérifier les données
                 setPatents(response.data);
@@ -30,13 +30,14 @@ const Patents = () => {
                             <h3>{patent.title || 'Titre non disponible'}</h3>
                             <p><strong>Description:</strong> {patent.description || 'Description non disponible'}</p>
                             <p><strong>Date de Dépôt:</strong> {patent.filing_date ? new Date(patent.filing_date).toLocaleDateString() : 'Date non disponible'}</p>
-                            {patent.pdf_link ? (
-                                <a href={patent.pdf_link} target="_blank" rel="noopener noreferrer" className="pdf-link">
-                                    Télécharger le PDF
+                            <p><strong>DOI:</strong>{patent.doi ? (
+                                <a href={`https://doi.org/${patent.Doi}`} target="_blank" rel="noopener noreferrer" className="doi-link">
+                                    DOI
                                 </a>
                             ) : (
-                                <p className="no-pdf">PDF non disponible</p>
-                            )}
+                                <span>DOI non disponible</span>
+                            )}</p>
+                            
                         </div>
                     ))
                 ) : (

@@ -31,13 +31,14 @@ const Reports = () => {
                             <h3>{report.title || 'Titre non disponible'}</h3>
                             <p><strong>Auteur:</strong> {report.author || 'Auteur non disponible'}</p>
                             <p><strong>Résumé:</strong> {report.summary || 'Résumé non disponible'}</p>
-                            {report.pdf_link ? (
-                                <a href={report.pdf_link} target="_blank" rel="noopener noreferrer" className="pdf-link">
-                                    Télécharger le PDF
+                            <p><strong>DOI:</strong> {report.DOI ? (
+                                <a href={`https://doi.org/${report.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">
+                                    DOI
                                 </a>
                             ) : (
-                                <p className="no-pdf">PDF non disponible</p>
-                            )}
+                                <span>DOI non disponible</span>
+                            )}</p>
+                            
                         </div>
                     ))
                 ) : (

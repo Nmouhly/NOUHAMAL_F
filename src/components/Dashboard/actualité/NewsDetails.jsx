@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../../../context/authContext';
 
@@ -9,6 +9,7 @@ const NewsDetails = () => {
     const [news, setNews] = useState(null);
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
+    const navigate = useNavigate(); // Use navigate for navigation
 
     useEffect(() => {
         const fetchNews = async () => {
@@ -28,6 +29,10 @@ const NewsDetails = () => {
         fetchNews();
     }, [id, accessToken]);
 
+    const handleBackClick = () => {
+        navigate('/'); // Navigate to the home page
+    };
+
     return (
         <div style={styles.container}>
             {error && <p style={styles.error}>{error}</p>}
@@ -44,6 +49,9 @@ const NewsDetails = () => {
                         </div>
                     )}
                     <p style={styles.content}>{news.content}</p>
+                    <button onClick={handleBackClick} style={styles.button}>
+                    Retour à l'accueil
+                    </button>
                 </div>
             ) : (
                 <p style={styles.loading}>Chargement...</p>
@@ -83,9 +91,9 @@ const styles = {
         textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
     },
     imageWrapper: {
-        width: '70%', // Réduit la largeur du conteneur de l'image
-        maxWidth: '500px', // Limite la largeur maximale
-        height: '300px', // Fixe la hauteur du conteneur de l'image
+        width: '70%',
+        maxWidth: '500px',
+        height: '300px',
         marginBottom: '20px',
         overflow: 'hidden',
         borderRadius: '15px',
@@ -97,7 +105,7 @@ const styles = {
     image: {
         width: '100%',
         height: '100%',
-        objectFit: 'cover', // Maintient les proportions tout en remplissant le conteneur
+        objectFit: 'cover',
         transition: 'transform 0.3s ease-in-out',
         borderRadius: '15px',
     },
@@ -114,10 +122,20 @@ const styles = {
         color: '#888',
         textAlign: 'center',
         marginTop: '50px',
-    }
+    },
+    button: {
+        display: 'inline-block',
+        marginTop: '20px',
+        padding: '12px 24px',
+        fontSize: '1rem',
+        color: '#fff',
+        backgroundColor: '#7bdae7',
+        borderRadius: '8px',
+        textDecoration: 'none',
+        transition: 'background-color 0.3s, transform 0.3s'
+    },
 };
 
-// Global CSS or in a CSS file
 const fadeIn = `
 @keyframes fadeIn {
     from {
@@ -135,7 +153,6 @@ ${styles.imageWrapper}:hover .${styles.image} {
 }
 `;
 
-// Injecting the animation CSS into the document
 const styleSheet = document.createElement("style");
 styleSheet.type = 'text/css';
 styleSheet.innerText = fadeIn;
