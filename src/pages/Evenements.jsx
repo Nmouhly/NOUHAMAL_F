@@ -23,26 +23,34 @@ const Evenements = () => {
 
   // Style object for the project container with decreased size
   const projectContainerStyle = {
-    maxWidth: '900px', // Decreased by 23px from 300px (300px - 23px)
+    maxWidth: '860px', // Decreased by 23px from 300px (300px - 23px)
     padding: '15px', // Maintain padding
     margin: '10px auto', // Center the container with space around it
     border: '1px  #ccc', // Border for visibility
     borderRadius: '5px', // Slightly round the corners
-    boxShadow: '0 4px 5px rgba(0, 0, 0, 0.1)', // Subtle shadow
+    boxShadow: '0 5px 5px rgba(0, 0, 0, 0.1)', // Subtle shadow
   };
 
   // Style object for the title
   const titleStyle = {
-    marginLeft: '140px', // Move the title 25px to the right
-    textDecoration: 'underline', // Add underline
-    textDecorationColor: '#B0E0E6', // Set underline color
+    marginLeft: '280px', // Déplacer le titre de 280px vers la droite
+    borderBottom: '2px solid #B0E0E6', // Ajouter une ligne sous le texte
+    paddingBottom: '15px', // Ajouter un espace entre le texte et la ligne
+    maxWidth:'170px'
+  };
+  
+  const titlee= {
+    marginLeft: '600px',
+    borderBottom: '2px solid #d7005a', // Ajouter une ligne sous le texte
+    paddingBottom: '15px', // Ajouter un espace entre le texte et la ligne
+    marginBottom:'20px',
+    maxWidth:'260px'
   };
 
   return (
     <div>
       <Seminar />
-      <Conference />
-
+      <h1 style={titlee}>Projets à venir</h1>
       <h2 style={titleStyle}>Projets à venir</h2>
       <div className="projects upcoming">
         {error && <p className="error">{error}</p>}
@@ -61,6 +69,9 @@ const Evenements = () => {
           <p>Aucun projet à venir.</p>
         )}
       </div>
+      <Conference />
+
+     
     </div>
   );
 };
