@@ -30,13 +30,19 @@ const UserOuvrage = () => {
     }, [currentUser.id, accessToken]);
 
     const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:8000/api/ouvrages/${id}`);
-            toast.success('Ouvrage supprimé avec succès');
-            fetchOuvrages(); // Recharger la liste des ouvrages
-        } catch (error) {
-            console.error('Erreur lors de la suppression de l\'ouvrage:', error);
-            toast.error('Erreur lors de la suppression de l\'ouvrage');
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet ouvrage ?')) {
+            try {
+                await axios.delete(`http://localhost:8000/api/ouvragesUser/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                toast.success('Ouvrage supprimé avec succès');
+                fetchOuvrages(); // Recharger la liste des ouvrages
+            } catch (error) {
+                console.error('Erreur lors de la suppression de l\'ouvrage:', error);
+                toast.error('Erreur lors de la suppression de l\'ouvrage');
+            }
         }
     };
 
@@ -69,27 +75,27 @@ const UserOuvrage = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">{ouvrage.title}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{ouvrage.author}</td>
                                 <td>
-  {ouvrage.DOI ? (
-    <a
-      href={`https://doi.org/${ouvrage.DOI}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={(e) => {
-        const isValidDOI = ouvrage.DOI.startsWith('10.');
-        if (!isValidDOI) {
-          e.preventDefault();
-          alert(
-            'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
-          );
-        }
-      }}
-    >
-      {ouvrage.DOI}
-    </a>
-  ) : (
-    'Pas de DOI disponible'
-  )}
-</td>
+                                    {ouvrage.DOI ? (
+                                        <a
+                                            href={`https://doi.org/${ouvrage.DOI}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => {
+                                                const isValidDOI = ouvrage.DOI.startsWith('10.');
+                                                if (!isValidDOI) {
+                                                    e.preventDefault();
+                                                    alert(
+                                                        'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            {ouvrage.DOI}
+                                        </a>
+                                    ) : (
+                                        'Pas de DOI disponible'
+                                    )}
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                                     <button
                                         onClick={() => handleEdit(ouvrage.id)}

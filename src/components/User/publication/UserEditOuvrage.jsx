@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
 const UserEditOuvrage = () => {
+    const { id } = useParams();
     const [title, setTitle] = useState('');
     const [DOI, setDOI] = useState('');
     const [members, setMembers] = useState([]);
@@ -12,13 +13,35 @@ const UserEditOuvrage = () => {
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
     const [optionalAuthors, setOptionalAuthors] = useState([]);
     const [error, setError] = useState('');
-    const navigate = useNavigate();
-    const { id } = useParams();  // Get the ouvrage ID from the URL params
+    const [revue, setRevue] = useState(null);
     const { currentUser, accessToken } = useContext(AuthContext);
+    const navigate = useNavigate();
 
-    const cleanSelectedAuthorIds = (ids) => ids.filter(id => id !== null && id !== undefined && id !== "");
+    useEffect(() => {
+        fetchMembers();
+        fetchRevueDetails();
+    }, [id, accessToken]);
 
-    // Fetch the list of members
+    const fetchRevueDetails = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8000/api/ouvrageUser/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+            });
+            const revueData = response.data;
+            setTitle(revueData.title);
+            setDOI(revueData.doi);
+            setSelectedAuthors(revueData.authors_with_ids || []);
+            setSelectedAuthorIds(revueData.author_ids || []);
+            setOptionalAuthors(revueData.authors_without_ids || []);
+            setRevue(revueData);
+        } catch (error) {
+            console.error('Erreur lors de la récupération de la revue :', error);
+            setError('Erreur lors de la récupération de la revue');
+        }
+    };
+
     const fetchMembers = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
@@ -26,87 +49,75 @@ const UserEditOuvrage = () => {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-            setMembers(response.data.filter(member => member.name !== currentUser.name));
+            setMembers(response.data.filter((member) => member.name !== currentUser.name));
         } catch (error) {
-            console.error('Erreur lors de la récupération des membres:', error);
+            console.error('Erreur lors de la récupération des membres :', error);
             setError('Erreur lors de la récupération des membres');
-            toast.error('Erreur lors de la récupération des membres');
         }
     };
 
-    // Fetch ouvrage details to edit
-    const fetchOuvrageDetails = async () => {
+    const validateDoi = (doi) => {
+        const doiPattern = /^10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+        return doiPattern.test(doi);
+    };
+
+    const checkDoiExists = async (doi, excludedDoi) => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/ouvragesUsers/${id}`, {
+            const response = await axios.post('http://localhost:8000/api/checkDOIExists', { doi }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-
-            const { title, DOI, author, id_user } = response.data;
-            const authors = author.split(', ');
-            const authorIds = id_user.split(',');
-
-            // Set state for fetched data
-            setTitle(title);
-            setDOI(DOI);
-
-            // Separate selected and optional authors
-            const selected = [];
-            const selectedIds = [];
-            const optional = [];
-
-            authors.forEach((author, index) => {
-                if (authorIds[index]) {
-                    selected.push(author);
-                    selectedIds.push(authorIds[index]);
-                } else {
-                    optional.push(author);
-                }
-            });
-
-            setSelectedAuthors([currentUser.name, ...selected]);
-            setSelectedAuthorIds([currentUser.id, ...cleanSelectedAuthorIds(selectedIds)]);
-            setOptionalAuthors(optional);
-
+            return response.data.exists && doi !== excludedDoi;
         } catch (error) {
-            console.error('Erreur lors de la récupération de l\'ouvrage:', error);
-            setError('Erreur lors de la récupération de l\'ouvrage');
-            toast.error('Erreur lors de la récupération de l\'ouvrage');
+            console.error('Erreur lors de la vérification du DOI :', error);
+            setError('Erreur lors de la vérification du DOI');
+            return false;
         }
     };
-
-    useEffect(() => {
-        fetchMembers();
-        fetchOuvrageDetails();
-    }, [accessToken, id]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (selectedAuthorIds.length === 0) {
-            setError('Veuillez sélectionner au moins un auteur.');
-            toast.error('Veuillez sélectionner au moins un auteur.');
+        if (!validateDoi(DOI)) {
+            setError('Format du DOI invalide.');
+            toast.error('Format du DOI invalide.');
             return;
         }
 
+        const doiExists = revue && DOI !== revue.doi && await checkDoiExists(DOI, revue.doi);
+
+        if (doiExists) {
+            setError('Le DOI existe déjà.');
+            toast.error('Le DOI existe déjà.');
+            return;
+        }
+
+        const filteredSelectedAuthors = selectedAuthors.filter((author) => author !== currentUser.name);
+        const allAuthors = [currentUser.name, ...filteredSelectedAuthors, ...optionalAuthors];
+
+        const filteredSelectedAuthorIds = selectedAuthorIds.filter((id) => id !== currentUser.id);
+        const allAuthorIds = [...filteredSelectedAuthorIds];
+
+        const payload = {
+            title,
+            author_names: allAuthors,
+            DOI,
+            id_user: allAuthorIds.join(','),
+            current_user_id: currentUser.id,
+            optional_authors: optionalAuthors,
+        };
+
         try {
-            await axios.put(`http://localhost:8000/api/ouvrages/${id}`, {
-                title,
-                author: selectedAuthors.join(', '),
-                DOI,
-                id_user: [...cleanSelectedAuthorIds(selectedAuthorIds)].join(','),
-            }, {
+            await axios.put(`http://localhost:8000/api/ouvrageUser/${id}`, payload, {
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-
-            toast.success('Ouvrage mis à jour avec succès');
+            toast.success('Ouvrage modifiée avec succès');
             navigate('/user/UserOuvrage');
         } catch (error) {
-            console.error('Erreur lors de la mise à jour de l\'ouvrage:', error);
+            console.error('Erreur lors de la mise à jour de l\'ouvrage :', error.response ? error.response.data : error.message);
             setError('Erreur lors de la mise à jour de l\'ouvrage');
             toast.error('Erreur lors de la mise à jour de l\'ouvrage');
         }
@@ -114,11 +125,14 @@ const UserEditOuvrage = () => {
 
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
-        const names = selectedOptions.map(option => option.value);
-        const ids = selectedOptions.map(option => option.getAttribute('data-id'));
+        const names = selectedOptions.map((option) => option.value);
+        const ids = selectedOptions.map((option) => option.getAttribute('data-id'));
 
-        setSelectedAuthors([currentUser.name, ...names]);
-        setSelectedAuthorIds([currentUser.id, ...cleanSelectedAuthorIds(ids)]);
+        const filteredNames = names.filter((name) => name !== currentUser.name);
+        const filteredIds = ids.filter((id) => !id.startsWith('optional_'));
+
+        setSelectedAuthors(filteredNames);
+        setSelectedAuthorIds([currentUser.id, ...filteredIds]);
     };
 
     const handleAddOptionalAuthor = () => {
@@ -136,21 +150,10 @@ const UserEditOuvrage = () => {
         setOptionalAuthors(newOptionalAuthors);
     };
 
-    const membersWithOptionalAuthors = [
-        ...members,
-        ...optionalAuthors
-            .filter(author => author.trim() !== '')
-            .map((author, index) => ({
-                id: `optional_${index}`,
-                name: author,
-            }))
-    ];
-
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier l'Ouvrage</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier l'ouvrage</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -171,18 +174,15 @@ const UserEditOuvrage = () => {
                         onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
-                        {membersWithOptionalAuthors.map(member => (
-                            <option key={member.id} value={member.name} data-id={member.user_id}>
+                        {members.map((member) => (
+                            <option key={member.id} value={member.name} data-id={member.id}>
                                 {member.name}
                             </option>
                         ))}
                     </select>
-                    <p className="text-sm text-gray-500 mt-2">
-                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée tout en cliquant sur les noms souhaités.
-                    </p>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s) Facultatif(s)</label>
+                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
                     <div className="space-y-2">
                         {optionalAuthors.map((author, index) => (
                             <div key={index} className="flex items-center mb-2">
@@ -192,25 +192,28 @@ const UserEditOuvrage = () => {
                                     onChange={(e) => handleOptionalAuthorChange(index, e.target.value)}
                                     className="w-full p-2 border border-gray-300 rounded"
                                 />
-                                <button
+
+<button
                                     type="button"
                                     onClick={() => handleRemoveOptionalAuthor(index)}
                                     className="ml-2 bg-red-500 text-white p-2 rounded hover:bg-red-600"
                                 >
                                     &minus;
                                 </button>
+
+
+
+                               
                             </div>
                         ))}
                     </div>
-                    <div className="flex space-x-2">
-                        <button
-                            type="button"
-                            onClick={handleAddOptionalAuthor}
-                            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                        >
-                            Ajouter Autre Auteur(s) Facultatif(s)
-                        </button>
-                    </div>
+                    <button
+                        type="button"
+                        onClick={handleAddOptionalAuthor}
+                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                        Ajouter un auteur facultatif
+                    </button>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>
@@ -218,17 +221,16 @@ const UserEditOuvrage = () => {
                         type="text"
                         value={DOI}
                         onChange={(e) => setDOI(e.target.value)}
+                        required
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
-                <div>
-                    <button
-                        type="submit"
-                        className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
-                    >
-                        Enregistrer
-                    </button>
-                </div>
+                <button
+                    type="submit"
+                    className="px-4 py-2 bg-green-500 text-white rounded"
+                >
+                    Enregistrer
+                </button>
             </form>
         </div>
     );

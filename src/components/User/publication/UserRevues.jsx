@@ -30,16 +30,38 @@ const UserRevue = () => {
     }, [currentUser.id, accessToken]);
 
     const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:8000/api/revues/${id}`);
-            toast.success('Revue supprimée avec succès');
-            fetchRevues(); // Recharger la liste des revues
-        } catch (error) {
-            console.error('Erreur lors de la suppression de la revue:', error);
-            toast.error('Erreur lors de la suppression de la revue');
+        // Afficher une boîte de dialogue de confirmation
+        const confirmDelete = window.confirm('Êtes-vous sûr de vouloir supprimer cette revue ?');
+        
+        if (confirmDelete) {
+            try {
+                await axios.delete(`http://localhost:8000/api/revuesUser/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+                toast.success('Revue supprimée avec succès');
+                fetchRevues(); // Recharger la liste des revues
+            } catch (error) {
+                if (error.response) {
+                    // Erreurs provenant du serveur
+                    console.error('Erreur lors de la suppression de la revue:', error.response.data);
+                    toast.error(`Erreur: ${error.response.data.message || 'Erreur lors de la suppression de la revue'}`);
+                } else if (error.request) {
+                    // Erreurs de requête
+                    console.error('Erreur de requête:', error.request);
+                    toast.error('Erreur lors de la requête');
+                } else {
+                    // Autres erreurs
+                    console.error('Erreur:', error.message);
+                    toast.error('Erreur lors de la suppression de la revue');
+                }
+            }
+        } else {
+            toast.info('Suppression annulée');
         }
     };
-
+    
     const handleEdit = (id) => {
         navigate(`/user/UserEditRevue/${id}`);
     };

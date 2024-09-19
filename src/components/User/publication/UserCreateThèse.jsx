@@ -7,16 +7,16 @@ import { AuthContext } from '../../../context/authContext';
 const UserCreateThese = () => {
     const [title, setTitle] = useState('');
     const [doi, setDoi] = useState('');
-    const [lieu, setLieu] = useState('');
-    const [date, setDate] = useState('');
+    const [date, setDate] = useState(''); // Champ pour la date
+    const [lieu, setLieu] = useState(''); // Champ pour le lieu
     const [members, setMembers] = useState([]);
     const [selectedAuthors, setSelectedAuthors] = useState([]);
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
+    const [optionalAuthors, setOptionalAuthors] = useState(['']);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { currentUser, accessToken } = useContext(AuthContext);
 
-    // Fonction pour récupérer les informations des membres
     const fetchMembers = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
@@ -24,13 +24,9 @@ const UserCreateThese = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            if (response.status === 200 && response.data) {
-                setMembers(response.data.filter(member => member.name !== currentUser.name)); // Exclure le currentUser
-            } else {
-                throw new Error('Réponse invalide de l\'API');
-            }
+            setMembers(response.data.filter(member => member.name !== currentUser.name));
         } catch (error) {
-            console.error('Erreur lors de la récupération des membres:', error);
+            console.error('Erreur lors de la récupération des membres :', error);
             setError('Erreur lors de la récupération des membres');
             toast.error('Erreur lors de la récupération des membres');
         }
@@ -41,10 +37,16 @@ const UserCreateThese = () => {
     }, [accessToken]);
 
     useEffect(() => {
-        // Ajouter le currentUser comme auteur par défaut
         setSelectedAuthors([currentUser.name]);
-        setSelectedAuthorIds([currentUser.id]); // Ajouter l'ID de l'utilisateur courant
+        setSelectedAuthorIds([currentUser.id]);
     }, [currentUser]);
+
+    const validateDoi = (doi) => {
+        const doiPattern = /^10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+        return doiPattern.test(doi);
+    };
+    
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -55,26 +57,32 @@ const UserCreateThese = () => {
             return;
         }
 
+        if (!validateDoi(doi)) {
+            setError('Format du DOI invalide.');
+            toast.error('Format du DOI invalide.');
+            return;
+        }
+
         try {
             const response = await axios.post('http://localhost:8000/api/theses', {
                 title,
-                author: [currentUser.name, ...selectedAuthors].join(', '),
+                author: [currentUser.name, ...selectedAuthors, ...optionalAuthors].join(', '),
                 doi,
-                id_user: selectedAuthorIds.join(','),
-                lieu,
-                date,
+                id_user: [...selectedAuthorIds, ...optionalAuthors.map((_, i) => `optional_${i}`)].join(','),
+                date, // Inclure la date dans les données soumises
+                lieu  // Inclure le lieu dans les données soumises
             }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
             });
-
-            console.log('Thèse ajoutée:', response.data);
+        
+            console.log('Thèse ajoutée :', response.data);
             toast.success('Thèse ajoutée avec succès');
-            navigate('/user/UserThèse');
+            navigate('/user/UserTheses');
         } catch (error) {
-            console.error('Erreur lors de l\'ajout de la thèse:', error);
+            console.error('Erreur lors de l\'ajout de la thèse :', error.response ? error.response.data : error.message);
             setError('Erreur lors de l\'ajout de la thèse');
             toast.error('Erreur lors de l\'ajout de la thèse');
         }
@@ -89,17 +97,25 @@ const UserCreateThese = () => {
         setSelectedAuthorIds([currentUser.id, ...ids]);
     };
 
+    const handleAddOptionalAuthor = () => {
+        setOptionalAuthors([...optionalAuthors, '']);
+    };
+
+    const handleOptionalAuthorChange = (index, value) => {
+        const newOptionalAuthors = [...optionalAuthors];
+        newOptionalAuthors[index] = value;
+        setOptionalAuthors(newOptionalAuthors);
+    };
+
+    const handleRemoveOptionalAuthor = (index) => {
+        const newOptionalAuthors = optionalAuthors.filter((_, i) => i !== index);
+        setOptionalAuthors(newOptionalAuthors);
+    };
+
     return (
         <div className="max-w-2xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Ajouter une Thèse</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-
-            {/* Afficher les IDs des membres sélectionnés */}
-            {selectedAuthorIds.length > 0 && (
-                <div className="mb-4">
-                    <strong>IDs des auteurs sélectionnés :</strong> {selectedAuthorIds.join(', ')}
-                </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -112,6 +128,7 @@ const UserCreateThese = () => {
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
+
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
@@ -121,15 +138,46 @@ const UserCreateThese = () => {
                         className="w-full p-2 border border-gray-300 rounded"
                     >
                         {members.map(member => (
-                            <option key={member.id} value={member.name} data-id={member.user_id}>
+                            <option key={member.id} value={member.name} data-id={member.id}>
                                 {member.name}
                             </option>
                         ))}
                     </select>
                     <p className="text-sm text-gray-500 mt-2">
-                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée tout en cliquant sur les noms souhaités.
+                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
                     </p>
                 </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <div className="space-y-2">
+                        {optionalAuthors.map((author, index) => (
+                            <div key={index} className="flex items-center mb-2">
+                                <input
+                                    type="text"
+                                    value={author}
+                                    onChange={(e) => handleOptionalAuthorChange(index, e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveOptionalAuthor(index)}
+                                    className="ml-2 bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                                >
+                                    &minus;
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleAddOptionalAuthor}
+                        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                    >
+                        Ajouter plus d'auteur(s) facultatif(s)
+                    </button>
+                </div>
+
                 <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
@@ -139,24 +187,31 @@ const UserCreateThese = () => {
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Lieu</label>
-                    <input
-                        type="text"
-                        value={lieu}
-                        onChange={(e) => setLieu(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
+
+                {/* Champ pour la date */}
                 <div>
                     <label className="block text-sm font-medium mb-1">Date</label>
                     <input
                         type="date"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
+                        required
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
+
+                {/* Champ pour le lieu */}
+                <div>
+                    <label className="block text-sm font-medium mb-1">Lieu</label>
+                    <input
+                        type="text"
+                        value={lieu}
+                        onChange={(e) => setLieu(e.target.value)}
+                        required
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
+                </div>
+
                 <button
                     type="submit"
                     className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
