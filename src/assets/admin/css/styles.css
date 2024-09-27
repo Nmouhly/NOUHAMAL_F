@@ -11017,11 +11017,22 @@ body {
   justify-content: space-between;
   min-width: 0;
   flex-grow: 1;
-  margin-left: -225px;
-  margin-top: -500px;
+  margin-left: 225px;
+  margin-right:-100px;
+  margin-top: -600px;
   padding-bottom: 1000px; 
 }
+#layoutSidenav_con{ position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  flex-grow: 1;
 
+  margin-left: -250px;
+  margin-right:-100px;
+  margin-top: -600px;
+  padding-bottom: 100px; }
 .sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
   transform: translateX(0);
 }

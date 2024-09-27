@@ -12,15 +12,25 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [isEquipesSubmenuOpen, setIsEquipesSubmenuOpen] = useState(false);
   const [isPublicationsSubmenuOpen, setIsPublicationsSubmenuOpen] = useState(false);
+  const [isMessagesSubmenuOpen, setIsMessagesSubmenuOpen] = useState(false); // Ajout de l'état pour Messages
+
 
   const toggleEquipesSubmenu = () => {
     setIsEquipesSubmenuOpen(!isEquipesSubmenuOpen);
     if (isPublicationsSubmenuOpen) setIsPublicationsSubmenuOpen(false);
+    if (isMessagesSubmenuOpen) setIsMessagesSubmenuOpen(false); // Ferme le sous-menu Messages
   };
 
   const togglePublicationsSubmenu = () => {
     setIsPublicationsSubmenuOpen(!isPublicationsSubmenuOpen);
     if (isEquipesSubmenuOpen) setIsEquipesSubmenuOpen(false);
+    if (isMessagesSubmenuOpen) setIsMessagesSubmenuOpen(false); // Ferme le sous-menu Messages
+  };
+
+  const toggleMessagesSubmenu = () => {
+    setIsMessagesSubmenuOpen(!isMessagesSubmenuOpen);
+    if (isEquipesSubmenuOpen) setIsEquipesSubmenuOpen(false);
+    if (isPublicationsSubmenuOpen) setIsPublicationsSubmenuOpen(false); // Ferme le sous-menu Publications
   };
 
   const logoutUser = async () => {
@@ -116,6 +126,15 @@ const Sidebar = () => {
               <div className="sb-nav-link-icon"><i className="fas fa-tachometer-alt"></i></div>
               Séminaires
             </Link>
+            {/* Ajout du menu Messages */}
+            <div className="nav-link section-title" onClick={toggleMessagesSubmenu}>
+              <div className="sb-nav-link-icon"><i className="fas fa-envelope"></i></div>
+              Messages
+            </div>
+            <ul className={`submenu ${isMessagesSubmenuOpen ? 'open' : ''}`}>
+              <li><Link to="/dashboard/messages/inbox">Boîte de Réception</Link></li>
+              <li><Link to="/dashboard/messages/sent">Messages Envoyés</Link></li>
+            </ul>
             <button className="nav-link" onClick={logoutUser}>
               <div className="sb-nav-link-icon"><i className="fas fa-sign-out-alt"></i></div>
               Déconnexion

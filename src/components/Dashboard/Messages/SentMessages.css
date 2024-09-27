@@ -1,0 +1,271 @@
+/* Style pour les éléments de la boîte de réception */
+.inbox-item,
+.sent-message-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+  transition: background-color 0.3s ease;
+}
+
+.inbox-item:hover,
+.sent-message-item:hover {
+  background-color: #f9f9f9; /* Couleur de fond survol */
+}
+
+.unread-message {
+  background-color: #f1f1f1; /* Fond gris clair pour non lu */
+}
+
+.read-message {
+  background-color: #fff; /* Fond blanc pour lu */
+}
+
+/* Icônes d'étoiles */
+.star-icon {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.unread-star {
+  color: #ccc; /* Couleur par défaut de l'étoile pour non lu */
+}
+
+.read-star {
+  color: gold; /* Étoile dorée pour lu */
+}
+
+/* Liens de messages */
+.message-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.message-details {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Détails du message */
+.message-sender,
+.message-recipient {
+  width: 30%; /* Ajustez la largeur selon le besoin */
+  font-weight: bold;
+  color: #333;
+}
+
+.message-preview {
+  width: 50%; /* Ajustez la largeur selon le besoin */
+  color: #666;
+}
+
+.message-date {
+  width: 20%; /* Ajustez la largeur selon le besoin */
+  text-align: right;
+  color: #999;
+}
+
+/* Icônes de mail */
+.mail-icon {
+  fill: gray;
+  font-size: 20px;
+  margin-left: 10px;
+  position: relative;
+}
+
+.unread-icon {
+  fill: gray; /* Couleur par défaut pour non lu */
+}
+
+.read-icon {
+  fill: green; /* Icône verte pour les messages lus */
+}
+
+/* Texte de statut du message */
+.message-status {
+  display: none;
+  margin-left: 10px;
+  color: #666;
+}
+
+/* Liste des messages envoyés */
+.sent-messages-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Bouton pour composer un nouveau message */
+.new-message-button {
+  background-color: #28a745; /* Vert */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.new-message-button:hover {
+  background-color: #218838; /* Vert foncé au survol */
+}
+
+/* Barre pour composer un nouveau message */
+.new-message-bar,
+.message-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #f9f9f9; /* Fond clair */
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+/* Style pour les champs de saisie */
+.new-message-bar input,
+.message-input,
+.message-textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+}
+
+/* Champs de saisie spécifiques */
+.message-input {
+  flex: 1; /* Prend tout l'espace disponible */
+}
+
+.message-textarea {
+  flex: 3; /* Plus grand espace pour le message */
+  resize: none; /* Désactive le redimensionnement */
+  height: 80px; /* Hauteur par défaut */
+}
+
+/* Bouton d'envoi */
+.send-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: flex-start; /* Aligne le bouton à gauche */
+}
+
+.send-button:hover {
+  background-color: #0056b3; /* Bleu foncé au survol */
+}
+
+/* Adaptabilité */
+@media (max-width: 768px) {
+  .message-sender,
+  .message-recipient,
+  .message-preview,
+  .message-date {
+    width: auto;
+    flex: 1;
+  }
+
+  .message-details {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .message-date {
+    text-align: left;
+    margin-top: 5px;
+  }
+
+  .message-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Assurez-vous qu'il est au-dessus des autres éléments */
+}
+
+.popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px; /* Largeur du pop-up */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.close-button {
+  margin-top: 10px;
+  background-color: #dc3545; /* Rouge */
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  background-color: #c82333; /* Rouge foncé au survol */
+}
+/* Style pour le modal */
+.message-modal {
+  position: relative;
+  padding: 20px;
+  border-radius: 8px;
+  background: white;
+  max-width: 500px;
+  margin: auto;
+  margin-top: 350px;
+  margin-right: 600px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Autres styles pour le modal */
+.message-input,
+.message-textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.send-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}

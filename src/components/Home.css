@@ -5,6 +5,19 @@
 }
 
 /* Styles pour les liens */
+.modern-description {
+  background-color: #87CEEB; /* Sky blue */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  padding: 20px; /* Padding for inner content */
+  transition: transform 0.3s, box-shadow 0.3s; /* Transition effects */
+}
+
+.modern-description:hover {
+  transform: translateY(-2px); /* Slight lift on hover */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
+}
+
 .news-link {
   font-size: 0.9em;
   color: #007bff;

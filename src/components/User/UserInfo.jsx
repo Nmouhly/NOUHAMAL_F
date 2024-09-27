@@ -4,16 +4,23 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 function UserInfo() {
-    const { currentUser } = useContext(AuthContext);
+    const { currentUser, accessToken } = useContext(AuthContext);
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
+        console.log('currentUser:', currentUser);
+        console.log('accessToken:', accessToken);
+
         const fetchUserData = async () => {
             if (currentUser) {
                 try {
-                    const response = await axios.get(`http://localhost:8000/api/members/user/${currentUser.id}`);
+                    const response = await axios.get(`http://localhost:8000/api/members/user/${currentUser.id}`, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
                     console.log('Données reçues de l\'API:', response.data);
                     setUserData(response.data);
                 } catch (error) {
@@ -25,10 +32,38 @@ function UserInfo() {
         };
 
         fetchUserData();
-    }, [currentUser]);
+    }, [currentUser, accessToken]);
 
-    const handleEditClick = () => {
-        navigate(`/user/edit-user/${currentUser.id}`);
+    const handleEditClick = async () => {
+        console.log('currentUser avant la vérification:', currentUser);
+        console.log('accessToken avant la vérification:', accessToken);
+        
+        const enteredEmail = prompt("Please enter your email:");
+        const enteredPassword = prompt("Please enter your password:");
+
+        if (enteredEmail && enteredPassword) {
+            try {
+                const response = await axios.post('http://localhost:8000/api/auth/check', {
+                    email: enteredEmail,
+                    password: enteredPassword,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (response.status === 200 && response.data.message === 'Credentials are valid' && currentUser.email === enteredEmail) {
+                    navigate(`/user/edit-user/${currentUser.id}`);
+                } else {
+                    alert("Authentication failed. Incorrect email or password.");
+                }
+            } catch (error) {
+                console.error('Erreur lors de la vérification des identifiants:', error);
+                alert('An error occurred while verifying your credentials.');
+            }
+        } else {
+            alert("You must provide both email and password to edit your profile.");
+        }
     };
 
     return (
@@ -60,10 +95,6 @@ function UserInfo() {
                             <p style={styles.userDetail}>{userData.position}</p>
                         </div>
                         <div style={styles.userDetailContainer}>
-                            <strong style={styles.label}>Team ID</strong>
-                            <p style={styles.userDetail}>{userData.team_id}</p>
-                        </div>
-                        <div style={styles.userDetailContainer}>
                             <strong style={styles.label}>Bio</strong>
                             <p style={styles.userDetail}>{userData.bio}</p>
                         </div>
@@ -71,10 +102,6 @@ function UserInfo() {
                             <strong style={styles.label}>Contact Info</strong>
                             <p style={styles.userDetail}>{userData.contact_info}</p>
                         </div>
-                        {/* <div style={styles.userDetailContainer}>
-                            <strong style={styles.label}>Status</strong>
-                            <p style={styles.userDetail}>{userData.statut}</p>
-                        </div> */}
                         <button onClick={handleEditClick} style={styles.editButton}>
                             Edit
                         </button>

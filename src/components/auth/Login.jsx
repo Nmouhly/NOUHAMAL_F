@@ -64,7 +64,7 @@ export default function Login() {
 
                 // Redirect based on user role
                 if (response.data.user.role === 1) { // Role 1 = Admin
-                    navigate('/dashboard');
+                    navigate('/dashboard/AdminProfile');
                 } else { // Role 0 = Standard User
                     navigate('/user/UserProfile');
                 }

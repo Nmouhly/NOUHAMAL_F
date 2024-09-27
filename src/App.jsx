@@ -1,5 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
+import Inbox from './components/Dashboard/Messages/Inbox.jsx';
+import SentMessages from './components/Dashboard/Messages/SentMessages.jsx';
+import MessageDetail from './components/Dashboard/Messages/MessageDetail';
 import ProjectsPage from './pages/ProjectsPage';
 import Login from './components/auth/Login';
 import AxeEdit from './components/Dashboard/Axes/AxeEdit';
@@ -18,6 +21,7 @@ import SidebarConfig from './components/Dashboard/SidebarConfig.jsx';
 import Thèse from './pages/Thèses.jsx';
 import Reports from './pages/Reports';
 import AdminHomeDescription from './components/Dashboard/AdminHomeDescription.jsx';
+import AdminProfile from './components/Dashboard/AdminProfile';
 import CreateDescription from './components/Dashboard/CreateDescription.jsx';
 import EditDescription from './components/Dashboard/EditDescription.jsx';
 import AdminRevue from './components/Dashboard/Publication/AdminRevue';
@@ -26,6 +30,7 @@ import RevueEdit from './components/Dashboard/Publication/RevueEdit';
 import AdminAxes from './components/Dashboard/Axes/AdminAxes';
 import Ouvrages from './pages/Ouvrages';
 import UserProfile from './components/User/UserProfile.jsx';
+
 import UserInfo from './components/User/UserInfo.jsx';
 import EditUser from './components/User/EditUser.jsx';
 // import JobOffersList from './components/JobOffersList';
@@ -195,9 +200,13 @@ function App() {
           </Route>
 
           <Route path="/dashboard" element={<AdminPrivateRoute><MasterLayout /></AdminPrivateRoute>}>
+          <Route path="/dashboard/AdminProfile" element={<AdminProfile />} />
             <Route path="NewsAdmin" element={<NewsAdmin />} />
             <Route path="SidebarConfig" element={<SidebarConfig />} />
             <Route path="AdminHomeDescription" element={<AdminHomeDescription />} />
+            <Route path="messages/inbox" element={<Inbox />} />
+            <Route path="messages/sent" element={<SentMessages />} />
+            <Route path="message/:messageId" element={<MessageDetail />} />
             <Route path="habilitation" element={<AdminHabilitation />} />
             <Route path="HabilitationCreate" element={<HabilitationCreate />} />
             <Route path="patent" element={<BrevetAdmin />} />
@@ -261,6 +270,9 @@ function App() {
            <Route path="edit-user/:id" element={<EditUser />} />
               <Route path="UserOuvrage" element={<UserOuvrage />} />
               <Route path="UserBrevet" element={<UserBrevet />} />  
+              <Route path="messages/inbox" element={<Inbox />} />
+              <Route path="messages/sent" element={<SentMessages />} />
+              <Route path="message/:messageId" element={<MessageDetail />} />
               <Route path="UserCreateOuvrage" element={<UserCreateOuvrage />} /> 
               <Route path="UserCreateRapport" element={<UserCreateRapport />} /> 
               <Route path="UserCreateBrevet" element={<UserCreateBrevet />} /> 
