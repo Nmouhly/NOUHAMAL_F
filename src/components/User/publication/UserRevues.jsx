@@ -81,6 +81,7 @@ const UserRevue = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -111,7 +112,8 @@ const UserRevue = () => {
                                     ) : (
                                         'Pas de DOI disponible'
                                     )}
-                                </td>
+                            </td>
+                                <td className="px-6 py-4 whitespace-nowrap">{revue.status}</td> {/* Nouvelle colonne pour le statut */}
                                 <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                                     <button
                                         onClick={() => handleEdit(revue.id)}

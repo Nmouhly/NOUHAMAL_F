@@ -30,8 +30,11 @@ const UserThese = () => {
     }, [currentUser.id, accessToken]);
 
     const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette thèse ?");
+        if (!confirmDelete) return; // Si l'utilisateur annule, on arrête la fonction
+    
         try {
-            await axios.delete(`http://localhost:8000/api/theses/${id}`, {
+            await axios.delete(`http://localhost:8000/api/thesesUser/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -43,11 +46,10 @@ const UserThese = () => {
             toast.error('Erreur lors de la suppression de la thèse');
         }
     };
-
+    
     const handleEdit = (id) => {
         navigate(`/user/UserEditThese/${id}`);
     };
-
     return (
         <div className="max-w-2xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Liste des Thèses</h1>
@@ -65,6 +67,8 @@ const UserThese = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -96,8 +100,11 @@ const UserThese = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">{these.lieu}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{new Date(these.date).toLocaleDateString()}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{these.status}</td> {/* Nouvelle colonne pour le statut */}
+
                                 <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                                    <button
+
+                                <button
                                         onClick={() => handleEdit(these.id)}
                                         className="text-blue-500 hover:text-blue-600"
                                     >

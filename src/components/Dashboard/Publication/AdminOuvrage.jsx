@@ -6,15 +6,17 @@ import { AuthContext } from '../../../context/authContext';
 const OuvrageAdmin = () => {
     const [ouvrages, setOuvrages] = useState([]);
     const [error, setError] = useState('');
-    const { accessToken } = useContext(AuthContext);
+    const { accessToken, currentUser } = useContext(AuthContext); // Add currentUser here
 
     useEffect(() => {
-        fetchOuvrages();
-    }, [accessToken]);
+        if (accessToken && currentUser) {
+            fetchOuvrages();
+        }
+    }, [accessToken, currentUser]);
 
     const fetchOuvrages = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/ouvrages', {
+            const response = await axios.get(`http://localhost:8000/api/ouvragesAdmin`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -58,8 +60,9 @@ const OuvrageAdmin = () => {
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th> {/* Nouvelle colonne pour le lien PDF */}
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Utilisateur</th> {/* Nouvelle colonne pour id_user */}
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -70,28 +73,27 @@ const OuvrageAdmin = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">{ouvrage.title}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{ouvrage.author}</td>
                                 <td>
-  {ouvrage.DOI ? (
-    <a
-      href={`https://doi.org/${ouvrage.DOI}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={(e) => {
-        const isValidDOI = ouvrage.DOI.startsWith('10.');
-        if (!isValidDOI) {
-          e.preventDefault();
-          alert(
-            'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
-          );
-        }
-      }}
-    >
-      {ouvrage.DOI}
-    </a>
-  ) : (
-    'Pas de DOI disponible'
-  )}
-</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.id_user}</td> {/* Affichage de l'id_user */}
+                                  {ouvrage.DOI ? (
+                                    <a
+                                      href={`https://doi.org/${ouvrage.DOI}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => {
+                                        const isValidDOI = ouvrage.DOI.startsWith('10.');
+                                        if (!isValidDOI) {
+                                          e.preventDefault();
+                                          alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                        }
+                                      }}
+                                    >
+                                      {ouvrage.DOI}
+                                    </a>
+                                  ) : (
+                                    'Pas de DOI disponible'
+                                  )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.status}</td> {/* Nouvelle colonne pour le statut */}
+
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/OuvrageEdit/${ouvrage.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(ouvrage.id)} className="btn btn-danger mb-2">Supprimer</button>
@@ -100,7 +102,7 @@ const OuvrageAdmin = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="5" className="text-center py-4">Aucun ouvrage disponible</td> {/* Mise à jour du colspan pour inclure la nouvelle colonne */}
+                            <td colSpan="5" className="text-center py-4">Aucun ouvrage disponible</td>
                         </tr>
                     )}
                 </tbody>

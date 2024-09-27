@@ -27,20 +27,26 @@ const UserBrevet = () => {
     };
 
     // Fonction pour supprimer un brevet
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:8000/api/brevets/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            toast.success('Brevet supprimé avec succès');
-            fetchBrevets(); // Recharger la liste des brevets
-        } catch (error) {
-            console.error('Erreur lors de la suppression du brevet:', error);
-            toast.error('Erreur lors de la suppression du brevet');
-        }
-    };
+   // Function to handle deletion with confirmation
+const handleDelete = async (id) => {
+    const isConfirmed = window.confirm('Êtes-vous sûr de vouloir supprimer ce brevet ?');
+    if (!isConfirmed) {
+        return; // Stop if user cancels the action
+    }
+
+    try {
+        await axios.delete(`http://localhost:8000/api/brevetUser/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        toast.success('Brevet supprimé avec succès');
+        fetchBrevets(); // Refresh the list of brevets
+    } catch (error) {
+        console.error('Erreur lors de la suppression du brevet:', error);
+        toast.error('Erreur lors de la suppression du brevet');
+    }
+};
 
     useEffect(() => {
         fetchBrevets();
@@ -68,6 +74,7 @@ const UserBrevet = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur(s)</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -99,6 +106,8 @@ const UserBrevet = () => {
                                         'Pas de DOI disponible'
                                     )}
                                 </td>
+                                <td className="px-6 py-4 whitespace-nowrap">{brevet.status}</td> {/* Nouvelle colonne pour le statut */}
+
                                 <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                                     <button
                                         onClick={() => handleEdit(brevet.id)}

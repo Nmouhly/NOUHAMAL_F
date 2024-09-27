@@ -6,7 +6,7 @@ import { AuthContext } from '../../../context/authContext';
 
 const UserCreateBrevet = () => {
     const [title, setTitle] = useState('');
-    const [doi, setDoi] = useState(''); // Utiliser 'doi' au lieu de 'DOI'
+    const [DOI, setDOI] = useState(''); // DOI en minuscules
     const [members, setMembers] = useState([]);
     const [selectedAuthors, setSelectedAuthors] = useState([]);
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
@@ -23,14 +23,15 @@ const UserCreateBrevet = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            setMembers(response.data.filter(member => member.name !== currentUser.name));
+            // Filtrer pour exclure l'utilisateur connecté
+            const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
+            setMembers(filteredMembers);
         } catch (error) {
             console.error('Erreur lors de la récupération des membres :', error);
             setError('Erreur lors de la récupération des membres');
             toast.error('Erreur lors de la récupération des membres');
         }
     };
-
     useEffect(() => {
         fetchMembers();
     }, [accessToken]);
@@ -40,11 +41,11 @@ const UserCreateBrevet = () => {
         setSelectedAuthorIds([currentUser.id]);
     }, [currentUser]);
 
-    const validateDoi = (doi) => {
+    const validateDOI = (doi) => {
         const doiPattern = /^10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
         return doiPattern.test(doi);
     };
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -54,28 +55,62 @@ const UserCreateBrevet = () => {
             return;
         }
 
-        if (!validateDoi(doi)) { // Utiliser 'doi' ici
+        if (!validateDOI(DOI)) {
             setError('Format du DOI invalide.');
             toast.error('Format du DOI invalide.');
             return;
         }
 
+        // Vérifier si le DOI existe déjà dans la base de données
         try {
-            const response = await axios.post('http://localhost:8000/api/brevets', {
+            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExists', {
+                doi: DOI,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (checkDOIResponse.data.exists) {
+                setError('Le DOI existe déjà.');
+                toast.error('Le DOI existe déjà.');
+                return;
+            }
+        } catch (error) {
+            console.error('Erreur lors de la vérification du DOI :', error.response ? error.response.data : error.message);
+            setError('Erreur lors de la vérification du DOI');
+            toast.error('Erreur lors de la vérification du DOI');
+            return;
+        }
+
+        // Filtrer les auteurs facultatifs pour ne garder que ceux qui ne sont pas vides
+        const filteredOptionalAuthors = optionalAuthors.filter(author => author.trim() !== '');
+
+        // Combiner tous les auteurs (l'utilisateur connecté, les autres auteurs sélectionnés, et les auteurs facultatifs)
+        let allAuthors = [currentUser.name, ...selectedAuthors, ...filteredOptionalAuthors];
+
+        // Supprimer les doublons dans la liste des auteurs
+        allAuthors = [...new Set(allAuthors)];
+
+        // Utiliser uniquement les IDs des auteurs sélectionnés pour id_user
+        const validAuthorIds = selectedAuthorIds; // IDs des auteurs sélectionnés
+
+        try {
+            const response = await axios.post('http://localhost:8000/api/brevetUser', {
                 title,
-                author: [currentUser.name, ...selectedAuthors, ...optionalAuthors].join(', '),
-                doi, // Utiliser 'doi' ici
-                id_user: [...selectedAuthorIds, ...optionalAuthors.map((_, i) => `optional_${i}`)].join(','),
+                author: allAuthors.join(', '),  // Utiliser la liste des auteurs sans doublons
+                doi: DOI, // Utiliser le DOI en minuscules
+                id_user: validAuthorIds.join(','), // Inclure seulement les IDs des auteurs réels
             }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
             });
-        
+
             console.log('Brevet ajouté :', response.data);
             toast.success('Brevet ajouté avec succès');
-            navigate('/user/UserBrevets');
+            navigate('/user/UserBrevet');
         } catch (error) {
             console.error('Erreur lors de l\'ajout du brevet :', error.response ? error.response.data : error.message);
             setError('Erreur lors de l\'ajout du brevet');
@@ -126,17 +161,17 @@ const UserCreateBrevet = () => {
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
-                        multiple
-                        value={selectedAuthors}
-                        onChange={handleAuthorSelection}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    >
-                        {members.map(member => (
-                            <option key={member.id} value={member.name} data-id={member.id}>
-                                {member.name}
-                            </option>
-                        ))}
-                    </select>
+    multiple
+    value={selectedAuthors}
+    onChange={handleAuthorSelection}
+    className="w-full p-2 border border-gray-300 rounded"
+>
+    {members.map(member => (
+        <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
+            {member.name}
+        </option>
+    ))}
+</select>
                     <p className="text-sm text-gray-500 mt-2">
                         Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
                     </p>
@@ -176,8 +211,8 @@ const UserCreateBrevet = () => {
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
                         type="text"
-                        value={doi}
-                        onChange={(e) => setDoi(e.target.value)}
+                        value={DOI}
+                        onChange={(e) => setDOI(e.target.value)}
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>

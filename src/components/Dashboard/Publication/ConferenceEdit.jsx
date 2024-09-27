@@ -8,12 +8,8 @@ const ConferenceEdit = () => {
   const { id } = useParams();
   const [conference, setConference] = useState({
     title: '',
-    authors: '',
-    paper_title: '',
-    conference_name: '',
     date: '',
     location: '',
-    reference: '',
     image: ''
   });
   const [imagePreview, setImagePreview] = useState(null);
@@ -31,12 +27,8 @@ const ConferenceEdit = () => {
         });
         setConference({
           title: response.data.title,
-          authors: response.data.authors,
-          paper_title: response.data.paper_title,
-          conference_name: response.data.conference_name,
           date: response.data.date,
           location: response.data.location,
-          reference: response.data.reference,
           image: ''
         });
         if (response.data.image) {
@@ -102,25 +94,34 @@ const ConferenceEdit = () => {
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Input fields for conference details */}
-        {['title', 'authors', 'paper_title', 'conference_name', 'location', 'reference'].map((field) => (
-          <div key={field}>
-            <label className="block text-sm font-medium mb-1">{field.replace('_', ' ').toUpperCase()}</label>
-            <input 
-              type="text" 
-              name={field} 
-              value={conference[field]} 
-              onChange={handleChange} 
-              required 
-              className="w-full p-2 border border-gray-300 rounded"
-            />
-          </div>
-        ))}
         <div>
-          <label className="block text-sm font-medium mb-1">Date</label>
+          <label className="block text-sm font-medium mb-1">TITLE</label>
+          <input 
+            type="text" 
+            name="title" 
+            value={conference.title} 
+            onChange={handleChange} 
+            required 
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">DATE</label>
           <input 
             type="date" 
             name="date" 
             value={conference.date} 
+            onChange={handleChange} 
+            required 
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">LOCATION</label>
+          <input 
+            type="text" 
+            name="location" 
+            value={conference.location} 
             onChange={handleChange} 
             required 
             className="w-full p-2 border border-gray-300 rounded"

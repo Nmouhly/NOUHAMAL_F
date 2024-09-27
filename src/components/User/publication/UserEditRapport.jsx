@@ -5,19 +5,23 @@ import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
 const UserEditRapport = () => {
-    const { id } = useParams(); // Get the rapport ID from the URL
+    const { id } = useParams();
     const [title, setTitle] = useState('');
     const [DOI, setDOI] = useState('');
     const [members, setMembers] = useState([]);
-    const [selectedAuthors, setSelectedAuthors] = useState([]); // Authors already selected
-    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs of the selected authors
-    const [optionalAuthors, setOptionalAuthors] = useState([]); // For storing optional authors
-    const [optionalAuthorIds, setOptionalAuthorIds] = useState([]); // IDs of optional authors
+    const [selectedAuthors, setSelectedAuthors] = useState([]);
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
+    const [optionalAuthors, setOptionalAuthors] = useState([]);
     const [error, setError] = useState('');
+    const [rapport, setRapport] = useState(null); // État pour le rapport
     const { currentUser, accessToken } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // Fetch rapport details for editing
+    useEffect(() => {
+        fetchMembers();
+        fetchRapportDetails();
+    }, [id, accessToken]);
+
     const fetchRapportDetails = async () => {
         try {
             const response = await axios.get(`http://localhost:8000/api/rapportUser/${id}`, {
@@ -25,114 +29,70 @@ const UserEditRapport = () => {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-            const rapport = response.data;
-
-            setTitle(rapport.title);
-            setDOI(rapport.doi);
-
-            // Split authors and IDs
-            const allAuthors = rapport.author.split(', ').filter(author => author.trim() !== '');
-            const allAuthorIds = rapport.id_user.split(',').filter(id => id.trim() !== '');
-
-            // Extract main author and optional authors
-            const mainAuthor = allAuthors[0];
-            const mainAuthorId = allAuthorIds[0];
-            const optional = allAuthors.slice(1);
-            const optionalIds = allAuthorIds.slice(1);
-
-            // Separate optional authors
-            const optionalList = optional.filter((_, i) => optionalIds[i].startsWith('optional_'));
-            const optionalListIds = optionalIds.filter(id => id.startsWith('optional_'));
-            const normalAuthors = optional.filter((_, i) => !optionalIds[i].startsWith('optional_'));
-            const normalIds = optionalIds.filter(id => !id.startsWith('optional_'));
-
-            setSelectedAuthors([mainAuthor, ...normalAuthors]);
-            setSelectedAuthorIds([mainAuthorId, ...normalIds]);
-            setOptionalAuthors(optionalList);
-            setOptionalAuthorIds(optionalListIds);
+            const rapportData = response.data;
+            setRapport(rapportData);
+            setTitle(rapportData.title);
+            setDOI(rapportData.doi);
+            setSelectedAuthors(rapportData.authors_with_ids || []);
+            setSelectedAuthorIds(rapportData.author_ids || []);
+            setOptionalAuthors(rapportData.authors_without_ids || []);
         } catch (error) {
             console.error('Erreur lors de la récupération du rapport :', error);
             setError('Erreur lors de la récupération du rapport');
         }
     };
 
-    // Fetch members to display in the authors list
     const fetchMembers = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
+                    'Authorization': `Bearer ${accessToken}`
+                }
             });
-            setMembers(response.data.filter((member) => member.name !== currentUser.name));
+            // Filtrer pour exclure l'utilisateur connecté
+            const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
+            setMembers(filteredMembers);
         } catch (error) {
             console.error('Erreur lors de la récupération des membres :', error);
             setError('Erreur lors de la récupération des membres');
+            toast.error('Erreur lors de la récupération des membres');
         }
     };
-
-    useEffect(() => {
-        fetchMembers();
-        fetchRapportDetails();
-    }, [id, accessToken]);
 
     const validateDoi = (doi) => {
         const doiPattern = /^10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
         return doiPattern.test(doi);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-    
-        if (!validateDoi(DOI)) {
-            setError('Format du DOI invalide.');
-            toast.error('Format du DOI invalide.');
-            return;
-        }
-    
-        // Prepare payload for API request
-        const allAuthors = [currentUser.name, ...selectedAuthors, ...optionalAuthors];
-        const allAuthorIds = [currentUser.id, ...selectedAuthorIds];
-    
-        const payload = {
-            title,
-            author_names: allAuthors, // Names of all authors
-            DOI,
-            id_user: allAuthorIds.join(','), // IDs including optional ones
-            current_user_id: currentUser.id, // Include current user ID if needed
-            optional_authors: optionalAuthors, // Optional authors if needed for future use
-        };
-    
-        console.log('Payload:', payload); // Verify the data being sent
-    
+    const checkDoiExists = async (doi, excludedDoi) => {
         try {
-            await axios.put(`http://localhost:8000/api/rapportUser/${id}`, payload, {
+            const response = await axios.post('http://localhost:8000/api/checkDOIExists', { doi }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-    
-            toast.success('Rapport modifié avec succès');
-            navigate('/user/UserRapports');
+            return response.data.exists && doi !== excludedDoi;
         } catch (error) {
-            console.error('Erreur lors de la mise à jour du rapport :', error.response ? error.response.data : error.message);
-            setError('Erreur lors de la mise à jour du rapport');
-            toast.error('Erreur lors de la mise à jour du rapport');
+            console.error('Erreur lors de la vérification du DOI :', error);
+            setError('Erreur lors de la vérification du DOI');
+            return false;
         }
     };
-    
+
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
         const names = selectedOptions.map((option) => option.value);
         const ids = selectedOptions.map((option) => option.getAttribute('data-id'));
 
-        setSelectedAuthors(names);
-        setSelectedAuthorIds([currentUser.id, ...ids.filter(id => !id.startsWith('optional_'))]);
+        const filteredNames = names.filter((name) => name !== currentUser.name);
+        const filteredIds = ids.filter((id) => id !== currentUser.id.toString());
+
+        setSelectedAuthors([...filteredNames]);
+        setSelectedAuthorIds([...filteredIds]);
     };
 
     const handleAddOptionalAuthor = () => {
         setOptionalAuthors([...optionalAuthors, '']);
-        setOptionalAuthorIds([...optionalAuthorIds, `optional_${optionalAuthors.length + 1}`]);
     };
 
     const handleOptionalAuthorChange = (index, value) => {
@@ -143,14 +103,67 @@ const UserEditRapport = () => {
 
     const handleRemoveOptionalAuthor = (index) => {
         const newOptionalAuthors = optionalAuthors.filter((_, i) => i !== index);
-        const newOptionalAuthorIds = optionalAuthorIds.filter((_, i) => i !== index);
         setOptionalAuthors(newOptionalAuthors);
-        setOptionalAuthorIds(newOptionalAuthorIds);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!validateDoi(DOI)) {
+            setError('Format du DOI invalide.');
+            toast.error('Format du DOI invalide.');
+            return;
+        }
+
+        const doiExists = DOI !== rapport?.doi && await checkDoiExists(DOI, rapport?.doi);
+
+        if (doiExists) {
+            setError('Le DOI existe déjà.');
+            toast.error('Le DOI existe déjà.');
+            return;
+        }
+
+        let allAuthors = [...selectedAuthors];
+        let allAuthorIds = [...selectedAuthorIds];
+
+        optionalAuthors.forEach((optionalAuthor) => {
+            if (!allAuthors.includes(optionalAuthor)) {
+                allAuthors.push(optionalAuthor);
+            }
+        });
+
+        if (!allAuthors.includes(currentUser.name)) {
+            allAuthors = [currentUser.name, ...allAuthors];
+            allAuthorIds = [currentUser.id.toString(), ...allAuthorIds];
+        }
+
+        const payload = {
+            title,
+            author_names: [...new Set(allAuthors)],
+            DOI,
+            id_user: [...new Set(allAuthorIds)].join(','),
+            current_user_id: currentUser.id,
+            optional_authors: optionalAuthors,
+        };
+
+        try {
+            await axios.put(`http://localhost:8000/api/rapportUser/${id}`, payload, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+            });
+            toast.success('Rapport modifié avec succès');
+            navigate('/user/UserRapport'); // Change the navigation to the appropriate route
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du rapport :', error.response ? error.response.data : error.message);
+            setError('Erreur lors de la mise à jour du rapport');
+            toast.error('Erreur lors de la mise à jour du rapport');
+        }
     };
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier le Rapport</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier le rapport</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -167,17 +180,17 @@ const UserEditRapport = () => {
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
-                        multiple
-                        value={selectedAuthors}
-                        onChange={handleAuthorSelection}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    >
-                        {members.map((member) => (
-                            <option key={member.id} value={member.name} data-id={member.id}>
-                                {member.name}
-                            </option>
-                        ))}
-                    </select>
+    multiple
+    value={selectedAuthors}
+    onChange={handleAuthorSelection}
+    className="w-full p-2 border border-gray-300 rounded"
+>
+    {members.map(member => (
+        <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
+            {member.name}
+        </option>
+    ))}
+</select>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
@@ -203,9 +216,9 @@ const UserEditRapport = () => {
                     <button
                         type="button"
                         onClick={handleAddOptionalAuthor}
-                        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                     >
-                        Ajouter plus d'auteur(s) facultatif(s)
+                        Ajouter un auteur facultatif
                     </button>
                 </div>
                 <div>
@@ -214,14 +227,15 @@ const UserEditRapport = () => {
                         type="text"
                         value={DOI}
                         onChange={(e) => setDOI(e.target.value)}
+                        required
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
                 <button
                     type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                    className="px-4 py-2 bg-green-500 text-white rounded"
                 >
-                    Modifier
+                    Enregistrer
                 </button>
             </form>
         </div>

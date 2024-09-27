@@ -5,19 +5,23 @@ import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
 const UserEditBrevet = () => {
-    const { id } = useParams(); // Get the brevet ID from the URL
+    const { id } = useParams();
     const [title, setTitle] = useState('');
-    const [doi, setDoi] = useState('');
+    const [DOI, setDOI] = useState('');
     const [members, setMembers] = useState([]);
-    const [selectedAuthors, setSelectedAuthors] = useState([]); // Authors already selected
-    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs of the selected authors
-    const [optionalAuthors, setOptionalAuthors] = useState([]); // For storing optional authors
-    const [optionalAuthorIds, setOptionalAuthorIds] = useState([]); // IDs of optional authors
+    const [selectedAuthors, setSelectedAuthors] = useState([]);
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
+    const [optionalAuthors, setOptionalAuthors] = useState([]);
     const [error, setError] = useState('');
+    const [brevet, setBrevet] = useState(null);
     const { currentUser, accessToken } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // Fetch brevet details for editing
+    useEffect(() => {
+        fetchMembers();
+        fetchBrevetDetails();
+    }, [id, accessToken]);
+
     const fetchBrevetDetails = async () => {
         try {
             const response = await axios.get(`http://localhost:8000/api/brevetUser/${id}`, {
@@ -25,114 +29,70 @@ const UserEditBrevet = () => {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-            const brevet = response.data;
-
-            setTitle(brevet.title);
-            setDoi(brevet.doi);
-
-            // Split authors and IDs
-            const allAuthors = brevet.author.split(', ').filter(author => author.trim() !== '');
-            const allAuthorIds = brevet.id_user.split(',').filter(id => id.trim() !== '');
-
-            // Extract main author and optional authors
-            const mainAuthor = allAuthors[0];
-            const mainAuthorId = allAuthorIds[0];
-            const optional = allAuthors.slice(1);
-            const optionalIds = allAuthorIds.slice(1);
-
-            // Separate optional authors
-            const optionalList = optional.filter((_, i) => optionalIds[i].startsWith('optional_'));
-            const optionalListIds = optionalIds.filter(id => id.startsWith('optional_'));
-            const normalAuthors = optional.filter((_, i) => !optionalIds[i].startsWith('optional_'));
-            const normalIds = optionalIds.filter(id => !id.startsWith('optional_'));
-
-            setSelectedAuthors([mainAuthor, ...normalAuthors]);
-            setSelectedAuthorIds([mainAuthorId, ...normalIds]);
-            setOptionalAuthors(optionalList);
-            setOptionalAuthorIds(optionalListIds);
+            const brevetData = response.data;
+            setBrevet(brevetData);
+            setTitle(brevetData.title);
+            setDOI(brevetData.doi);
+            setSelectedAuthors(brevetData.authors_with_ids || []);
+            setSelectedAuthorIds(brevetData.author_ids || []);
+            setOptionalAuthors(brevetData.authors_without_ids || []);
         } catch (error) {
             console.error('Erreur lors de la récupération du brevet :', error);
             setError('Erreur lors de la récupération du brevet');
         }
     };
 
-    // Fetch members to display in the authors list
     const fetchMembers = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
+                    'Authorization': `Bearer ${accessToken}`
+                }
             });
-            setMembers(response.data.filter((member) => member.name !== currentUser.name));
+            // Filtrer pour exclure l'utilisateur connecté
+            const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
+            setMembers(filteredMembers);
         } catch (error) {
             console.error('Erreur lors de la récupération des membres :', error);
             setError('Erreur lors de la récupération des membres');
+            toast.error('Erreur lors de la récupération des membres');
         }
     };
-
-    useEffect(() => {
-        fetchMembers();
-        fetchBrevetDetails();
-    }, [id, accessToken]);
 
     const validateDoi = (doi) => {
         const doiPattern = /^10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
         return doiPattern.test(doi);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-    
-        if (!validateDoi(doi)) {
-            setError('Format du DOI invalide.');
-            toast.error('Format du DOI invalide.');
-            return;
-        }
-    
-        // Prepare payload for API request
-        const allAuthors = [currentUser.name, ...selectedAuthors, ...optionalAuthors];
-        const allAuthorIds = [currentUser.id, ...selectedAuthorIds];
-    
-        const payload = {
-            title,
-            author_names: allAuthors, // Names of all authors
-            doi,
-            id_user: allAuthorIds.join(','), // IDs including optional ones
-            current_user_id: currentUser.id, // Include current user ID if needed
-            optional_authors: optionalAuthors, // Optional authors if needed for future use
-        };
-    
-        console.log('Payload:', payload); // Verify the data being sent
-    
+    const checkDoiExists = async (doi, excludedDoi) => {
         try {
-            await axios.put(`http://localhost:8000/api/brevetUser/${id}`, payload, {
+            const response = await axios.post('http://localhost:8000/api/checkDOIExists', { doi }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-    
-            toast.success('Brevet modifié avec succès');
-            navigate('/user/UserBrevets');
+            return response.data.exists && doi !== excludedDoi;
         } catch (error) {
-            console.error('Erreur lors de la mise à jour du brevet :', error.response ? error.response.data : error.message);
-            setError('Erreur lors de la mise à jour du brevet');
-            toast.error('Erreur lors de la mise à jour du brevet');
+            console.error('Erreur lors de la vérification du DOI :', error);
+            setError('Erreur lors de la vérification du DOI');
+            return false;
         }
     };
-    
+
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
         const names = selectedOptions.map((option) => option.value);
         const ids = selectedOptions.map((option) => option.getAttribute('data-id'));
 
-        setSelectedAuthors(names);
-        setSelectedAuthorIds([currentUser.id, ...ids.filter(id => !id.startsWith('optional_'))]);
+        const filteredNames = names.filter((name) => name !== currentUser.name);
+        const filteredIds = ids.filter((id) => id !== currentUser.id.toString());
+
+        setSelectedAuthors([...filteredNames]);
+        setSelectedAuthorIds([...filteredIds]);
     };
 
     const handleAddOptionalAuthor = () => {
         setOptionalAuthors([...optionalAuthors, '']);
-        setOptionalAuthorIds([...optionalAuthorIds, `optional_${optionalAuthors.length + 1}`]);
     };
 
     const handleOptionalAuthorChange = (index, value) => {
@@ -143,14 +103,67 @@ const UserEditBrevet = () => {
 
     const handleRemoveOptionalAuthor = (index) => {
         const newOptionalAuthors = optionalAuthors.filter((_, i) => i !== index);
-        const newOptionalAuthorIds = optionalAuthorIds.filter((_, i) => i !== index);
         setOptionalAuthors(newOptionalAuthors);
-        setOptionalAuthorIds(newOptionalAuthorIds);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!validateDoi(DOI)) {
+            setError('Format du DOI invalide.');
+            toast.error('Format du DOI invalide.');
+            return;
+        }
+
+        const doiExists = DOI !== brevet?.doi && await checkDoiExists(DOI, brevet?.doi);
+
+        if (doiExists) {
+            setError('Le DOI existe déjà.');
+            toast.error('Le DOI existe déjà.');
+            return;
+        }
+
+        let allAuthors = [...selectedAuthors];
+        let allAuthorIds = [...selectedAuthorIds];
+
+        optionalAuthors.forEach((optionalAuthor) => {
+            if (!allAuthors.includes(optionalAuthor)) {
+                allAuthors.push(optionalAuthor);
+            }
+        });
+
+        if (!allAuthors.includes(currentUser.name)) {
+            allAuthors = [currentUser.name, ...allAuthors];
+            allAuthorIds = [currentUser.id.toString(), ...allAuthorIds];
+        }
+
+        const payload = {
+            title,
+            author_names: [...new Set(allAuthors)],
+            DOI,
+            id_user: [...new Set(allAuthorIds)].join(','),
+            current_user_id: currentUser.id,
+            optional_authors: optionalAuthors,
+        };
+
+        try {
+            await axios.put(`http://localhost:8000/api/brevetUser/${id}`, payload, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+            });
+            toast.success('Brevet modifié avec succès');
+            navigate('/user/UserBrevet');
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du brevet :', error.response ? error.response.data : error.message);
+            setError('Erreur lors de la mise à jour du brevet');
+            toast.error('Erreur lors de la mise à jour du brevet');
+        }
     };
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier le Brevet</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier le brevet</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -172,8 +185,8 @@ const UserEditBrevet = () => {
                         onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
-                        {members.map((member) => (
-                            <option key={member.id} value={member.name} data-id={member.id}>
+                        {members.map(member => (
+                            <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
                                 {member.name}
                             </option>
                         ))}
@@ -205,24 +218,24 @@ const UserEditBrevet = () => {
                         onClick={handleAddOptionalAuthor}
                         className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                     >
-                        Ajouter plus d'auteur(s) facultatif(s)
+                        Ajouter un auteur facultatif
                     </button>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
                         type="text"
-                        value={doi}
-                        onChange={(e) => setDoi(e.target.value)}
+                        value={DOI}
+                        onChange={(e) => setDOI(e.target.value)}
+                        required
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
-                    Modifier
-                </button>
+                <div>
+                    <button type="submit" className="bg-green-500 text-white p-2 rounded hover:bg-green-600">
+                        Modifier le brevet
+                    </button>
+                </div>
             </form>
         </div>
     );

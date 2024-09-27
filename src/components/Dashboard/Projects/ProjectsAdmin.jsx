@@ -21,13 +21,13 @@ const ProjectsAdmin = () => {
             });
             setProjects(response.data);
         } catch (error) {
-            console.error('Error fetching projects', error);
-            setError('Error fetching projects');
+            console.error('Erreur lors de la récupération des projets', error);
+            setError('Erreur lors de la récupération des projets');
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this project?')) {
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
             try {
                 await axios.delete(`http://localhost:8000/api/projects/${id}`, {
                     headers: {
@@ -36,27 +36,27 @@ const ProjectsAdmin = () => {
                 });
                 setProjects(projects.filter(project => project.id !== id));
             } catch (error) {
-                console.error('Error deleting project', error);
-                setError('Error deleting project');
+                console.error('Erreur lors de la suppression du projet', error);
+                setError('Erreur lors de la suppression du projet');
             }
         }
     };
 
     return (
         <div>
-            <h1>Manage Projects</h1>
-            <Link to="/dashboard/ProjectsCreate" className="btn btn-primary mb-4">Add Project</Link>
+            <h1>Gérer les Projets</h1>
+            <Link to="/dashboard/ProjectsCreate" className="btn btn-primary mb-4">Ajouter un Projet</Link>
             {error && <p className="text-red-500">{error}</p>}
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funding Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Équipe</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de début</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de fin</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type de financement</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -72,14 +72,14 @@ const ProjectsAdmin = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">{project.funding_type}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{project.status}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/ProjectsEdit/${project.id}`} className="btn btn-primary mb-2">Edit</Link>
-                                    <button onClick={() => handleDelete(project.id)} className="btn btn-primary mb-2">Delete</button>
+                                    <Link to={`/dashboard/ProjectsEdit/${project.id}`} className="btn btn-primary mb-2">Modifier</Link>
+                                    <button onClick={() => handleDelete(project.id)} className="btn btn-primary mb-2">Supprimer</button>
                                 </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="8" className="text-center py-4">No projects available</td>
+                            <td colSpan="8" className="text-center py-4">Aucun projet disponible</td>
                         </tr>
                     )}
                 </tbody>

@@ -7,9 +7,10 @@ const Patents = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/brevets')
+        // Remplacez l'URL par celle de votre API si nécessaire
+        axios.get('http://localhost:8000/api/brevets/acceptes')
             .then(response => {
-                console.log('Données récupérées:', response.data); // Pour vérifier les données
+                console.log('Données récupérées:', response.data); // Vérifier les données reçues
                 setPatents(response.data);
             })
             .catch(error => {
@@ -30,13 +31,12 @@ const Patents = () => {
                             <h3>{patent.title || 'Titre non disponible'}</h3>
                             <p><strong>Auteur:</strong> {patent.author || 'Auteur non disponible'}</p>
                             <p><strong>DOI:</strong>{patent.doi ? (
-                                <a href={`https://doi.org/${patent.Doi}`} target="_blank" rel="noopener noreferrer" className="doi-link">
-                                    DOI
+                                <a href={`https://doi.org/${patent.doi}`} target="_blank" rel="noopener noreferrer" className="doi-link">
+                                    {patent.doi}
                                 </a>
                             ) : (
                                 <span>DOI non disponible</span>
                             )}</p>
-                            
                         </div>
                     ))
                 ) : (

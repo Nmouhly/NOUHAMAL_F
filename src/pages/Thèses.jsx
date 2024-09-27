@@ -12,7 +12,7 @@ const Thèses = () => {
   useEffect(() => {
     const fetchTheses = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/theses');
+        const response = await axios.get('http://localhost:8000/api/these/acceptes');
         setTheses(response.data);
       } catch (error) {
         console.error('Erreur lors du chargement des thèses', error);
@@ -35,37 +35,42 @@ const Thèses = () => {
   return (
     <div className="these-container">
       <h1>Thèses et Doctorat</h1>
-      <ul className="these-list">
-        {theses.map((these) => (
-          <li key={these.id} className="these-card">
-            <div className="these-header">
-              <img
-                src={logoDoctorat} // Utilisation de l'image importée
-                alt="Chapeau de Doctorat"
-                className="these-logo"
-              />
-            </div>
-            <div className="these-content">
-              <p className="these-info"><strong>Titre:</strong> {these.title}</p>
-              <p className="these-info"><strong>Auteur:</strong> {these.author}</p>
-              <p className="these-info"><strong>Date:</strong> {new Date(these.date).toLocaleDateString()}</p>
-              <p className="these-info"><strong>Lieu:</strong> {these.lieu || 'Non spécifié'}</p>
-              {these.DOI && (
-                <p className="these-info">
-                  <strong>DOI:</strong>
-                  <a
-                    href={`https://doi.org/${these.DOI}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {these.DOI}
-                  </a>
-                </p>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
+      {/* Message si aucune thèse n'est disponible */}
+      {theses.length === 0 ? (
+        <p>Aucune thèse disponible</p>
+      ) : (
+        <ul className="these-list">
+          {theses.map((these) => (
+            <li key={these.id} className="these-card">
+              <div className="these-header">
+                <img
+                  src={logoDoctorat} // Utilisation de l'image importée
+                  alt="Chapeau de Doctorat"
+                  className="these-logo"
+                />
+              </div>
+              <div className="these-content">
+                <p className="these-info"><strong>Titre:</strong> {these.title}</p>
+                <p className="these-info"><strong>Auteur:</strong> {these.author}</p>
+                <p className="these-info"><strong>Date:</strong> {new Date(these.date).toLocaleDateString()}</p>
+                <p className="these-info"><strong>Lieu:</strong> {these.lieu || 'Non spécifié'}</p>
+                {these.doi && (
+                  <p className="these-info">
+                    <strong>DOI:</strong>
+                    <a
+                      href={`https://doi.org/${these.doi}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {these.doi}
+                    </a>
+                  </p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
       <Habilitation />
     </div>
   );

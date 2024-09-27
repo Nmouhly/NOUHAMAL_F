@@ -5,25 +5,23 @@ import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
 const UserEditRevue = () => {
-    const { id } = useParams(); // Get the revue ID from the URL
+    const { id } = useParams();
     const [title, setTitle] = useState('');
     const [DOI, setDOI] = useState('');
     const [members, setMembers] = useState([]);
-    const [selectedAuthors, setSelectedAuthors] = useState([]); // Authors already selected
-    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs of the selected authors
-    const [optionalAuthors, setOptionalAuthors] = useState([]); // For storing optional authors
+    const [selectedAuthors, setSelectedAuthors] = useState([]);
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
+    const [optionalAuthors, setOptionalAuthors] = useState([]);
     const [error, setError] = useState('');
-    const [revue, setRevue] = useState(null); // Added to store revue details
+    const [revue, setRevue] = useState(null); // État pour la revue
     const { currentUser, accessToken } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // Fetch revue details for editing
     useEffect(() => {
         fetchMembers();
         fetchRevueDetails();
     }, [id, accessToken]);
-    
-    // Fetch revue details for editing
+
     const fetchRevueDetails = async () => {
         try {
             const response = await axios.get(`http://localhost:8000/api/revueUser/${id}`, {
@@ -32,35 +30,32 @@ const UserEditRevue = () => {
                 },
             });
             const revueData = response.data;
-    
-            console.log('Données de la revue:', revueData); // Assurez-vous que les données sont correctes
-    
+            setRevue(revueData);
             setTitle(revueData.title);
             setDOI(revueData.doi);
-    
-            // Assurez-vous que les données sont bien formatées
             setSelectedAuthors(revueData.authors_with_ids || []);
             setSelectedAuthorIds(revueData.author_ids || []);
             setOptionalAuthors(revueData.authors_without_ids || []);
-            setRevue(revueData); // Store revue details in state
         } catch (error) {
             console.error('Erreur lors de la récupération de la revue :', error);
             setError('Erreur lors de la récupération de la revue');
         }
     };
-    
-    // Fetch members to display in the authors list
+
     const fetchMembers = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
+                    'Authorization': `Bearer ${accessToken}`
+                }
             });
-            setMembers(response.data.filter((member) => member.name !== currentUser.name));
+            // Filtrer pour exclure l'utilisateur connecté
+            const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
+            setMembers(filteredMembers);
         } catch (error) {
             console.error('Erreur lors de la récupération des membres :', error);
             setError('Erreur lors de la récupération des membres');
+            toast.error('Erreur lors de la récupération des membres');
         }
     };
 
@@ -69,7 +64,6 @@ const UserEditRevue = () => {
         return doiPattern.test(doi);
     };
 
-    // Function to check if DOI exists
     const checkDoiExists = async (doi, excludedDoi) => {
         try {
             const response = await axios.post('http://localhost:8000/api/checkDOIExists', { doi }, {
@@ -84,70 +78,17 @@ const UserEditRevue = () => {
             return false;
         }
     };
-    
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-    
-        if (!validateDoi(DOI)) {
-            setError('Format du DOI invalide.');
-            toast.error('Format du DOI invalide.');
-            return;
-        }
-    
-        // Vérifiez le DOI uniquement si le DOI a changé
-        const doiExists = revue && DOI !== revue.doi && await checkDoiExists(DOI, revue.doi);
-    
-        if (doiExists) {
-            setError('Le DOI existe déjà.');
-            toast.error('Le DOI existe déjà.');
-            return;
-        }
-    
-        // Préparer les auteurs
-        const filteredSelectedAuthors = selectedAuthors.filter((author) => author !== currentUser.name);
-        const allAuthors = [currentUser.name, ...filteredSelectedAuthors, ...optionalAuthors];
-        
-        // Préparer les IDs des auteurs
-        const filteredSelectedAuthorIds = selectedAuthorIds.filter((id) => id !== currentUser.id);
-        const allAuthorIds = [...filteredSelectedAuthorIds]; // Utiliser uniquement les IDs existants
-    
-        const payload = {
-            title,
-            author_names: allAuthors,
-            DOI,
-            id_user: allAuthorIds.join(','), // Assurez-vous que les IDs sont corrects
-            current_user_id: currentUser.id,
-            optional_authors: optionalAuthors,
-        };
-    
-        try {
-            await axios.put(`http://localhost:8000/api/revueUser/${id}`, payload, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-            });
-    
-            toast.success('Revue modifiée avec succès');
-            navigate('/user/UserRevues');
-        } catch (error) {
-            console.error('Erreur lors de la mise à jour de la revue :', error.response ? error.response.data : error.message);
-            setError('Erreur lors de la mise à jour de la revue');
-            toast.error('Erreur lors de la mise à jour de la revue');
-        }
-    };
-    
-    
+
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
         const names = selectedOptions.map((option) => option.value);
         const ids = selectedOptions.map((option) => option.getAttribute('data-id'));
 
-        // Avoid adding the current user multiple times
         const filteredNames = names.filter((name) => name !== currentUser.name);
-        const filteredIds = ids.filter((id) => !id.startsWith('optional_'));
+        const filteredIds = ids.filter((id) => id !== currentUser.id.toString());
 
-        setSelectedAuthors(filteredNames);
-        setSelectedAuthorIds([currentUser.id, ...filteredIds]);
+        setSelectedAuthors([...filteredNames]);
+        setSelectedAuthorIds([...filteredIds]);
     };
 
     const handleAddOptionalAuthor = () => {
@@ -165,9 +106,64 @@ const UserEditRevue = () => {
         setOptionalAuthors(newOptionalAuthors);
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!validateDoi(DOI)) {
+            setError('Format du DOI invalide.');
+            toast.error('Format du DOI invalide.');
+            return;
+        }
+
+        const doiExists = DOI !== revue?.doi && await checkDoiExists(DOI, revue?.doi);
+
+        if (doiExists) {
+            setError('Le DOI existe déjà.');
+            toast.error('Le DOI existe déjà.');
+            return;
+        }
+
+        let allAuthors = [...selectedAuthors];
+        let allAuthorIds = [...selectedAuthorIds];
+
+        optionalAuthors.forEach((optionalAuthor) => {
+            if (!allAuthors.includes(optionalAuthor)) {
+                allAuthors.push(optionalAuthor);
+            }
+        });
+
+        if (!allAuthors.includes(currentUser.name)) {
+            allAuthors = [currentUser.name, ...allAuthors];
+            allAuthorIds = [currentUser.id.toString(), ...allAuthorIds];
+        }
+
+        const payload = {
+            title,
+            author_names: [...new Set(allAuthors)],
+            DOI,
+            id_user: [...new Set(allAuthorIds)].join(','),
+            current_user_id: currentUser.id,
+            optional_authors: optionalAuthors,
+        };
+
+        try {
+            await axios.put(`http://localhost:8000/api/revueUser/${id}`, payload, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+            });
+            toast.success('Revue modifiée avec succès');
+            navigate('/user/UserRevues');
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour de la revue :', error.response ? error.response.data : error.message);
+            setError('Erreur lors de la mise à jour de la revue');
+            toast.error('Erreur lors de la mise à jour de la revue');
+        }
+    };
+
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier la Revue</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier la revue</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -184,17 +180,17 @@ const UserEditRevue = () => {
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
-                        multiple
-                        value={selectedAuthors}
-                        onChange={handleAuthorSelection}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    >
-                        {members.map((member) => (
-                            <option key={member.id} value={member.name} data-id={member.id}>
-                                {member.name}
-                            </option>
-                        ))}
-                    </select>
+    multiple
+    value={selectedAuthors}
+    onChange={handleAuthorSelection}
+    className="w-full p-2 border border-gray-300 rounded"
+>
+    {members.map(member => (
+        <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
+            {member.name}
+        </option>
+    ))}
+</select>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
@@ -220,7 +216,7 @@ const UserEditRevue = () => {
                     <button
                         type="button"
                         onClick={handleAddOptionalAuthor}
-                        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                     >
                         Ajouter un auteur facultatif
                     </button>
@@ -237,7 +233,7 @@ const UserEditRevue = () => {
                 </div>
                 <button
                     type="submit"
-                    className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
+                    className="px-4 py-2 bg-green-500 text-white rounded"
                 >
                     Enregistrer
                 </button>
@@ -247,9 +243,3 @@ const UserEditRevue = () => {
 };
 
 export default UserEditRevue;
-
-
-
-
-
- 

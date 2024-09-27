@@ -14,14 +14,15 @@ const RevueAdmin = () => {
 
     const fetchRevues = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/revues', {
+            const response = await axios.get('http://localhost:8000/api/revuesAdmin', {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-
+    
             if (Array.isArray(response.data)) {
-                setRevues(response.data);
+                const approvedRevues = response.data.filter(revue => revue.status === 'approuvé'); // Filtrer par statut
+                setRevues(approvedRevues);
             } else {
                 console.error('Les données reçues ne sont pas un tableau');
                 setError('Erreur de données');
@@ -31,6 +32,7 @@ const RevueAdmin = () => {
             setError('Erreur lors de la récupération des revues');
         }
     };
+    
 
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cette revue ?')) {
@@ -59,7 +61,7 @@ const RevueAdmin = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Utilisateur</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -89,7 +91,7 @@ const RevueAdmin = () => {
                                         'Pas de DOI disponible'
                                     )}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{revue.id_user}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{revue.status}</td> {/* Nouvelle colonne pour le statut */}
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/RevuesEdit/${revue.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(revue.id)} className="btn btn-danger mb-2">Supprimer</button>

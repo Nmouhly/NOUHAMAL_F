@@ -14,7 +14,7 @@ const AdminHabilitation = () => {
 
     const fetchHabilitations = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/habilitations', {
+            const response = await axios.get('http://localhost:8000/api/habilitationAdmin', {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -61,7 +61,7 @@ const AdminHabilitation = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Utilisateur</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -93,7 +93,7 @@ const AdminHabilitation = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">{habilitation.lieu}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{habilitation.date}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.id_user}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.status}</td> {/* Nouvelle colonne pour le statut */}
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/HabilitationEdit/${habilitation.id}`} className="bg-yellow-500 text-white px-4 py-2 rounded mr-2 inline-block">Modifier</Link>
                                     <button onClick={() => handleDelete(habilitation.id)} className="bg-red-500 text-white px-4 py-2 rounded inline-block">Supprimer</button>

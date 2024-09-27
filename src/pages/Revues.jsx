@@ -7,7 +7,7 @@ const Revues = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/revues')
+        axios.get('http://localhost:8000/api/revues/acceptes')
             .then(response => {
                 setRevues(response.data);
             })
