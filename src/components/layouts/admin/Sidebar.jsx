@@ -12,10 +12,8 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [isEquipesSubmenuOpen, setIsEquipesSubmenuOpen] = useState(false);
   const [isPublicationsSubmenuOpen, setIsPublicationsSubmenuOpen] = useState(false);
-<<<<<<< HEAD
   const [isMessagesSubmenuOpen, setIsMessagesSubmenuOpen] = useState(false); // Ajout de l'état pour Messages
 
-=======
   const [isPublicationsEnAttenteSubmenuOpen, setIsPublicationsEnAttenteSubmenuOpen] = useState(false);
   const [pendingCounts, setPendingCounts] = useState({
     habilitations: 0,
@@ -26,7 +24,6 @@ const Sidebar = () => {
     ouvrages: 0,
   });
   
->>>>>>> 81303fd0f0737f9d81485cac1b905609aa2c1260
 
   const fetchPendingCounts = async () => {
     try {
@@ -55,17 +52,13 @@ const Sidebar = () => {
   const toggleEquipesSubmenu = () => {
     setIsEquipesSubmenuOpen(!isEquipesSubmenuOpen);
     if (isPublicationsSubmenuOpen) setIsPublicationsSubmenuOpen(false);
-<<<<<<< HEAD
     if (isMessagesSubmenuOpen) setIsMessagesSubmenuOpen(false); // Ferme le sous-menu Messages
-=======
     if (isPublicationsEnAttenteSubmenuOpen) setIsPublicationsEnAttenteSubmenuOpen(false);
->>>>>>> 81303fd0f0737f9d81485cac1b905609aa2c1260
   };
 
   const togglePublicationsSubmenu = () => {
     setIsPublicationsSubmenuOpen(!isPublicationsSubmenuOpen);
     if (isEquipesSubmenuOpen) setIsEquipesSubmenuOpen(false);
-<<<<<<< HEAD
     if (isMessagesSubmenuOpen) setIsMessagesSubmenuOpen(false); // Ferme le sous-menu Messages
   };
 
@@ -73,7 +66,6 @@ const Sidebar = () => {
     setIsMessagesSubmenuOpen(!isMessagesSubmenuOpen);
     if (isEquipesSubmenuOpen) setIsEquipesSubmenuOpen(false);
     if (isPublicationsSubmenuOpen) setIsPublicationsSubmenuOpen(false); // Ferme le sous-menu Publications
-=======
     if (isPublicationsEnAttenteSubmenuOpen) setIsPublicationsEnAttenteSubmenuOpen(false);
   };
 
@@ -81,7 +73,6 @@ const Sidebar = () => {
     setIsPublicationsEnAttenteSubmenuOpen(!isPublicationsEnAttenteSubmenuOpen);
     if (isEquipesSubmenuOpen) setIsEquipesSubmenuOpen(false);
     if (isPublicationsSubmenuOpen) setIsPublicationsSubmenuOpen(false);
->>>>>>> 81303fd0f0737f9d81485cac1b905609aa2c1260
   };
 
   const logoutUser = async () => {
