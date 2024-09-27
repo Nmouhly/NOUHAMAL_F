@@ -4,43 +4,49 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
 
-const UserEditBrevet = () => {
+const UserEditHabilitation = () => {
     const { id } = useParams();
     const [title, setTitle] = useState('');
     const [DOI, setDOI] = useState('');
+    const [date, setDate] = useState('');
+    const [lieu, setLieu] = useState('');
     const [members, setMembers] = useState([]);
     const [selectedAuthors, setSelectedAuthors] = useState([]);
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
     const [optionalAuthors, setOptionalAuthors] = useState([]);
     const [error, setError] = useState('');
-    const [brevet, setBrevet] = useState(null);
+    const [these, setThese] = useState(null);
     const { currentUser, accessToken } = useContext(AuthContext);
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchMembers();
-        fetchBrevetDetails();
+        fetchTheseDetails();
     }, [id, accessToken]);
 
-    const fetchBrevetDetails = async () => {
+    const fetchTheseDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/brevetUser/${id}`, {
+            const response = await axios.get(`http://localhost:8000/api/habilitationsUser/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-            const brevetData = response.data;
-            setBrevet(brevetData);
-            setTitle(brevetData.title);
-            setDOI(brevetData.doi);
-            setSelectedAuthors(brevetData.authors_with_ids || []);
-            setSelectedAuthorIds(brevetData.author_ids || []);
-            setOptionalAuthors(brevetData.authors_without_ids || []);
+            const theseData = response.data;
+            setThese(theseData); // Correcting this line
+            setTitle(theseData.title);
+            setDOI(theseData.doi);
+            setDate(theseData.date);
+            setLieu(theseData.lieu);
+    
+            setSelectedAuthors(theseData.authors_with_ids || []);
+            setSelectedAuthorIds(theseData.author_ids || []);
+            setOptionalAuthors(theseData.authors_without_ids || []);
         } catch (error) {
-            console.error('Erreur lors de la récupération du brevet :', error);
-            setError('Erreur lors de la récupération du brevet');
+            console.error('Erreur lors de la récupération du thèse :', error);
+            setError('Erreur lors de la récupération du thèse');
         }
     };
+    
 
     const fetchMembers = async () => {
         try {
@@ -115,7 +121,7 @@ const UserEditBrevet = () => {
             return;
         }
 
-        const doiExists = DOI !== brevet?.doi && await checkDoiExists(DOI, brevet?.doi);
+        const doiExists = DOI !== these?.doi && await checkDoiExists(DOI, these?.doi);
 
         if (doiExists) {
             setError('Le DOI existe déjà.');
@@ -138,32 +144,35 @@ const UserEditBrevet = () => {
         }
 
         const payload = {
-            title,
-            author_names: [...new Set(allAuthors)],
-            DOI,
-            id_user: [...new Set(allAuthorIds)].join(','),
+            title: title,
+            doi: DOI.trim(), // Assurez-vous d'utiliser 'doi' en minuscules
             current_user_id: currentUser.id,
+            author_names: [...new Set(allAuthors)],
+            id_user: [...new Set(allAuthorIds)].join(','),
             optional_authors: optionalAuthors,
+            lieu: lieu,
+            date: date
         };
+        
 
         try {
-            await axios.put(`http://localhost:8000/api/brevets/${id}`, payload, {
+            await axios.put(`http://localhost:8000/api/habilitationsUser/${id}`, payload, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-            toast.success('Brevet modifié avec succès');
-            navigate('/dashboard/patent');
+            toast.success('habilitation modifié avec succès');
+            navigate('/user/UserHabilitation');
         } catch (error) {
-            console.error('Erreur lors de la mise à jour du brevet :', error.response ? error.response.data : error.message);
-            setError('Erreur lors de la mise à jour du brevet');
-            toast.error('Erreur lors de la mise à jour du brevet');
+            console.error('Erreur lors de la mise à jour du habilitation :', error.response ? error.response.data : error.message);
+            setError('Erreur lors de la mise à jour du habilitation');
+            toast.error('Erreur lors de la mise à jour du habilitation');
         }
     };
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier le brevet</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier l'habilitation</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -180,17 +189,17 @@ const UserEditBrevet = () => {
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
-    multiple
-    value={selectedAuthors}
-    onChange={handleAuthorSelection}
-    className="w-full p-2 border border-gray-300 rounded"
->
-    {members.map(member => (
-        <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
-            {member.name}
-        </option>
-    ))}
-</select>
+                        multiple
+                        value={selectedAuthors}
+                        onChange={handleAuthorSelection}
+                        className="w-full p-2 border border-gray-300 rounded"
+                    >
+                        {members.map(member => (
+                            <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
+                                {member.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
@@ -216,7 +225,7 @@ const UserEditBrevet = () => {
                     <button
                         type="button"
                         onClick={handleAddOptionalAuthor}
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                     >
                         Ajouter un auteur facultatif
                     </button>
@@ -231,15 +240,36 @@ const UserEditBrevet = () => {
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="px-4 py-2 bg-green-500 text-white rounded"
-                >
-                    Enregistrer
-                </button>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Date</label>
+                    <input
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        required
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
+                </div>
+
+                {/* Lieu field */}
+                <div>
+                    <label className="block text-sm font-medium mb-1">Lieu</label>
+                    <input
+                        type="text"
+                        value={lieu}
+                        onChange={(e) => setLieu(e.target.value)}
+                        required
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
+                </div>
+                <div>
+                    <button type="submit" className="bg-green-500 text-white p-2 rounded hover:bg-green-600">
+                        Modifier l'habilitation
+                    </button>
+                </div>
             </form>
         </div>
     );
 };
 
-export default UserEditBrevet;
+export default UserEditHabilitation;

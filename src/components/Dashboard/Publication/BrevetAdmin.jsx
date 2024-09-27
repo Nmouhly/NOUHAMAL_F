@@ -11,7 +11,7 @@ const BrevetAdmin = () => {
     useEffect(() => {
         const fetchBrevets = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/brevets', {
+                const response = await axios.get('http://localhost:8000/api/brevetsAdmin', {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
                     }
@@ -60,7 +60,7 @@ const BrevetAdmin = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Utilisateur</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -90,7 +90,7 @@ const BrevetAdmin = () => {
                                         'Pas de DOI disponible'
                                     )}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{brevet.id_user}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{brevet.status}</td> {/* Nouvelle colonne pour le statut */}
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/BrevetEdit/${brevet.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger mb-2">Supprimer</button>

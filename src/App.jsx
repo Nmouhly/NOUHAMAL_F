@@ -78,6 +78,7 @@ import PresentationEdit from './components/Dashboard/equipe/PresentationEdit';
 import PresentationAdmin from './components/Dashboard/equipe/PresentationAdmin';
 import Presentation from './pages/Presentation';
 import Register from './components/auth/Register';
+import UserEditHabilitation from './components/User/publication/UserEditHabilitation.jsx';
 // import Personnel from './pages/Personnel';
 import Seminar from './pages/Seminar';
 import Equipes from './pages/Equipes';
@@ -120,6 +121,12 @@ import EquipeCreat from './components/Dashboard/equipe/EquipeCreat';
 import EquipeEdit from './components/Dashboard/equipe/EquipeEdit';
 import AxesPage from './pages/AxesPage.jsx';
 import MemberProfile from "./pages/MemberProfile";
+import OuvragesEnAttente from './components/Dashboard/Publication/OuvragesEnAttente.jsx';
+import BrevetsEnAttente from './components/Dashboard/Publication/BrevetsEnAttente.jsx';
+import RevueEnAttente from './components/Dashboard/Publication/RevueEnAttente.jsx';
+import RapportEnAttente from './components/Dashboard/Publication/RapportEnAttente.jsx';
+import ThèseEnAttente from './components/Dashboard/Publication/ThèseEnAttente.jsx';
+import HabilitationEnAttente from './components/Dashboard/Publication/HabilitationEnAttente.jsx';
 
 function App() {
   const [accessToken, setAccessToken] = useState(() => {
@@ -227,7 +234,14 @@ function App() {
             <Route path="conference" element={<AdminConference />} />
             <Route path="ConferenceEdit/:id" element={<ConferenceEdit />} />
             <Route path="ConferenceCreate" element={<ConferenceCreat />} />
+            <Route path="ouvrageenattente" element={<OuvragesEnAttente />} />
+            <Route path="patentenattente" element={<  BrevetsEnAttente />} />
+            <Route path="revuesenattente" element={<  RevueEnAttente />} />
+            <Route path="reportenattente" element={<  RapportEnAttente />} />
+            <Route path="thesesenattente" element={<  ThèseEnAttente />} />
+            <Route path="habilitationenattente" element={<  HabilitationEnAttente />} />
 
+          
             <Route path="NewsCreate" element={<NewsCreate />} />
             <Route path="NewsEdit/:id" element={<NewsEdit />} />
             <Route path="AdminUtilisateur" element={<AdminUtilisateur />} />
@@ -277,6 +291,8 @@ function App() {
             <Route path="UserRapport" element={<UserRapport />} />
             <Route path="UserHabilitation" element={<UserHabilitation />} />
             <Route path="UserConférence" element={<UserConférence />} />
+            <Route path="UserEditHabilitation/:id" element={<UserEditHabilitation />} /> 
+
        </Route>
        
         </Routes>

@@ -15,7 +15,7 @@ const PatentAdmin = () => {
 
     const fetchPatents = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/patents', {
+            const response = await axios.get('http://localhost:8000/api/brevetsAdmin', {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }

@@ -14,7 +14,7 @@ const ReportAdmin = () => {
 
     const fetchReports = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/reports', {
+            const response = await axios.get('http://localhost:8000/api/reportsAdmin', {
                 headers: {
                     'Authorization': `Bearer ${accessToken}` // Fixed string interpolation
                 }
@@ -35,18 +35,25 @@ const ReportAdmin = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce rapport ?')) {
             try {
-                await axios.delete(`http://localhost:8000/api/reports/${id}`, {
+                const response = await axios.delete(`http://localhost:8000/api/reports/${id}`, {
                     headers: {
-                        'Authorization': `Bearer ${accessToken}` // Fixed string interpolation
+                        'Authorization': `Bearer ${accessToken}`
                     }
                 });
-                setReports(reports.filter(report => report.id !== id));
+    
+                if (response.status === 200) {
+                    setReports(reports.filter(report => report.id !== id));
+                    alert('Rapport supprimé avec succès');
+                } else {
+                    throw new Error('Erreur de suppression');
+                }
             } catch (error) {
                 console.error('Erreur lors de la suppression du rapport', error);
                 setError('Erreur lors de la suppression du rapport');
             }
         }
     };
+    
 
     return (
         <div>
@@ -58,9 +65,8 @@ const ReportAdmin = () => {
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Résumé</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Utilisateur</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -70,7 +76,6 @@ const ReportAdmin = () => {
                             <tr key={report.id}>
                                 <td className="px-6 py-4 whitespace-nowrap">{report.title}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{report.author}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{report.summary}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     {report.DOI ? (
                                         <a
@@ -93,7 +98,7 @@ const ReportAdmin = () => {
                                         'Pas de DOI disponible'
                                     )}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{report.id_user}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{report.status}</td> {/* Nouvelle colonne pour le statut */}
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/ReportEdit/${report.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(report.id)} className="btn btn-danger mb-2">Supprimer</button>

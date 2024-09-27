@@ -6,13 +6,13 @@ import { AuthContext } from '../../../context/authContext';
 
 const UserCreateHabilitation = () => {
     const [title, setTitle] = useState('');
-    const [doi, setDoi] = useState(''); // DOI field
-    const [date, setDate] = useState(''); // Champ pour la date
-    const [lieu, setLieu] = useState(''); // Champ pour le lieu
+    const [doi, setDoi] = useState('');
+    const [date, setDate] = useState(''); 
+    const [lieu, setLieu] = useState(''); 
     const [members, setMembers] = useState([]);
     const [selectedAuthors, setSelectedAuthors] = useState([]);
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
-    const [optionalAuthors, setOptionalAuthors] = useState(['']);
+    const [optionalAuthors, setOptionalAuthors] = useState(['']); // Optional authors
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { currentUser, accessToken } = useContext(AuthContext);
@@ -24,13 +24,16 @@ const UserCreateHabilitation = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            setMembers(response.data.filter(member => member.name !== currentUser.name));
+            // Filtrer pour exclure l'utilisateur connecté
+            const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
+            setMembers(filteredMembers);
         } catch (error) {
             console.error('Erreur lors de la récupération des membres :', error);
             setError('Erreur lors de la récupération des membres');
             toast.error('Erreur lors de la récupération des membres');
         }
     };
+    
 
     useEffect(() => {
         fetchMembers();
@@ -40,10 +43,12 @@ const UserCreateHabilitation = () => {
         setSelectedAuthors([currentUser.name]);
         setSelectedAuthorIds([currentUser.id]);
     }, [currentUser]);
+
     const validateDoi = (doi) => {
         const doiPattern = /^10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
         return doiPattern.test(doi);
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -59,30 +64,63 @@ const UserCreateHabilitation = () => {
             return;
         }
 
+        // Check if the DOI already exists
         try {
-            const response = await axios.post('http://localhost:8000/api/habilitations', {
+            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExists', {
+                doi
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (checkDOIResponse.data.exists) {
+                setError('Le DOI existe déjà.');
+                toast.error('Le DOI existe déjà.');
+                return;
+            }
+        } catch (error) {
+            console.error('Erreur lors de la vérification du DOI:', error.response ? error.response.data : error.message);
+            setError('Erreur lors de la vérification du DOI');
+            toast.error('Erreur lors de la vérification du DOI');
+            return;
+        }
+
+        // Filter optional authors to only include non-empty values
+        const filteredOptionalAuthors = optionalAuthors.filter(author => author.trim() !== '');
+
+        // Combine authors (current user, selected authors, and optional authors without IDs)
+        let allAuthors = [currentUser.name, ...selectedAuthors, ...filteredOptionalAuthors];
+        allAuthors = [...new Set(allAuthors)];  // Remove duplicates
+
+        // Use only selected author IDs
+        const validAuthorIds = selectedAuthorIds;
+
+        try {
+            const response = await axios.post('http://localhost:8000/api/habilitationsUser', {
                 title,
-                author: [currentUser.name, ...selectedAuthors, ...optionalAuthors].join(', '),
+                author: allAuthors.join(', '),  // Combined authors without optional author IDs
                 doi,
-                id_user: [...selectedAuthorIds, ...optionalAuthors.map((_, i) => `optional_${i}`)].join(','),
-                date, // Inclure la date dans les données soumises
-                lieu  // Inclure le lieu dans les données soumises
+                id_user: validAuthorIds.join(','), // Only use IDs for selected authors
+                date, // Include the date
+                lieu  // Include the location
             }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
             });
-        
-            console.log('habilitation ajoutée :', response.data);
-            toast.success('habilitation ajoutée avec succès');
+
+            console.log('Habilitation ajoutée:', response.data);
+            toast.success('Habilitation ajoutée avec succès');
             navigate('/user/UserHabilitation');
         } catch (error) {
-            console.error('Erreur lors de l\'ajout de habilitation :', error.response ? error.response.data : error.message);
-            setError('Erreur lors de l\'ajout de habilitation');
-            toast.error('Erreur lors de l\'ajout de habilitation');
+            console.error('Erreur lors de la création habilitation:', error.response ? error.response.data : error.message);
+            setError('Erreur lors de la création habilitation');
+            toast.error('Erreur lors de la création habilitation');
         }
     };
+
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
         const names = selectedOptions.map(option => option.value);
@@ -109,7 +147,7 @@ const UserCreateHabilitation = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Ajouter une Habilitation</h1>
+            <h1 className="text-2xl font-bold mb-4">Ajouter une  Habilitation</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -127,19 +165,19 @@ const UserCreateHabilitation = () => {
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
-                        multiple
-                        value={selectedAuthors}
-                        onChange={handleAuthorSelection}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    >
-                        {members.map(member => (
-                            <option key={member.id} value={member.name} data-id={member.id}>
-                                {member.name}
-                            </option>
-                        ))}
-                    </select>
+    multiple
+    value={selectedAuthors}
+    onChange={handleAuthorSelection}
+    className="w-full p-2 border border-gray-300 rounded"
+>
+    {members.map(member => (
+        <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
+            {member.name}
+        </option>
+    ))}
+</select>
                     <p className="text-sm text-gray-500 mt-2">
-                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
+                    Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
                     </p>
                 </div>
 
@@ -169,9 +207,10 @@ const UserCreateHabilitation = () => {
                         onClick={handleAddOptionalAuthor}
                         className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                     >
-                        Ajouter plus d'auteur(s) facultatif(s)
-                    </button>
+                            Ajouter plus d'auteur(s) facultatif(s)
+                            </button>
                 </div>
+
                 <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>
                     <input
@@ -182,7 +221,6 @@ const UserCreateHabilitation = () => {
                     />
                 </div>
 
-                {/* Champ pour la date */}
                 <div>
                     <label className="block text-sm font-medium mb-1">Date</label>
                     <input
@@ -194,7 +232,6 @@ const UserCreateHabilitation = () => {
                     />
                 </div>
 
-                {/* Champ pour le lieu */}
                 <div>
                     <label className="block text-sm font-medium mb-1">Lieu</label>
                     <input
@@ -208,10 +245,10 @@ const UserCreateHabilitation = () => {
 
                 <button
                     type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                    className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
                 >
                     Ajouter
-                </button>
+                    </button>
             </form>
         </div>
     );

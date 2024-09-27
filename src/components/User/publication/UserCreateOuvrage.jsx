@@ -16,20 +16,23 @@ const UserCreateOuvrage = () => {
     const { currentUser, accessToken } = useContext(AuthContext);
 
     // Récupérer les membres pour les auteurs
-    const fetchMembers = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/api/members', {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            setMembers(response.data.filter(member => member.name !== currentUser.name));
-        } catch (error) {
-            console.error('Erreur lors de la récupération des membres :', error);
-            setError('Erreur lors de la récupération des membres');
-            toast.error('Erreur lors de la récupération des membres');
-        }
-    };
+  const fetchMembers = async () => {
+    try {
+        const response = await axios.get('http://localhost:8000/api/members', {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        // Filtrer pour exclure l'utilisateur connecté
+        const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
+        setMembers(filteredMembers);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des membres :', error);
+        setError('Erreur lors de la récupération des membres');
+        toast.error('Erreur lors de la récupération des membres');
+    }
+};
+
 
     useEffect(() => {
         fetchMembers();
@@ -160,17 +163,18 @@ const UserCreateOuvrage = () => {
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
-                        multiple
-                        value={selectedAuthors}
-                        onChange={handleAuthorSelection}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    >
-                        {members.map(member => (
-                            <option key={member.id} value={member.name} data-id={member.id}>
-                                {member.name}
-                            </option>
-                        ))}
-                    </select>
+    multiple
+    value={selectedAuthors}
+    onChange={handleAuthorSelection}
+    className="w-full p-2 border border-gray-300 rounded"
+>
+    {members.map(member => (
+        <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
+            {member.name}
+        </option>
+    ))}
+</select>
+
                     <p className="text-sm text-gray-500 mt-2">
                         Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
                     </p>

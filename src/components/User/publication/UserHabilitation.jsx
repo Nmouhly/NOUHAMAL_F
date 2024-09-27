@@ -30,8 +30,11 @@ const UserHabilitation = () => {
     }, [currentUser.id, accessToken]);
 
     const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette habilitation ?");
+        if (!confirmDelete) return; // Si l'utilisateur annule, on arrête la fonction
+    
         try {
-            await axios.delete(`http://localhost:8000/api/habilitations/${id}`, {
+            await axios.delete(`http://localhost:8000/api/habilitationsUser/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -39,13 +42,14 @@ const UserHabilitation = () => {
             toast.success('Habilitation supprimée avec succès');
             fetchHabilitations(); // Recharger la liste des habilitations
         } catch (error) {
-            console.error('Erreur lors de la suppression de l\'habilitation:', error);
-            toast.error('Erreur lors de la suppression de l\'habilitation');
+            console.error('Erreur lors de la suppression d\'habilitation:', error);
+            toast.error('Erreur lors de la suppression d\'habilitation');
         }
     };
+    
 
     const handleEdit = (id) => {
-        navigate(`/dashboard/habilitation/edit/${id}`);
+        navigate(`/user/UserEditHabilitation/${id}`);
     };
 
     return (
@@ -65,6 +69,8 @@ const UserHabilitation = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -96,6 +102,8 @@ const UserHabilitation = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">{habilitation.lieu}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{new Date(habilitation.date).toLocaleDateString()}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.status}</td> {/* Nouvelle colonne pour le statut */}
+
                                 <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                                     <button
                                         onClick={() => handleEdit(habilitation.id)}

@@ -7,7 +7,7 @@ const Ouvrages = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/ouvrages')
+        axios.get('http://localhost:8000/api/ouvrages/acceptes') // Fetch only accepted ouvrages
             .then(response => {
                 setOuvrages(response.data);
             })
@@ -15,6 +15,7 @@ const Ouvrages = () => {
                 setError('Erreur lors de la récupération des ouvrages');
             });
     }, []);
+    
 
     return (
         <div className="ouvrages-list">

@@ -6,12 +6,8 @@ import { AuthContext } from '../../../context/authContext';
 
 const ConferenceCreate = () => {
     const [title, setTitle] = useState('');
-    const [conferenceName, setConferenceName] = useState('');
     const [date, setDate] = useState('');
     const [location, setLocation] = useState('');
-    const [authors, setAuthors] = useState('');
-    const [paperTitle, setPaperTitle] = useState('');
-    const [reference, setReference] = useState('');
     const [image, setImage] = useState(null); // State for image handling
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -22,12 +18,8 @@ const ConferenceCreate = () => {
 
         const formData = new FormData();
         formData.append('title', title);
-        formData.append('conference_name', conferenceName);
         formData.append('date', date);
         formData.append('location', location);
-        formData.append('authors', authors);
-        formData.append('paper_title', paperTitle);
-        formData.append('reference', reference);
         if (image) {
             formData.append('image', image); // Add the image to the form data
         }
@@ -64,16 +56,6 @@ const ConferenceCreate = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Nom de la Conférence</label>
-                    <input
-                        type="text"
-                        value={conferenceName}
-                        onChange={(e) => setConferenceName(e.target.value)}
-                        required
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
                     <label className="block text-sm font-medium mb-1">Date</label>
                     <input
                         type="date"
@@ -90,33 +72,6 @@ const ConferenceCreate = () => {
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                         required
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Auteurs</label>
-                    <input
-                        type="text"
-                        value={authors}
-                        onChange={(e) => setAuthors(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Titre du Papier</label>
-                    <input
-                        type="text"
-                        value={paperTitle}
-                        onChange={(e) => setPaperTitle(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Référence</label>
-                    <input
-                        type="text"
-                        value={reference}
-                        onChange={(e) => setReference(e.target.value)}
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>

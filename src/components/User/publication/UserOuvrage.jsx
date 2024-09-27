@@ -9,7 +9,6 @@ const UserOuvrage = () => {
     const navigate = useNavigate();
     const { currentUser, accessToken } = useContext(AuthContext);
 
-    // Fonction pour récupérer les ouvrages de l'utilisateur
     const fetchOuvrages = async () => {
         try {
             const response = await axios.get(`http://localhost:8000/api/ouvrages/user-or-contributor/${currentUser.id}`, {
@@ -24,7 +23,6 @@ const UserOuvrage = () => {
         }
     };
 
-    // Utiliser useEffect pour récupérer les ouvrages lorsque le composant est monté
     useEffect(() => {
         fetchOuvrages();
     }, [currentUser.id, accessToken]);
@@ -38,7 +36,7 @@ const UserOuvrage = () => {
                     }
                 });
                 toast.success('Ouvrage supprimé avec succès');
-                fetchOuvrages(); // Recharger la liste des ouvrages
+                fetchOuvrages();
             } catch (error) {
                 console.error('Erreur lors de la suppression de l\'ouvrage:', error);
                 toast.error('Erreur lors de la suppression de l\'ouvrage');
@@ -65,6 +63,7 @@ const UserOuvrage = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -96,6 +95,7 @@ const UserOuvrage = () => {
                                         'Pas de DOI disponible'
                                     )}
                                 </td>
+                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.status}</td> {/* Nouvelle colonne pour le statut */}
                                 <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                                     <button
                                         onClick={() => handleEdit(ouvrage.id)}
@@ -114,7 +114,7 @@ const UserOuvrage = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="4" className="text-center py-4">Aucun ouvrage disponible</td>
+                            <td colSpan="5" className="text-center py-4">Aucun ouvrage disponible</td> {/* Mettez à jour le colspan ici */}
                         </tr>
                     )}
                 </tbody>

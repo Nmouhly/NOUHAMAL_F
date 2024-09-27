@@ -7,14 +7,15 @@ import { AuthContext } from '../../../context/authContext';
 const RevueCreate = () => {
     const [title, setTitle] = useState('');
     const [DOI, setDOI] = useState('');
-    const [members, setMembers] = useState([]); // Liste des membres
-    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]); // IDs des membres sélectionnés
-    const [selectedAuthors, setSelectedAuthors] = useState([]); // Noms des membres sélectionnés
+    const [members, setMembers] = useState([]);
+    const [selectedAuthors, setSelectedAuthors] = useState([]);
+    const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
+    const [optionalAuthors, setOptionalAuthors] = useState(['']);
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { accessToken } = useContext(AuthContext);
+    const { currentUser, accessToken } = useContext(AuthContext);
 
-    // Fonction pour récupérer les informations des membres
+    // Fetch members for authors
     const fetchMembers = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
@@ -22,9 +23,10 @@ const RevueCreate = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            setMembers(response.data);
+            const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
+            setMembers(filteredMembers);
         } catch (error) {
-            console.error('Erreur lors de la récupération des membres:', error);
+            console.error('Erreur lors de la récupération des membres :', error);
             setError('Erreur lors de la récupération des membres');
             toast.error('Erreur lors de la récupération des membres');
         }
@@ -34,22 +36,65 @@ const RevueCreate = () => {
         fetchMembers();
     }, [accessToken]);
 
+    useEffect(() => {
+        setSelectedAuthors([currentUser.name]);
+        setSelectedAuthorIds([currentUser.id]);
+    }, [currentUser]);
+
+    const validateDOI = (doi) => {
+        const doiPattern = /^10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i;
+        return doiPattern.test(doi);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Vérifier que l'utilisateur a sélectionné des auteurs
         if (selectedAuthorIds.length === 0) {
             setError('Veuillez sélectionner au moins un auteur.');
             toast.error('Veuillez sélectionner au moins un auteur.');
             return;
         }
 
+        if (!validateDOI(DOI)) {
+            setError('Format du DOI invalide.');
+            toast.error('Format du DOI invalide.');
+            return;
+        }
+
+        // Check if DOI exists in the database
+        try {
+            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExists', {
+                doi: DOI,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (checkDOIResponse.data.exists) {
+                setError('Le DOI existe déjà.');
+                toast.error('Le DOI existe déjà.');
+                return;
+            }
+        } catch (error) {
+            console.error('Erreur lors de la vérification du DOI :', error);
+            setError('Erreur lors de la vérification du DOI');
+            toast.error('Erreur lors de la vérification du DOI');
+            return;
+        }
+
+        const filteredOptionalAuthors = optionalAuthors.filter(author => author.trim() !== '');
+        let allAuthors = [currentUser.name, ...selectedAuthors, ...filteredOptionalAuthors];
+        allAuthors = [...new Set(allAuthors)];
+
+        const validAuthorIds = [currentUser.id, ...selectedAuthorIds];
+
         try {
             const response = await axios.post('http://localhost:8000/api/revues', {
                 title,
+                author: allAuthors.join(', '),
                 DOI,
-                author: selectedAuthors.join(', '), // Noms des auteurs sélectionnés
-                id_user: selectedAuthorIds.join(','),  // Convertir le tableau en chaîne
+                id_user: validAuthorIds.join(','),
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -58,43 +103,43 @@ const RevueCreate = () => {
             });
 
             console.log('Revue ajouté:', response.data);
-            toast.success(' Revue ajouté avec succès');
+            toast.success('Revue ajoutée avec succès');
             navigate('/dashboard/revues');
         } catch (error) {
-            console.error('Erreur lors de l\'ajout du revue :', {
-                message: error.message,
-                response: error.response ? {
-                    status: error.response.status,
-                    data: error.response.data,
-                    headers: error.response.headers
-                } : 'Aucune réponse disponible',
-                config: error.config
-            });
-            setError('Erreur lors de l\'ajout du revue');
-            toast.error('Erreur lors de l\'ajout du revue');
+            console.error('Erreur lors de l\'ajout de la revue :', error);
+            setError('Erreur lors de l\'ajout de la revue');
+            toast.error('Erreur lors de l\'ajout de la revue');
         }
     };
 
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
-        const names = selectedOptions.map(option => option.textContent);
+        const names = selectedOptions.map(option => option.value);
         const ids = selectedOptions.map(option => option.getAttribute('data-id'));
 
         setSelectedAuthors(names);
         setSelectedAuthorIds(ids);
     };
 
+    const handleAddOptionalAuthor = () => {
+        setOptionalAuthors([...optionalAuthors, '']);
+    };
+
+    const handleOptionalAuthorChange = (index, value) => {
+        const newOptionalAuthors = [...optionalAuthors];
+        newOptionalAuthors[index] = value;
+        setOptionalAuthors(newOptionalAuthors);
+    };
+
+    const handleRemoveOptionalAuthor = (index) => {
+        const newOptionalAuthors = optionalAuthors.filter((_, i) => i !== index);
+        setOptionalAuthors(newOptionalAuthors);
+    };
+
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Ajouter un Revue</h1>
+            <h1 className="text-2xl font-bold mb-4">Ajouter une Revue</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-            
-            {/* Afficher les noms des auteurs sélectionnés */}
-            {selectedAuthors.length > 0 && (
-                <div className="mb-4">
-                    <strong>Auteurs sélectionnés :</strong> {selectedAuthors.join(', ')}
-                </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -111,6 +156,7 @@ const RevueCreate = () => {
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
                         multiple
+                        value={selectedAuthors}
                         onChange={handleAuthorSelection}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
@@ -121,8 +167,39 @@ const RevueCreate = () => {
                         ))}
                     </select>
                     <p className="text-sm text-gray-500 mt-2">
-                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée tout en cliquant sur les noms souhaités.
+                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée.
                     </p>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <div className="space-y-2">
+                        {optionalAuthors.map((author, index) => (
+                            <div key={index} className="flex items-center mb-2">
+                                <input
+                                    type="text"
+                                    value={author}
+                                    onChange={(e) => handleOptionalAuthorChange(index, e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveOptionalAuthor(index)}
+                                    className="ml-2 bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                                >
+                                    &minus;
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex space-x-2">
+                        <button
+                            type="button"
+                            onClick={handleAddOptionalAuthor}
+                            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                        >
+                            Ajouter plus d'auteur(s) facultatif(s)
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">DOI</label>

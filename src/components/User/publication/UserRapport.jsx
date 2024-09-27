@@ -29,14 +29,22 @@ const UserRapport = () => {
         fetchRapports();
     }, [currentUser.id, accessToken]);
 
+    // Fonction de suppression avec confirmation
     const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:8000/api/reports/${id}`);
-            toast.success('Rapport supprimé avec succès');
-            fetchRapports(); // Recharger la liste des rapports
-        } catch (error) {
-            console.error('Erreur lors de la suppression du rapport:', error);
-            toast.error('Erreur lors de la suppression du rapport');
+        const confirmDelete = window.confirm('Êtes-vous sûr de vouloir supprimer ce rapport ? Cette action est irréversible.');
+        if (confirmDelete) {
+            try {
+                await axios.delete(`http://localhost:8000/api/rapportUser/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}` // Authentification requise
+                    }
+                });
+                toast.success('Rapport supprimé avec succès');
+                fetchRapports(); // Recharger la liste des rapports après suppression
+            } catch (error) {
+                console.error('Erreur lors de la suppression du rapport:', error);
+                toast.error('Erreur lors de la suppression du rapport');
+            }
         }
     };
 
@@ -58,8 +66,9 @@ const UserRapport = () => {
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Résumé</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -69,7 +78,6 @@ const UserRapport = () => {
                             <tr key={rapport.id}>
                                 <td className="px-6 py-4 whitespace-nowrap">{rapport.title || 'Titre non disponible'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{rapport.author || 'Auteur non disponible'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{rapport.summary || 'Résumé non disponible'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     {rapport.DOI ? (
                                         <a
@@ -80,9 +88,7 @@ const UserRapport = () => {
                                                 const isValidDOI = rapport.DOI.startsWith('10.');
                                                 if (!isValidDOI) {
                                                     e.preventDefault();
-                                                    alert(
-                                                        'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
-                                                    );
+                                                    alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
                                                 }
                                             }}
                                         >
@@ -92,6 +98,8 @@ const UserRapport = () => {
                                         'Pas de DOI disponible'
                                     )}
                                 </td>
+                                <td className="px-6 py-4 whitespace-nowrap">{rapport.status}</td> {/* Nouvelle colonne pour le statut */}
+
                                 <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                                     <button
                                         onClick={() => handleEdit(rapport.id)}

@@ -37,8 +37,8 @@ const UserEditOuvrage = () => {
             setOptionalAuthors(revueData.authors_without_ids || []);
             setRevue(revueData);
         } catch (error) {
-            console.error('Erreur lors de la récupération de la revue :', error);
-            setError('Erreur lors de la récupération de la revue');
+            console.error('Erreur lors de la récupération d\'ouvrage :', error);
+            setError('Erreur lors de la récupération d\'ouvrage');
         }
     };
 
@@ -46,13 +46,16 @@ const UserEditOuvrage = () => {
         try {
             const response = await axios.get('http://localhost:8000/api/members', {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
+                    'Authorization': `Bearer ${accessToken}`
+                }
             });
-            setMembers(response.data.filter((member) => member.name !== currentUser.name));
+            // Filtrer pour exclure l'utilisateur connecté
+            const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
+            setMembers(filteredMembers);
         } catch (error) {
             console.error('Erreur lors de la récupération des membres :', error);
             setError('Erreur lors de la récupération des membres');
+            toast.error('Erreur lors de la récupération des membres');
         }
     };
 
@@ -76,45 +79,85 @@ const UserEditOuvrage = () => {
         }
     };
 
+    const handleAuthorSelection = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions);
+        const names = selectedOptions.map((option) => option.value);
+        const ids = selectedOptions.map((option) => option.getAttribute('data-id'));
+    
+        // Avoid adding the connected user's name and ID if already present
+        const filteredNames = names.filter((name) => name !== currentUser.name);
+        const filteredIds = ids.filter((id) => id !== currentUser.id.toString());
+    
+        setSelectedAuthors([...filteredNames]); // Do not include the current user here
+        setSelectedAuthorIds([...filteredIds]);
+    };
+    
+    // Function to handle adding optional authors without duplicating the current user
+    const handleAddOptionalAuthor = () => {
+        // Add an empty string as a placeholder for the new author input field
+        setOptionalAuthors([...optionalAuthors, '']);
+    };
+    
+    const handleOptionalAuthorChange = (index, value) => {
+        const newOptionalAuthors = [...optionalAuthors];
+        newOptionalAuthors[index] = value;
+        setOptionalAuthors(newOptionalAuthors);
+    };
+    
+    const handleRemoveOptionalAuthor = (index) => {
+        const newOptionalAuthors = optionalAuthors.filter((_, i) => i !== index);
+        setOptionalAuthors(newOptionalAuthors);
+    };
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         if (!validateDoi(DOI)) {
             setError('Format du DOI invalide.');
             toast.error('Format du DOI invalide.');
             return;
         }
-
+    
         const doiExists = revue && DOI !== revue.doi && await checkDoiExists(DOI, revue.doi);
-
+    
         if (doiExists) {
             setError('Le DOI existe déjà.');
             toast.error('Le DOI existe déjà.');
             return;
         }
-
-        const filteredSelectedAuthors = selectedAuthors.filter((author) => author !== currentUser.name);
-        const allAuthors = [currentUser.name, ...filteredSelectedAuthors, ...optionalAuthors];
-
-        const filteredSelectedAuthorIds = selectedAuthorIds.filter((id) => id !== currentUser.id);
-        const allAuthorIds = [...filteredSelectedAuthorIds];
-
+    
+        // Combine selected authors and optional authors
+        let allAuthors = [...selectedAuthors];
+        let allAuthorIds = [...selectedAuthorIds];
+    
+        optionalAuthors.forEach((optionalAuthor) => {
+            if (!allAuthors.includes(optionalAuthor)) {
+                allAuthors.push(optionalAuthor);
+                // Skip adding ID if optionalAuthorIds isn't used
+            }
+        });
+    
+        if (!allAuthors.includes(currentUser.name)) {
+            allAuthors = [currentUser.name, ...allAuthors];
+            allAuthorIds = [currentUser.id.toString(), ...allAuthorIds];
+        }
+    
         const payload = {
             title,
-            author_names: allAuthors,
+            author_names: [...new Set(allAuthors)],
             DOI,
-            id_user: allAuthorIds.join(','),
+            id_user: [...new Set(allAuthorIds)].join(','), // Use selected author IDs
             current_user_id: currentUser.id,
             optional_authors: optionalAuthors,
         };
-
+    
         try {
             await axios.put(`http://localhost:8000/api/ouvrageUser/${id}`, payload, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
-            toast.success('Ouvrage modifiée avec succès');
+            toast.success('Ouvrage modifié avec succès');
             navigate('/user/UserOuvrage');
         } catch (error) {
             console.error('Erreur lors de la mise à jour de l\'ouvrage :', error.response ? error.response.data : error.message);
@@ -122,34 +165,7 @@ const UserEditOuvrage = () => {
             toast.error('Erreur lors de la mise à jour de l\'ouvrage');
         }
     };
-
-    const handleAuthorSelection = (e) => {
-        const selectedOptions = Array.from(e.target.selectedOptions);
-        const names = selectedOptions.map((option) => option.value);
-        const ids = selectedOptions.map((option) => option.getAttribute('data-id'));
-
-        const filteredNames = names.filter((name) => name !== currentUser.name);
-        const filteredIds = ids.filter((id) => !id.startsWith('optional_'));
-
-        setSelectedAuthors(filteredNames);
-        setSelectedAuthorIds([currentUser.id, ...filteredIds]);
-    };
-
-    const handleAddOptionalAuthor = () => {
-        setOptionalAuthors([...optionalAuthors, '']);
-    };
-
-    const handleOptionalAuthorChange = (index, value) => {
-        const newOptionalAuthors = [...optionalAuthors];
-        newOptionalAuthors[index] = value;
-        setOptionalAuthors(newOptionalAuthors);
-    };
-
-    const handleRemoveOptionalAuthor = (index) => {
-        const newOptionalAuthors = optionalAuthors.filter((_, i) => i !== index);
-        setOptionalAuthors(newOptionalAuthors);
-    };
-
+    
     return (
         <div className="max-w-2xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Modifier l'ouvrage</h1>
@@ -169,17 +185,17 @@ const UserEditOuvrage = () => {
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s)</label>
                     <select
-                        multiple
-                        value={selectedAuthors}
-                        onChange={handleAuthorSelection}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    >
-                        {members.map((member) => (
-                            <option key={member.id} value={member.name} data-id={member.id}>
-                                {member.name}
-                            </option>
-                        ))}
-                    </select>
+    multiple
+    value={selectedAuthors}
+    onChange={handleAuthorSelection}
+    className="w-full p-2 border border-gray-300 rounded"
+>
+    {members.map(member => (
+        <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
+            {member.name}
+        </option>
+    ))}
+</select>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>

@@ -55,12 +55,8 @@ const ConferenceAdmin = () => {
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom de la Conférence</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteurs</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre du Papier</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Référence</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -78,12 +74,8 @@ const ConferenceAdmin = () => {
                                     )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">{conference.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{conference.conference_name}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{conference.date}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{conference.location}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{conference.authors}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{conference.paper_title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{conference.reference}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <Link to={`/dashboard/ConferenceEdit/${conference.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(conference.id)} className="btn btn-danger mb-2">Supprimer</button>
@@ -92,7 +84,7 @@ const ConferenceAdmin = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="9" className="text-center py-4">Aucune conférence disponible</td>
+                            <td colSpan="5" className="text-center py-4">Aucune conférence disponible</td>
                         </tr>
                     )}
                 </tbody>
