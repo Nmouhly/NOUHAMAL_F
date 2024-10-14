@@ -10,30 +10,27 @@ const UserCreateOuvrage = () => {
     const [members, setMembers] = useState([]);
     const [selectedAuthors, setSelectedAuthors] = useState([]);
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
-    const [optionalAuthors, setOptionalAuthors] = useState(['']); // Auteurs facultatifs
+    const [optionalAuthors, setOptionalAuthors] = useState(['']);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { currentUser, accessToken } = useContext(AuthContext);
     const upperCaseDOI = DOI.toUpperCase(); // Convertit le DOI en majuscules
 
-    // Récupérer les membres pour les auteurs
-  const fetchMembers = async () => {
-    try {
-        const response = await axios.get('http://localhost:8000/api/members', {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        });
-        // Filtrer pour exclure l'utilisateur connecté
-        const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
-        setMembers(filteredMembers);
-    } catch (error) {
-        console.error('Erreur lors de la récupération des membres :', error);
-        setError('Erreur lors de la récupération des membres');
-        toast.error('Erreur lors de la récupération des membres');
-    }
-};
-
+    const fetchMembers = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/members', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
+            setMembers(filteredMembers);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des membres :', error);
+            setError('Erreur lors de la récupération des membres');
+            toast.error('Erreur lors de la récupération des membres');
+        }
+    };
 
     useEffect(() => {
         fetchMembers();
@@ -64,7 +61,6 @@ const UserCreateOuvrage = () => {
             return;
         }
 
-        // Vérifier si le DOI existe déjà dans la base de données
         try {
             const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExistsOuvrage', {
                 doi: upperCaseDOI, // Envoie le DOI en majuscules
@@ -76,34 +72,29 @@ const UserCreateOuvrage = () => {
 
             if (checkDOIResponse.data.exists) {
                 setError('Le DOI existe déjà.');
+                console.log(checkDOIResponse.data.exists);
                 toast.error('Le DOI existe déjà.');
                 return;
             }
         } catch (error) {
-            console.error('Erreur lors de la vérification du DOI :', error.response ? error.response.data : error.message);
+            console.error('Erreur lors de la vérification du DOI :', error);
             setError('Erreur lors de la vérification du DOI');
             toast.error('Erreur lors de la vérification du DOI');
             return;
         }
 
-        // Filtrer les auteurs facultatifs pour ne garder que ceux qui ne sont pas vides
         const filteredOptionalAuthors = optionalAuthors.filter(author => author.trim() !== '');
-
-        // Combiner tous les auteurs (l'utilisateur connecté, les autres auteurs sélectionnés, et les auteurs facultatifs)
         let allAuthors = [currentUser.name, ...selectedAuthors, ...filteredOptionalAuthors];
-
-        // Supprimer les doublons dans la liste des auteurs
         allAuthors = [...new Set(allAuthors)];
 
-        // Utiliser uniquement les IDs des auteurs sélectionnés pour id_user
-        const validAuthorIds = selectedAuthorIds; // IDs des auteurs sélectionnés
+        const validAuthorIds = selectedAuthorIds;
 
         try {
             const response = await axios.post('http://localhost:8000/api/ouvragesUser', {
                 title,
-                author: allAuthors.join(', '),  // Utiliser la liste des auteurs sans doublons
+                author: allAuthors.join(', '),
                 DOI,
-                id_user: validAuthorIds.join(','), // Inclure seulement les IDs des auteurs réels
+                id_user: validAuthorIds.join(','),
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -111,11 +102,10 @@ const UserCreateOuvrage = () => {
                 },
             });
 
-            console.log('Ouvrage ajouté :', response.data);
             toast.success('Ouvrage ajouté avec succès');
             navigate('/user/UserOuvrage');
         } catch (error) {
-            console.error('Erreur lors de l\'ajout de l\'ouvrage :', error.response ? error.response.data : error.message);
+            console.error('Erreur lors de l\'ajout de l\'ouvrage :', error);
             setError('Erreur lors de l\'ajout de l\'ouvrage');
             toast.error('Erreur lors de l\'ajout de l\'ouvrage');
         }
@@ -131,7 +121,7 @@ const UserCreateOuvrage = () => {
     };
 
     const handleAddOptionalAuthor = () => {
-        setOptionalAuthors([...optionalAuthors, '']); // Ajouter un nouveau champ pour l'auteur facultatif
+        setOptionalAuthors([...optionalAuthors, '']);
     };
 
     const handleOptionalAuthorChange = (index, value) => {
@@ -149,7 +139,6 @@ const UserCreateOuvrage = () => {
         <div className="max-w-2xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Ajouter un Ouvrage</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium mb-1">Titre</label>
@@ -164,18 +153,17 @@ const UserCreateOuvrage = () => {
                 <div>
                     <label className="block text-sm font-medium mb-1">Membre(s)</label>
                     <select
-    multiple
-    value={selectedAuthors}
-    onChange={handleAuthorSelection}
-    className="w-full p-2 border border-gray-300 rounded"
->
-    {members.map(member => (
-        <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
-            {member.name}
-        </option>
-    ))}
-</select>
-
+                        multiple
+                        value={selectedAuthors}
+                        onChange={handleAuthorSelection}
+                        className="w-full p-2 border border-gray-300 rounded"
+                    >
+                        {members.map(member => (
+                            <option key={member.id} value={member.name} data-id={member.user_id}>
+                                {member.name}
+                            </option>
+                        ))}
+                    </select>
                     <p className="text-sm text-gray-500 mt-2">
                         Pour sélectionner plusieurs membres, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
                     </p>
@@ -217,6 +205,7 @@ const UserCreateOuvrage = () => {
                         type="text"
                         value={DOI}
                         onChange={(e) => setDOI(e.target.value)}
+                        required
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>

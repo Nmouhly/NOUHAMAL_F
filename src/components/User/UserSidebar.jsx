@@ -99,7 +99,7 @@ const UserSidebar = () => {
               Messages
             </div>
             <ul className={`submenu ${isMessagesSubmenuOpen ? 'open' : ''}`}>
-              <li><Link to="/user/messages/inbox">Boîte de Réception</Link></li>
+              <li><Link to="/user/messages/inbox">Inbox</Link></li>
               <li><Link to="/user/messages/sent">Messages Envoyés</Link></li>
             </ul>
             <button className="nav-link" onClick={logoutUser}>
