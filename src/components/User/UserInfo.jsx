@@ -37,14 +37,13 @@ function UserInfo() {
     const handleEditClick = async () => {
         console.log('currentUser avant la vérification:', currentUser);
         console.log('accessToken avant la vérification:', accessToken);
-        
-        const enteredEmail = prompt("Please enter your email:");
-        const enteredPassword = prompt("Please enter your password:");
 
-        if (enteredEmail && enteredPassword) {
+        // Utilisation d'un prompt personnalisé avec un input de type password
+        const enteredPassword = window.prompt("Please enter your password:");
+
+        if (enteredPassword) {
             try {
                 const response = await axios.post('http://localhost:8000/api/auth/check', {
-                    email: enteredEmail,
                     password: enteredPassword,
                 }, {
                     headers: {
@@ -52,17 +51,17 @@ function UserInfo() {
                     },
                 });
 
-                if (response.status === 200 && response.data.message === 'Credentials are valid' && currentUser.email === enteredEmail) {
+                if (response.status === 200 && response.data.message === 'Credentials are valid') {
                     navigate(`/user/edit-user/${currentUser.id}`);
                 } else {
-                    alert("Authentication failed. Incorrect email or password.");
+                    alert("Authentication failed. Incorrect password.");
                 }
             } catch (error) {
                 console.error('Erreur lors de la vérification des identifiants:', error);
                 alert('An error occurred while verifying your credentials.');
             }
         } else {
-            alert("You must provide both email and password to edit your profile.");
+            alert("You must provide a password to edit your profile.");
         }
     };
 
@@ -74,8 +73,8 @@ function UserInfo() {
                 <div style={styles.userInfo}>
                     {userData.image && (
                         <div style={styles.userImageContainer}>
-                            <img 
-                                src={`http://localhost:8000/storage/${userData.image}`} 
+                            <img
+                                src={`http://localhost:8000/storage/${userData.image}`}
                                 alt="User"
                                 style={styles.userImage}
                             />

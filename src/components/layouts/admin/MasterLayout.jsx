@@ -13,12 +13,12 @@ const MasterLayout = () => {
 
   const layoutSidenavContentStyle = {
 
-    // paddingLeft: isSidebarVisible ? '300px' : '0',
-    // transition: 'padding-left 0.3s',
+    paddingLeft: isSidebarVisible ? '300px' : '0',
+    transition: 'padding-left 0.3s',
 
-    paddingLeft: isSidebarVisible ? '40px' : '0',
-    transition: 'padding-left 0s',
-    marginTop: '-850px',  // Ajoutez ceci pour supprimer l'espace extérieur en haut
+    // paddingLeft: isSidebarVisible ? '40px' : '0',
+    // transition: 'padding-left 0s',
+    // marginTop: '-850px',  // Ajoutez ceci pour supprimer l'espace extérieur en haut
 
 
 

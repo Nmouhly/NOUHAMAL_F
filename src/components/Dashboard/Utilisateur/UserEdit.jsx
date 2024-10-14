@@ -10,6 +10,7 @@ const UserEdit = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState(0); // 0 for user, 1 for admin
+    const [etat, setEtat] = useState(''); // Nouvel état pour l'état de l'utilisateur
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { accessToken } = useContext(AuthContext);
@@ -26,6 +27,7 @@ const UserEdit = () => {
                 setName(user.name);
                 setEmail(user.email);
                 setRole(user.role);
+                setEtat(user.Etat); // Assurez-vous que le backend renvoie 'Etat'
             } catch (error) {
                 console.error('Erreur lors de la récupération de l’utilisateur', error.response || error.message);
                 setError('Erreur lors de la récupération de l’utilisateur. Veuillez réessayer.');
@@ -44,6 +46,7 @@ const UserEdit = () => {
             email,
             password: password ? password : undefined, // Only include password if it's not empty
             role,
+            Etat: etat, // Inclure le champ Etat
         };
 
         try {
@@ -108,6 +111,18 @@ const UserEdit = () => {
                     >
                         <option value={0}>Utilisateur</option>
                         <option value={1}>Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">État</label>
+                    <select 
+                        value={etat} 
+                        onChange={(e) => setEtat(e.target.value)} 
+                        required 
+                        className="w-full p-2 border border-gray-300 rounded"
+                    >
+                        <option value="approuve">Approuvé</option>
+                        <option value="non approuve">Non Approuvé</option>
                     </select>
                 </div>
                 <button 

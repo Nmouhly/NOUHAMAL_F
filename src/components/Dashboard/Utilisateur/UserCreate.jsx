@@ -9,6 +9,7 @@ const UserCreate = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
+  const [Etat, setEtat] = useState(''); // Nouvel état pour l'état de l'utilisateur
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { accessToken } = useContext(AuthContext);
@@ -25,11 +26,12 @@ const UserCreate = () => {
       formData.append('email', email);
       formData.append('password', password);
       formData.append('role', roleNumber);
+      formData.append('Etat',Etat); //Etat Modification ici pour utiliser "Etat"
 
       // Envoie les données au backend
       const response = await axios.post('http://localhost:8000/api/user/register', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data', // Définir le type de contenu comme multipart/form-data
+          'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${accessToken}`
         },
       });
@@ -89,6 +91,19 @@ const UserCreate = () => {
             <option value="">Sélectionnez un rôle</option>
             <option value="Utilisateur">Utilisateur</option>
             <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">État</label>
+          <select 
+            value={Etat} 
+            onChange={(e) => setEtat(e.target.value)} 
+            required 
+            className="w-full p-2 border border-gray-300 rounded"
+          >
+            <option value="">Sélectionnez un état</option>
+            <option value="approuve">Approuvé</option>
+            <option value="non approuve">Non Approuvé</option>
           </select>
         </div>
         <button 
