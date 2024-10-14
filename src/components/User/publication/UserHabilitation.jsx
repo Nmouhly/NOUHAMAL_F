@@ -32,7 +32,7 @@ const UserHabilitation = () => {
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette habilitation ?");
         if (!confirmDelete) return; // Si l'utilisateur annule, on arrête la fonction
-    
+
         try {
             await axios.delete(`http://localhost:8000/api/habilitationsUser/${id}`, {
                 headers: {
@@ -46,87 +46,88 @@ const UserHabilitation = () => {
             toast.error('Erreur lors de la suppression d\'habilitation');
         }
     };
-    
 
     const handleEdit = (id) => {
         navigate(`/user/UserEditHabilitation/${id}`);
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Liste des Habilitations</h1>
-            <button
-                onClick={() => navigate('/user/UserCreateHabilitation')}
-                className="mb-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-            >
-                Ajouter une Habilitation
-            </button>
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {habilitations.length ? (
-                        habilitations.map(habilitation => (
-                            <tr key={habilitation.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.author}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {habilitation.doi ? (
-                                        <a
-                                            href={`https://doi.org/${habilitation.doi}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => {
-                                                const isValidDOI = habilitation.doi.startsWith('10.');
-                                                if (!isValidDOI) {
-                                                    e.preventDefault();
-                                                    alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
-                                                }
-                                            }}
-                                        >
-                                            {habilitation.doi}
-                                        </a>
-                                    ) : (
-                                        'Pas de DOI disponible'
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.lieu}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{new Date(habilitation.date).toLocaleDateString()}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.status}</td> {/* Nouvelle colonne pour le statut */}
-
-                                <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                                    <button
-                                        onClick={() => handleEdit(habilitation.id)}
-                                        className="text-blue-500 hover:text-blue-600"
-                                    >
-                                        Modifier
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(habilitation.id)}
-                                        className="text-red-500 hover:text-red-600"
-                                    >
-                                        Supprimer
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+        <div className="container mt-4">
+            <h1 className=" mb-4">Liste des Habilitations</h1>
+            <div className=" mb-4">
+                <button
+                    onClick={() => navigate('/user/UserCreateHabilitation')}
+                    className="btn btn-primary"
+                >
+                    Ajouter une Habilitation
+                </button>
+            </div>
+            <div className="table-responsive">
+                <table className="table table-striped">
+                    <thead className="thead-light">
                         <tr>
-                            <td colSpan="6" className="text-center py-4">Aucune habilitation disponible</td>
+                            <th scope="col">Titre</th>
+                            <th scope="col">Auteur</th>
+                            <th scope="col">DOI</th>
+                            <th scope="col">Lieu</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {habilitations.length ? (
+                            habilitations.map(habilitation => (
+                                <tr key={habilitation.id}>
+                                    <td>{habilitation.title}</td>
+                                    <td>{habilitation.author}</td>
+                                    <td>
+                                        {habilitation.doi ? (
+                                            <a
+                                                href={`https://doi.org/${habilitation.doi}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => {
+                                                    const isValidDOI = habilitation.doi.startsWith('10.');
+                                                    if (!isValidDOI) {
+                                                        e.preventDefault();
+                                                        alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                                    }
+                                                }}
+                                            >
+                                                {habilitation.doi}
+                                            </a>
+                                        ) : (
+                                            'Pas de DOI disponible'
+                                        )}
+                                    </td>
+                                    <td>{habilitation.lieu}</td>
+                                    <td>{new Date(habilitation.date).toLocaleDateString()}</td>
+                                    <td>{habilitation.status}</td>
+                                    <td className="text-center">
+                                    <div className="d-flex justify-content-between">   
+                                        <button
+                                            onClick={() => handleEdit(habilitation.id)}
+                                            className="btn btn-primary me-2"                                        >
+                                            Modifier
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(habilitation.id)}
+                                            className="btn btn-danger btn-sm"
+                                        >
+                                            Supprimer
+                                        </button></div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="7" className="text-center">Aucune habilitation disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

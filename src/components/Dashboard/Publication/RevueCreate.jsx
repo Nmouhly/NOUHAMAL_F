@@ -62,26 +62,28 @@ const RevueCreate = () => {
         }
 
         // Check if DOI exists in the database
-        try {
-            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExists', {
-                doi: DOI,
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-
-            if (checkDOIResponse.data.exists) {
-                setError('Le DOI existe déjà.');
-                toast.error('Le DOI existe déjà.');
-                return;
-            }
-        } catch (error) {
-            console.error('Erreur lors de la vérification du DOI :', error);
-            setError('Erreur lors de la vérification du DOI');
-            toast.error('Erreur lors de la vérification du DOI');
-            return;
+       // Check if DOI exists in the database
+try {
+    const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExistsRevue', {
+        doi: DOI.toLowerCase(),  // Send DOI as lowercase
+    }, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
         }
+    });
+
+    if (checkDOIResponse.data.exists) {
+        setError('Le DOI existe déjà.');
+        toast.error('Le DOI existe déjà.');
+        return;
+    }
+} catch (error) {
+    console.error('Erreur lors de la vérification du DOI :', error);
+    setError('Erreur lors de la vérification du DOI');
+    toast.error('Erreur lors de la vérification du DOI');
+    return;
+}
+
 
         const filteredOptionalAuthors = optionalAuthors.filter(author => author.trim() !== '');
         let allAuthors = [currentUser.name, ...selectedAuthors, ...filteredOptionalAuthors];
@@ -153,7 +155,7 @@ const RevueCreate = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s)</label>
+                    <label className="block text-sm font-medium mb-1">Membre(s)</label>
                     <select
                         multiple
                         value={selectedAuthors}
@@ -167,11 +169,11 @@ const RevueCreate = () => {
                         ))}
                     </select>
                     <p className="text-sm text-gray-500 mt-2">
-                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée.
+                        Pour sélectionner plusieurs membres, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée.
                     </p>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <label className="block text-sm font-medium mb-1">Autre auteur(s)</label>
                     <div className="space-y-2">
                         {optionalAuthors.map((author, index) => (
                             <div key={index} className="flex items-center mb-2">
@@ -197,7 +199,7 @@ const RevueCreate = () => {
                             onClick={handleAddOptionalAuthor}
                             className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                         >
-                            Ajouter plus d'auteur(s) facultatif(s)
+                            Ajouter plus d'auteur(s) 
                         </button>
                     </div>
                 </div>
@@ -212,7 +214,7 @@ const RevueCreate = () => {
                 </div>
                 <button
                     type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                    className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"          
                 >
                     Ajouter
                 </button>

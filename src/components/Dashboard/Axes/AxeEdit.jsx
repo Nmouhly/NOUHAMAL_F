@@ -144,19 +144,10 @@ const AxeEdit = () => {
             ))}
           </select>
         </div>
-        <button 
-          type="submit" 
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Mettre à jour
-        </button>
-        <button 
-          type="button" 
-          onClick={handleBack} 
-          className="w-full bg-gray-500 text-white p-2 rounded hover:bg-gray-600 mt-2"
-        >
-          Retour
-        </button>
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Mettre à jour
+                </button>
+       
       </form>
     </div>
   );

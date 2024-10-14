@@ -7,6 +7,10 @@ const ProjectsAdmin = () => {
     const [projects, setProjects] = useState([]);
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
+    
+    // State to track expanded titles and descriptions
+    const [expandedTitle, setExpandedTitle] = useState({});
+    const [expandedDescription, setExpandedDescription] = useState({});
 
     useEffect(() => {
         fetchProjects();
@@ -42,48 +46,97 @@ const ProjectsAdmin = () => {
         }
     };
 
+    const truncateText = (text, length) => {
+        if (text.length <= length) return text;
+        return text.substring(0, length) + '...';
+    };
+
+    const toggleExpandTitle = (id) => {
+        setExpandedTitle(prevState => ({
+            ...prevState,
+            [id]: !prevState[id] // Toggle the expanded state for the specific project title
+        }));
+    };
+
+    const toggleExpandDescription = (id) => {
+        setExpandedDescription(prevState => ({
+            ...prevState,
+            [id]: !prevState[id] // Toggle the expanded state for the specific project description
+        }));
+    };
+
     return (
-        <div>
-            <h1>Gérer les Projets</h1>
+        <div className="container mt-5">
+            <h1 className="mb-4">Gérer les Projets</h1>
             <Link to="/dashboard/ProjectsCreate" className="btn btn-primary mb-4">Ajouter un Projet</Link>
-            {error && <p className="text-red-500">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Équipe</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de début</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de fin</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type de financement</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {projects.length ? (
-                        projects.map(project => (
-                            <tr key={project.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{project.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{project.description}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{project.team}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{project.start_date}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{project.end_date}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{project.funding_type}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{project.status}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/ProjectsEdit/${project.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                    <button onClick={() => handleDelete(project.id)} className="btn btn-primary mb-2">Supprimer</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+            {error && <p className="text-danger">{error}</p>}
+            <div className="table-responsive">
+                <table className="table table-striped table-hover">
+                    <thead className="thead-dark">
                         <tr>
-                            <td colSpan="8" className="text-center py-4">Aucun projet disponible</td>
+                            <th scope="col">Titre</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Équipe</th>
+                            <th scope="col">Date de début</th>
+                            <th scope="col">Date de fin</th>
+                            <th scope="col">Type de financement</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {projects.length ? (
+                            projects.map(project => (
+                                <tr key={project.id}>
+                                    <td>
+                                        {expandedTitle[project.id] ? project.title : truncateText(project.title, 20)}
+                                        {project.title.length > 20 && !expandedTitle[project.id] && (
+                                            <span 
+                                                onClick={() => toggleExpandTitle(project.id)} 
+                                                className="text-primary cursor-pointer ml-1">
+                                                Lire la suite
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {expandedDescription[project.id] ? project.description : truncateText(project.description, 40)}
+                                        {project.description.length > 40 && !expandedDescription[project.id] && (
+                                            <span 
+                                                onClick={() => toggleExpandDescription(project.id)} 
+                                                className="text-primary cursor-pointer ml-1">
+                                                Lire la suite
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td>{project.team}</td>
+                                    <td>{project.start_date}</td>
+                                    <td>{project.end_date}</td>
+                                    <td>{project.funding_type}</td>
+                                    <td>{project.status}</td>
+                                    <td>
+                                        <div className="d-flex justify-content-between">
+                                            <Link 
+                                                to={`/dashboard/ProjectsEdit/${project.id}`} 
+                                                className="btn btn-primary btn-sm mb-2">
+                                                Modifier
+                                            </Link>
+                                            <button 
+                                                onClick={() => handleDelete(project.id)} 
+                                                className="btn btn-danger btn-sm mb-2">
+                                                Supprimer
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="8" className="text-center">Aucun projet disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

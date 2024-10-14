@@ -51,62 +51,66 @@ const AdminHabilitation = () => {
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Gestion des Habilitations</h1>
-            <Link to="/dashboard/HabilitationCreate" className="bg-blue-500 text-white px-4 py-2 rounded mb-4 inline-block">Ajouter une Habilitation</Link>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {habilitations.length ? (
-                        habilitations.map(habilitation => (
-                            <tr key={habilitation.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.author}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {habilitation.doi ? (
-                                        <a
-                                            href={`https://doi.org/${habilitation.doi}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => {
-                                                const isValidDOI = habilitation.doi.startsWith('10.');
-                                                if (!isValidDOI) {
-                                                    e.preventDefault();
-                                                    alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
-                                                }
-                                            }}
-                                        >
-                                            {habilitation.doi}
-                                        </a>
-                                    ) : (
-                                        'Pas de DOI disponible'
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.lieu}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.date}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{habilitation.status}</td> {/* Nouvelle colonne pour le statut */}
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/HabilitationEdit/${habilitation.id}`} className="bg-yellow-500 text-white px-4 py-2 rounded mr-2 inline-block">Modifier</Link>
-                                    <button onClick={() => handleDelete(habilitation.id)} className="bg-red-500 text-white px-4 py-2 rounded inline-block">Supprimer</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+            <Link to="/dashboard/HabilitationCreate" className="btn btn-primary mb-4">Ajouter une Habilitation</Link>
+            {error && <p className="text-danger mb-4">{error}</p>}
+            <div className="table-responsive">
+                <table className="table table-striped">
+                    <thead className="thead-light">
                         <tr>
-                            <td colSpan="7" className="text-center py-4">Aucune habilitation disponible</td>
+                            <th scope="col">Titre</th>
+                            <th scope="col">Auteur</th>
+                            <th scope="col">DOI</th>
+                            <th scope="col">Lieu</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {habilitations.length ? (
+                            habilitations.map(habilitation => (
+                                <tr key={habilitation.id}>
+                                    <td>{habilitation.title}</td>
+                                    <td>{habilitation.author}</td>
+                                    <td>
+                                        {habilitation.doi ? (
+                                            <a
+                                                href={`https://doi.org/${habilitation.doi}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => {
+                                                    const isValidDOI = habilitation.doi.startsWith('10.');
+                                                    if (!isValidDOI) {
+                                                        e.preventDefault();
+                                                        alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                                    }
+                                                }}
+                                            >
+                                                {habilitation.doi}
+                                            </a>
+                                        ) : (
+                                            'Pas de DOI disponible'
+                                        )}
+                                    </td>
+                                    <td>{habilitation.lieu}</td>
+                                    <td>{habilitation.date}</td>
+                                    <td>{habilitation.status}</td>
+                                    <td>
+                                    <div className="d-flex justify-content-between">
+    <Link to={`/dashboard/HabilitationEdit/${habilitation.id}`} className="btn btn-primary mb-2">Modifier</Link>
+    <button onClick={() => handleDelete(habilitation.id)} className="btn btn-danger mb-2">Supprimer</button>
+</div>
+</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="7" className="text-center">Aucune habilitation disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

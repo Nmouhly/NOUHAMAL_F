@@ -16,7 +16,7 @@ const ReportAdmin = () => {
         try {
             const response = await axios.get('http://localhost:8000/api/reportsAdmin', {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}` // Fixed string interpolation
+                    'Authorization': `Bearer ${accessToken}`
                 }
             });
 
@@ -40,7 +40,7 @@ const ReportAdmin = () => {
                         'Authorization': `Bearer ${accessToken}`
                     }
                 });
-    
+
                 if (response.status === 200) {
                     setReports(reports.filter(report => report.id !== id));
                     alert('Rapport supprimé avec succès');
@@ -53,65 +53,65 @@ const ReportAdmin = () => {
             }
         }
     };
-    
 
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-4">Gestion des Rapports</h1>
+        <div className="container mt-5">
+            <h1 className=" mb-4">Gestion des Rapports</h1>
             <Link to="/dashboard/ReportCreate" className="btn btn-primary mb-4">Ajouter un Rapport</Link>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {reports.length > 0 ? (
-                        reports.map(report => (
-                            <tr key={report.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{report.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{report.author}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {report.DOI ? (
-                                        <a
-                                            href={`https://doi.org/${report.DOI}`} // Fixed URL interpolation
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => {
-                                                const isValidDOI = report.DOI.startsWith('10.');
-                                                if (!isValidDOI) {
-                                                    e.preventDefault();
-                                                    alert(
-                                                        'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
-                                                    );
-                                                }
-                                            }}
-                                        >
-                                            {report.DOI}
-                                        </a>
-                                    ) : (
-                                        'Pas de DOI disponible'
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{report.status}</td> {/* Nouvelle colonne pour le statut */}
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/ReportEdit/${report.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                    <button onClick={() => handleDelete(report.id)} className="btn btn-danger mb-2">Supprimer</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+            {error && <p className="text-danger mb-4">{error}</p>}
+            <div className="table-responsive">
+                <table className="table table-bordered table-hover">
+                    <thead className="thead-light">
                         <tr>
-                            <td colSpan="6" className="text-center py-4">Aucun rapport disponible</td>
+                            <th>Titre</th>
+                            <th>Auteur</th>
+                            <th>DOI</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {reports.length > 0 ? (
+                            reports.map(report => (
+                                <tr key={report.id}>
+                                    <td>{report.title}</td>
+                                    <td>{report.author}</td>
+                                    <td>
+                                        {report.DOI ? (
+                                            <a
+                                                href={`https://doi.org/${report.DOI}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => {
+                                                    const isValidDOI = report.DOI.startsWith('10.');
+                                                    if (!isValidDOI) {
+                                                        e.preventDefault();
+                                                        alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                                    }
+                                                }}
+                                            >
+                                                {report.DOI}
+                                            </a>
+                                        ) : (
+                                            'Pas de DOI disponible'
+                                        )}
+                                    </td>
+                                    <td>{report.status}</td>
+                                    <td className="d-flex align-items-center">
+    <Link to={`/dashboard/ReportEdit/${report.id}`} className="btn btn-primary mb-2">Modifier</Link>
+    <button onClick={() => handleDelete(report.id)} className="btn btn-danger mb-2">Supprimer</button>
+</td>
+
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="text-center">Aucun rapport disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

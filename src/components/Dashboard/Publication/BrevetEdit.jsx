@@ -178,7 +178,7 @@ const UserEditBrevet = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s)</label>
+                    <label className="block text-sm font-medium mb-1">Membre(s)</label>
                     <select
     multiple
     value={selectedAuthors}
@@ -193,7 +193,7 @@ const UserEditBrevet = () => {
 </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <label className="block text-sm font-medium mb-1"> Autre auteur(s)</label>
                     <div className="space-y-2">
                         {optionalAuthors.map((author, index) => (
                             <div key={index} className="flex items-center mb-2">
@@ -218,7 +218,7 @@ const UserEditBrevet = () => {
                         onClick={handleAddOptionalAuthor}
                         className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                     >
-                        Ajouter un auteur facultatif
+                        Ajouter un autre auteur 
                     </button>
                 </div>
                 <div>
@@ -231,11 +231,8 @@ const UserEditBrevet = () => {
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="px-4 py-2 bg-green-500 text-white rounded"
-                >
-                    Enregistrer
+                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Mettre à jour
                 </button>
             </form>
         </div>

@@ -13,7 +13,7 @@ const RevueEdit = () => {
     const [selectedAuthorIds, setSelectedAuthorIds] = useState([]);
     const [optionalAuthors, setOptionalAuthors] = useState([]);
     const [error, setError] = useState('');
-    const [revue, setRevue] = useState(null);
+    const [revue, setRevue] = useState(null); // État pour la revue
     const { currentUser, accessToken } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -24,20 +24,20 @@ const RevueEdit = () => {
 
     const fetchRevueDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/revues/${id}`, {
+            const response = await axios.get(`http://localhost:8000/api/revueUser/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
             const revueData = response.data;
+            setRevue(revueData);
             setTitle(revueData.title);
             setDOI(revueData.doi);
             setSelectedAuthors(revueData.authors_with_ids || []);
             setSelectedAuthorIds(revueData.author_ids || []);
             setOptionalAuthors(revueData.authors_without_ids || []);
-            setRevue(revueData);
         } catch (error) {
-            console.error('Erreur lors de la récupération de la revue:', error);
+            console.error('Erreur lors de la récupération de la revue :', error);
             setError('Erreur lors de la récupération de la revue');
         }
     };
@@ -49,6 +49,7 @@ const RevueEdit = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
+            // Filtrer pour exclure l'utilisateur connecté
             const filteredMembers = response.data.filter(member => member.name !== currentUser.name);
             setMembers(filteredMembers);
         } catch (error) {
@@ -65,7 +66,7 @@ const RevueEdit = () => {
 
     const checkDoiExists = async (doi, excludedDoi) => {
         try {
-            const response = await axios.post('http://localhost:8000/api/checkDOIExists', { doi }, {
+            const response = await axios.post('http://localhost:8000/api/checkDOIExistsRevue', { doi }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
@@ -114,7 +115,7 @@ const RevueEdit = () => {
             return;
         }
 
-        const doiExists = revue && DOI !== revue.doi && await checkDoiExists(DOI, revue.doi);
+        const doiExists = DOI !== revue?.doi && await checkDoiExists(DOI, revue?.doi);
 
         if (doiExists) {
             setError('Le DOI existe déjà.');
@@ -152,7 +153,7 @@ const RevueEdit = () => {
                 },
             });
             toast.success('Revue modifiée avec succès');
-            navigate('/dashboard/revues');
+            navigate('/dashboard/patent');
         } catch (error) {
             console.error('Erreur lors de la mise à jour de la revue :', error.response ? error.response.data : error.message);
             setError('Erreur lors de la mise à jour de la revue');
@@ -166,7 +167,7 @@ const RevueEdit = () => {
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
+                <div>
                     <label className="block text-sm font-medium mb-1">Titre</label>
                     <input
                         type="text"
@@ -177,22 +178,22 @@ const RevueEdit = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s)</label>
+                    <label className="block text-sm font-medium mb-1">Membre(s)</label>
                     <select
-                        multiple
-                        value={selectedAuthors}
-                        onChange={handleAuthorSelection}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    >
-                        {members.map(member => (
-                            <option key={member.id} value={member.name} data-id={member.user_id}>
-                                {member.name}
-                            </option>
-                        ))}
-                    </select>
+    multiple
+    value={selectedAuthors}
+    onChange={handleAuthorSelection}
+    className="w-full p-2 border border-gray-300 rounded"
+>
+    {members.map(member => (
+        <option key={member.id} value={member.name} data-id={member.user_id}> {/* user_id de la table users */}
+            {member.name}
+        </option>
+    ))}
+</select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <label className="block text-sm font-medium mb-1">Autre auteur(s)</label>
                     <div className="space-y-2">
                         {optionalAuthors.map((author, index) => (
                             <div key={index} className="flex items-center mb-2">
@@ -217,7 +218,7 @@ const RevueEdit = () => {
                         onClick={handleAddOptionalAuthor}
                         className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                     >
-                        Ajouter un auteur facultatif
+                        Ajouter un auteur 
                     </button>
                 </div>
                 <div>

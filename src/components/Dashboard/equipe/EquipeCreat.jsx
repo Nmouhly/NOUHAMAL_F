@@ -3,11 +3,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
+import ReactQuill from 'react-quill'; // Import React Quill
+import 'react-quill/dist/quill.snow.css'; // Import the CSS for React Quill
 
 const EquipeCreat = () => {
   const [name, setName] = useState('');
   const [specialization, setSpecialization] = useState('');
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(''); // Will hold the rich text content
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { accessToken } = useContext(AuthContext);
@@ -20,7 +22,7 @@ const EquipeCreat = () => {
       const response = await axios.post('http://localhost:8000/api/equipe', {
         name,
         specialization,
-        description,
+        description, // Send rich text content
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -73,18 +75,18 @@ const EquipeCreat = () => {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Description</label>
-          <textarea 
+          <ReactQuill 
             value={description} 
-            onChange={(e) => setDescription(e.target.value)} 
-            className="w-full p-2 border border-gray-300 rounded"
+            onChange={setDescription} // Set the description using ReactQuill's onChange
+            className="w-full border border-gray-300 rounded"
           />
         </div>
         <button 
-          type="submit" 
-          className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
-        >
-          Créer
-        </button>
+            type="submit" 
+            className="bg-green-500 text-white py-1 px-4  rounded hover:bg-green-600"
+            >
+            Ajouter
+          </button>
       </form>
     </div>
   );

@@ -50,82 +50,85 @@ const UserThese = () => {
     const handleEdit = (id) => {
         navigate(`/user/UserEditThese/${id}`);
     };
+
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Liste des Thèses</h1>
-            <button
-                onClick={() => navigate('/user/UserCreateThèse')}
-                className="mb-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-            >
-                Ajouter une Thèse
-            </button>
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {theses.length ? (
-                        theses.map(these => (
-                            <tr key={these.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{these.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{these.author}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {these.doi ? (
-                                        <a
-                                            href={`https://doi.org/${these.doi}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => {
-                                                const isValidDOI = these.doi.startsWith('10.');
-                                                if (!isValidDOI) {
-                                                    e.preventDefault();
-                                                    alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
-                                                }
-                                            }}
-                                        >
-                                            {these.doi}
-                                        </a>
-                                    ) : (
-                                        'Pas de DOI disponible'
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{these.lieu}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{new Date(these.date).toLocaleDateString()}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{these.status}</td> {/* Nouvelle colonne pour le statut */}
-
-                                <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-
-                                <button
-                                        onClick={() => handleEdit(these.id)}
-                                        className="text-blue-500 hover:text-blue-600"
-                                    >
-                                        Modifier
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(these.id)}
-                                        className="text-red-500 hover:text-red-600"
-                                    >
-                                        Supprimer
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+        <div className="container mt-4">
+            <h1 className=" mb-4">Liste des Thèses</h1>
+            <div className="mb-4">
+                <button
+                    onClick={() => navigate('/user/UserCreateThèse')}
+                    className="btn btn-primary"
+                >
+                    Ajouter une Thèse
+                </button>
+            </div>
+            <div className="table-responsive">
+                <table className="table table-striped">
+                    <thead className="table-light">
                         <tr>
-                            <td colSpan="6" className="text-center py-4">Aucune thèse disponible</td>
+                            <th>Titre</th>
+                            <th>Auteur</th>
+                            <th>DOI</th>
+                            <th>Lieu</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {theses.length ? (
+                            theses.map(these => (
+                                <tr key={these.id}>
+                                    <td>{these.title || 'Titre non disponible'}</td>
+                                    <td>{these.author || 'Auteur non disponible'}</td>
+                                    <td>
+                                        {these.doi ? (
+                                            <a
+                                                href={`https://doi.org/${these.doi}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => {
+                                                    const isValidDOI = these.doi.startsWith('10.');
+                                                    if (!isValidDOI) {
+                                                        e.preventDefault();
+                                                        alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                                    }
+                                                }}
+                                            >
+                                                {these.doi}
+                                            </a>
+                                        ) : (
+                                            'Pas de DOI disponible'
+                                        )}
+                                    </td>
+                                    <td>{these.lieu || 'Lieu non disponible'}</td>
+                                    <td>{new Date(these.date).toLocaleDateString() || 'Date non disponible'}</td>
+                                    <td>{these.status || 'Statut non disponible'}</td>
+
+                                    <td className="text-center">
+                                    <div className="d-flex justify-content-between">   
+                                        <button
+                                            onClick={() => handleEdit(these.id)}
+                                            className="btn btn-primary me-2"                                        >
+                                            Modifier
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(these.id)}
+                                            className="btn btn-danger btn-sm"
+                                        >
+                                            Supprimer
+                                        </button></div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="7" className="text-center">Aucune thèse disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

@@ -21,7 +21,8 @@ const PresentationAdmin = () => {
     const [teams, setTeams] = useState([]); // Nouvel état pour les équipes
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
-    const [expanded, setExpanded] = useState(null); // État pour gérer les éléments développés
+    const [expandedContent, setExpandedContent] = useState(null); // État pour gérer les contenus développés
+    const [expandedTitle, setExpandedTitle] = useState(null); // État pour gérer les titres développés
 
     useEffect(() => {
         fetchPresentations();
@@ -89,8 +90,12 @@ const PresentationAdmin = () => {
         }
     };
 
-    const toggleExpand = (id) => {
-        setExpanded(expanded === id ? null : id);
+    const toggleExpandContent = (id) => {
+        setExpandedContent(expandedContent === id ? null : id);
+    };
+
+    const toggleExpandTitle = (id) => {
+        setExpandedTitle(expandedTitle === id ? null : id);
     };
 
     // Fonction pour obtenir le nom de l'équipe à partir de l'id
@@ -100,46 +105,69 @@ const PresentationAdmin = () => {
     };
 
     return (
-        <div>
-            <h1>Gestion de la Présentation de l’Équipe</h1>
-            <Link to="/dashboard/PresentationCreate" className="btn btn-primary mb-4">Ajouter une Présentation</Link>
-            {error && <p className="text-red-500">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contenu</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Équipe</th> {/* Nouvelle colonne pour le nom de l'équipe */}
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {presentations.length ? (
-                        presentations.map(presentation => (
-                            <tr key={presentation.id}>
-                                <td className="px-6 py-4 whitespace-nowrap table-cell">{stripHtmlTags(presentation.title)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap table-cell">
-                                    {expanded === presentation.id ? 
-                                        stripHtmlTags(presentation.content) 
-                                        : truncateText(stripHtmlTags(presentation.content), 50)} {/* Longueur réduite à 50 caractères */}
-                                    <button onClick={() => toggleExpand(presentation.id)} className="ml-2 text-blue-500">
-                                        {expanded === presentation.id ? 'Réduire' : 'Lire plus'}
-                                    </button>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap table-cell">{getTeamNameById(presentation.team_id)}</td> {/* Affichage du nom de l'équipe */}
-                                <td className="px-6 py-4 whitespace-nowrap actions">
-                                    <Link to={`/dashboard/PresentationEdit/${presentation.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                    <button onClick={() => handleDelete(presentation.id)} className="btn btn-danger mb-2">Supprimer</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+        <div className="container mt-5">
+            <h1 className="mb-4">Gestion de la Présentation de l’Équipe</h1>
+                <Link to="/dashboard/PresentationCreate"  className="btn btn-primary mb-4">Ajouter une Présentation</Link>
+            
+            {error && <p className="text-danger">{error}</p>}
+
+            <div className="table-responsive">
+                <table className="table table-bordered table-hover">
+                    <thead className="thead-dark">
                         <tr>
-                            <td colSpan="4" className="text-center py-4">Aucune présentation disponible</td> {/* Colspan mis à jour pour inclure la nouvelle colonne */}
+                            <th className="text-center">Titre</th>
+                            <th className="text-center">Contenu</th>
+                            <th className="text-center">Équipe</th>
+                            <th className="text-center">Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {presentations.length ? (
+                            presentations.map(presentation => (
+                                <tr key={presentation.id}>
+                                    <td className="align-middle">
+                                        {expandedTitle === presentation.id ? 
+                                            stripHtmlTags(presentation.title) 
+                                            : truncateText(stripHtmlTags(presentation.title), 30)} {/* Longueur du titre tronqué à 30 caractères */}
+                                        <button 
+                                            onClick={() => toggleExpandTitle(presentation.id)} 
+                                            className="btn btn-link p-0 ml-2">
+                                            {expandedTitle === presentation.id ? 'Réduire' : 'Lire plus'}
+                                        </button>
+                                    </td>
+                                    <td className="align-middle">
+                                        {expandedContent === presentation.id ? 
+                                            stripHtmlTags(presentation.content) 
+                                            : truncateText(stripHtmlTags(presentation.content), 50)} {/* Contenu tronqué à 50 caractères */}
+                                        <button 
+                                            onClick={() => toggleExpandContent(presentation.id)} 
+                                            className="btn btn-link p-0 ml-2">
+                                            {expandedContent === presentation.id ? 'Réduire' : 'Lire plus'}
+                                        </button>
+                                    </td>
+                                    <td className="align-middle text-center">{getTeamNameById(presentation.team_id)}</td>
+                                    <td className="align-middle text-center">
+                                        <Link 
+                                            to={`/dashboard/PresentationEdit/${presentation.id}`} 
+                                            className="btn btn-primary mb-2">
+                                            Modifier
+                                        </Link>
+                                        <button 
+                                            onClick={() => handleDelete(presentation.id)} 
+                                            className="btn btn-danger mb-2">
+                                            Supprimer
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="4" className="text-center py-4">Aucune présentation disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

@@ -66,7 +66,7 @@ const UserEditBrevet = () => {
 
     const checkDoiExists = async (doi, excludedDoi) => {
         try {
-            const response = await axios.post('http://localhost:8000/api/checkDOIExists', { doi }, {
+            const response = await axios.post('http://localhost:8000/api/checkDOIExistsBrevet', { doi }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
@@ -178,7 +178,7 @@ const UserEditBrevet = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s)</label>
+                    <label className="block text-sm font-medium mb-1">Membre(s)</label>
                     <select
                         multiple
                         value={selectedAuthors}
@@ -193,7 +193,7 @@ const UserEditBrevet = () => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <label className="block text-sm font-medium mb-1">Autre auteur(s)</label>
                     <div className="space-y-2">
                         {optionalAuthors.map((author, index) => (
                             <div key={index} className="flex items-center mb-2">
@@ -218,7 +218,7 @@ const UserEditBrevet = () => {
                         onClick={handleAddOptionalAuthor}
                         className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                     >
-                        Ajouter un auteur facultatif
+                        Ajouter un auteur 
                     </button>
                 </div>
                 <div>

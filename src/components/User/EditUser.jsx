@@ -122,9 +122,9 @@ const EditUser = () => {
                 <p style={styles.loadingText}>Loading user information...</p>
             ) : (
                 <div style={styles.userInfo}>
-                    <h2>Edit User Information</h2>
+                    <h2>Modifier les informations</h2>
                     <div style={styles.userDetailContainer}>
-                        <strong style={styles.label}>Name</strong>
+                        <strong style={styles.label}>Nom</strong>
                         <input
                             type="text"
                             name="name"
@@ -146,7 +146,7 @@ const EditUser = () => {
 
                     {/* Champ Password avec une icône œil */}
                     <div style={styles.userDetailContainer}>
-                        <strong style={styles.label}>Password</strong>
+                        <strong style={styles.label}>Mot de passe</strong>
                         <div style={styles.passwordContainer}>
                             <input
                                 type={passwordVisible ? "text" : "password"}
@@ -173,7 +173,7 @@ const EditUser = () => {
                         />
                     </div>
                     <div style={styles.userDetailContainer}>
-                        <strong style={styles.label}>Bio</strong>
+                        <strong style={styles.label}>Biographie</strong>
                         <textarea
                             name="bio"
                             value={userData.bio}
@@ -182,7 +182,7 @@ const EditUser = () => {
                         />
                     </div>
                     <div style={styles.userDetailContainer}>
-                        <strong style={styles.label}>Contact Info</strong>
+                        <strong style={styles.label}>Contact</strong>
                         <input
                             type="text"
                             name="contact_info"
@@ -210,7 +210,7 @@ const EditUser = () => {
                         />
                     </div>
                     <button onClick={handleSaveClick} style={styles.saveButton}>
-                        Save
+                        Enregistré
                     </button>
                 </div>
             )}

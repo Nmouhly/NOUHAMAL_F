@@ -50,75 +50,60 @@ const UserCreateOuvrage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         if (selectedAuthorIds.length === 0) {
             setError('Veuillez sélectionner au moins un auteur.');
-            toast.error('Veuillez sélectionner au moins un auteur.');
             return;
         }
-
+    
+        // Validation du DOI
         if (!validateDOI(DOI)) {
-            setError('Format du DOI invalide.');
-            toast.error('Format du DOI invalide.');
+            setError('Le format du DOI est invalide.');
             return;
         }
-
-        // Vérifier si le DOI existe déjà dans la base de données
+    
         try {
-            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExists', {
+            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExistsOuvrage', {
                 doi: DOI,
             }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-
+            
+    
             if (checkDOIResponse.data.exists) {
-                setError('Le DOI existe déjà.');
-                toast.error('Le DOI existe déjà.');
+                setError('Le DOI existe déjà .');
                 return;
             }
         } catch (error) {
-            console.error('Erreur lors de la vérification du DOI :', error.response ? error.response.data : error.message);
-            setError('Erreur lors de la vérification du DOI');
-            toast.error('Erreur lors de la vérification du DOI');
+            setError('Erreur lors de la vérification du DOI.');
             return;
         }
-
-        // Filtrer les auteurs facultatifs pour ne garder que ceux qui ne sont pas vides
-        const filteredOptionalAuthors = optionalAuthors.filter(author => author.trim() !== '');
-
-        // Combiner tous les auteurs (l'utilisateur connecté, les autres auteurs sélectionnés, et les auteurs facultatifs)
-        let allAuthors = [currentUser.name, ...selectedAuthors, ...filteredOptionalAuthors];
-
-        // Supprimer les doublons dans la liste des auteurs
-        allAuthors = [...new Set(allAuthors)];
-
-        // Utiliser uniquement les IDs des auteurs sélectionnés pour id_user
-        const validAuthorIds = selectedAuthorIds; // IDs des auteurs sélectionnés
-
+    
+        // Filtrer les auteurs facultatifs et éviter les doublons
+        let allAuthors = [...new Set([currentUser.name, ...selectedAuthors, ...optionalAuthors.filter(author => author)])];
+    
+        // Soumission des données
         try {
             const response = await axios.post('http://localhost:8000/api/ouvrages', {
                 title,
-                author: allAuthors.join(', '),  // Utiliser la liste des auteurs sans doublons
+                author: allAuthors.join(', '),
                 DOI,
-                id_user: validAuthorIds.join(','), // Inclure seulement les IDs des auteurs réels
+                id_user: selectedAuthorIds.join(','), // Utiliser les IDs des auteurs sélectionnés
             }, {
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
-                },
+                }
             });
-
-            console.log('Ouvrage ajouté :', response.data);
+    
             toast.success('Ouvrage ajouté avec succès');
             navigate('/dashboard/ouvrage');
         } catch (error) {
-            console.error('Erreur lors de l\'ajout de l\'ouvrage :', error.response ? error.response.data : error.message);
-            setError('Erreur lors de l\'ajout de l\'ouvrage');
-            toast.error('Erreur lors de l\'ajout de l\'ouvrage');
+            setError('Erreur lors de l\'ajout de l\'ouvrage.');
         }
     };
+    
 
     const handleAuthorSelection = (e) => {
         const selectedOptions = Array.from(e.target.selectedOptions);
@@ -161,7 +146,7 @@ const UserCreateOuvrage = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s)</label>
+                    <label className="block text-sm font-medium mb-1">Membre(s)</label>
                     <select
     multiple
     value={selectedAuthors}
@@ -176,11 +161,11 @@ const UserCreateOuvrage = () => {
 </select>
 
                     <p className="text-sm text-gray-500 mt-2">
-                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
+                        Pour sélectionner plusieurs membres, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
                     </p>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <label className="block text-sm font-medium mb-1">  Autre auteur(s) </label>
                     <div className="space-y-2">
                         {optionalAuthors.map((author, index) => (
                             <div key={index} className="flex items-center mb-2">
@@ -206,7 +191,7 @@ const UserCreateOuvrage = () => {
                             onClick={handleAddOptionalAuthor}
                             className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                         >
-                            Ajouter plus d'auteur(s) facultatif(s)
+                            Ajouter plus d'auteur(s) 
                         </button>
                     </div>
                 </div>
@@ -219,12 +204,12 @@ const UserCreateOuvrage = () => {
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
-                    Ajouter
-                </button>
+                <button 
+          type="submit" 
+          className="bg-green-500 text-white py-1 px-4  rounded hover:bg-green-600"
+        >
+          Ajouter
+        </button>
             </form>
         </div>
     );

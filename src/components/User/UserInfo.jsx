@@ -38,31 +38,32 @@ function UserInfo() {
         console.log('currentUser avant la vérification:', currentUser);
         console.log('accessToken avant la vérification:', accessToken);
         
-        const enteredEmail = prompt("Please enter your email:");
+        // const enteredEmail = prompt("Please enter your email:");
         const enteredPassword = prompt("Please enter your password:");
 
-        if (enteredEmail && enteredPassword) {
+        if (enteredPassword) {
+            // if (enteredEmail && enteredPassword) {
             try {
                 const response = await axios.post('http://localhost:8000/api/auth/check', {
-                    email: enteredEmail,
+                    // email: enteredEmail,
                     password: enteredPassword,
                 }, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
                 });
-
-                if (response.status === 200 && response.data.message === 'Credentials are valid' && currentUser.email === enteredEmail) {
+                // if (response.status === 200 && response.data.message === 'Credentials are valid' && currentUser.email === enteredEmail) {
+                if (response.status === 200 && response.data.message === 'Credentials are valid') {
                     navigate(`/user/edit-user/${currentUser.id}`);
                 } else {
-                    alert("Authentication failed. Incorrect email or password.");
+                    alert("Authentication failed. or password.");
                 }
             } catch (error) {
                 console.error('Erreur lors de la vérification des identifiants:', error);
                 alert('An error occurred while verifying your credentials.');
             }
         } else {
-            alert("You must provide both email and password to edit your profile.");
+            alert("You must provide the password to edit your profile.");
         }
     };
 
@@ -83,7 +84,7 @@ function UserInfo() {
                     )}
                     <div style={styles.userDetails}>
                         <div style={styles.userDetailContainer}>
-                            <strong style={styles.label}>Name</strong>
+                            <strong style={styles.label}>Nom</strong>
                             <p style={styles.userDetail}>{currentUser.name}</p>
                         </div>
                         <div style={styles.userDetailContainer}>
@@ -95,15 +96,15 @@ function UserInfo() {
                             <p style={styles.userDetail}>{userData.position}</p>
                         </div>
                         <div style={styles.userDetailContainer}>
-                            <strong style={styles.label}>Bio</strong>
+                            <strong style={styles.label}>Biographie</strong>
                             <p style={styles.userDetail}>{userData.bio}</p>
                         </div>
                         <div style={styles.userDetailContainer}>
-                            <strong style={styles.label}>Contact Info</strong>
+                            <strong style={styles.label}>Contact </strong>
                             <p style={styles.userDetail}>{userData.contact_info}</p>
                         </div>
                         <button onClick={handleEditClick} style={styles.editButton}>
-                            Edit
+                            Modifier
                         </button>
                     </div>
                 </div>

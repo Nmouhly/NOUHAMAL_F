@@ -4,6 +4,7 @@ import './VisitorSidebar.css';
 import logo from '../../../assets/labol2is.png';
 
 const VisitorSidebar = () => {
+  // Define visibility state for the sidebar items
   const [visibility, setVisibility] = useState({
     equipes: true,
     personnel: {
@@ -25,9 +26,11 @@ const VisitorSidebar = () => {
     evenements: true,
   });
 
+  // Define state variables for submenu visibility
   const [isPersonnelSubmenuOpen, setIsPersonnelSubmenuOpen] = useState(visibility.personnel.visible);
   const [isPublicationsSubmenuOpen, setIsPublicationsSubmenuOpen] = useState(visibility.publications.visible);
 
+  // Effect to load visibility settings from localStorage
   useEffect(() => {
     const storedVisibility = localStorage.getItem('sidebarVisibility');
     if (storedVisibility) {
@@ -38,12 +41,13 @@ const VisitorSidebar = () => {
     }
   }, []);
 
+  // Toggle functions for each submenu
   const toggleSubmenu = (submenu) => {
     if (submenu === 'personnel') {
-      setIsPersonnelSubmenuOpen(!isPersonnelSubmenuOpen);
+      setIsPersonnelSubmenuOpen(prev => !prev);
       if (isPublicationsSubmenuOpen) setIsPublicationsSubmenuOpen(false);
     } else if (submenu === 'publications') {
-      setIsPublicationsSubmenuOpen(!isPublicationsSubmenuOpen);
+      setIsPublicationsSubmenuOpen(prev => !prev);
       if (isPersonnelSubmenuOpen) setIsPersonnelSubmenuOpen(false);
     }
   };

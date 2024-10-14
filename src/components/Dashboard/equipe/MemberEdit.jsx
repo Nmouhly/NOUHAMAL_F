@@ -167,12 +167,9 @@ const MemberEdit = () => {
           />
         </div>
         
-        <button 
-          type="submit" 
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Mettre à jour
-        </button>
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Mettre à jour
+                </button>
       </form>
     </div>
   );

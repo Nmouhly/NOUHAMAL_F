@@ -172,7 +172,7 @@ const UserEditThèse = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Modifier le brevet</h1>
+            <h1 className="text-2xl font-bold mb-4">Modifier la thèse</h1>
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -187,7 +187,7 @@ const UserEditThèse = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s)</label>
+                    <label className="block text-sm font-medium mb-1">Membre(s)</label>
                     <select
                         multiple
                         value={selectedAuthors}
@@ -202,7 +202,7 @@ const UserEditThèse = () => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <label className="block text-sm font-medium mb-1"> Autre auteur(s) </label>
                     <div className="space-y-2">
                         {optionalAuthors.map((author, index) => (
                             <div key={index} className="flex items-center mb-2">
@@ -227,7 +227,7 @@ const UserEditThèse = () => {
                         onClick={handleAddOptionalAuthor}
                         className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                     >
-                        Ajouter un auteur facultatif
+                        Ajouter un  autre auteur 
                     </button>
                 </div>
                 <div>
@@ -263,9 +263,9 @@ const UserEditThèse = () => {
                     />
                 </div>
                 <div>
-                    <button type="submit" className="bg-green-500 text-white p-2 rounded hover:bg-green-600">
-                        Modifier le brevet
-                    </button>
+                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Mettre à jour
+                </button>
                 </div>
             </form>
         </div>

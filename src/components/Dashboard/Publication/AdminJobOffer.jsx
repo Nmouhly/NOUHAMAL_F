@@ -1,4 +1,3 @@
-// src/components/Dashboard/Publication/JobOfferAdmin.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -7,6 +6,9 @@ import { AuthContext } from '../../../context/authContext';
 const JobOfferAdmin = () => {
     const [jobOffers, setJobOffers] = useState([]);
     const [error, setError] = useState('');
+    const [expandedTitle, setExpandedTitle] = useState({}); // Track expanded state for titles
+    const [expandedDescription, setExpandedDescription] = useState({}); // Track expanded state for descriptions
+    const [expandedRequirements, setExpandedRequirements] = useState({}); // Track expanded state for requirements
     const { accessToken } = useContext(AuthContext);
 
     useEffect(() => {
@@ -54,48 +56,89 @@ const JobOfferAdmin = () => {
         return text.substring(0, length) + '...';
     };
 
-    // Fonction pour formater le salaire, avec une vérification du type
     const formatSalary = (salary) => {
         const numSalary = parseFloat(salary);
         return !isNaN(numSalary) ? numSalary.toFixed(2) : 'N/A';
     };
 
+    const toggleExpandTitle = (id) => {
+        setExpandedTitle(prevState => ({
+            ...prevState,
+            [id]: !prevState[id] // Toggle the expanded state for the specific job offer's title
+        }));
+    };
+
+    const toggleExpandDescription = (id) => {
+        setExpandedDescription(prevState => ({
+            ...prevState,
+            [id]: !prevState[id] // Toggle the expanded state for the specific job offer's description
+        }));
+    };
+
+    const toggleExpandRequirements = (id) => {
+        setExpandedRequirements(prevState => ({
+            ...prevState,
+            [id]: !prevState[id] // Toggle the expanded state for the specific job offer's requirements
+        }));
+    };
+
     return (
-        <div>
-            <h1>Gestion des Offres d'Emploi</h1>
+        <div className="container mt-5">
+            <h1 className="mb-4">Gestion des Offres d'Emploi</h1>
             <Link to="/dashboard/JobOfferCreate" className="btn btn-primary mb-4">Ajouter une Offre</Link>
-            {error && <p className="text-red-500">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+            {error && <p className="alert alert-danger">{error}</p>}
+            <table className="table table-striped table-bordered">
+                <thead className="thead-dark">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exigences</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salaire</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Limite</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th scope="col">Titre</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Exigences</th>
+                        <th scope="col">Lieu</th>
+                        <th scope="col">Salaire</th>
+                        <th scope="col">Date Limite</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody>
                     {jobOffers.length ? (
                         jobOffers.map(jobOffer => (
                             <tr key={jobOffer.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{truncateText(jobOffer.title, 20)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{truncateText(jobOffer.description, 20)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{truncateText(jobOffer.requirements, 20)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{truncateText(jobOffer.location, 20)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{formatSalary(jobOffer.salary)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{new Date(jobOffer.deadline).toLocaleDateString()}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/JobOfferEdit/${jobOffer.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                    <button onClick={() => handleDelete(jobOffer.id)} className="btn btn-danger mb-2">Supprimer</button>
+                                <td>
+                                    {expandedTitle[jobOffer.id] ? jobOffer.title : truncateText(jobOffer.title, 20)}
+                                    {jobOffer.title.length > 20 && !expandedTitle[jobOffer.id] && (
+                                        <span 
+                                            onClick={() => toggleExpandTitle(jobOffer.id)} 
+                                            className="text-primary cursor-pointer ml-1">Lire la suite</span>
+                                    )}
+                                </td>
+                                <td>
+                                    {expandedDescription[jobOffer.id] ? jobOffer.description : truncateText(jobOffer.description, 20)}
+                                    {jobOffer.description.length > 20 && !expandedDescription[jobOffer.id] && (
+                                        <span 
+                                            onClick={() => toggleExpandDescription(jobOffer.id)} 
+                                            className="text-primary cursor-pointer ml-1">Lire la suite</span>
+                                    )}
+                                </td>
+                                <td>
+                                    {expandedRequirements[jobOffer.id] ? jobOffer.requirements : truncateText(jobOffer.requirements, 20)}
+                                    {jobOffer.requirements.length > 20 && !expandedRequirements[jobOffer.id] && (
+                                        <span 
+                                            onClick={() => toggleExpandRequirements(jobOffer.id)} 
+                                            className="text-primary cursor-pointer ml-1">Lire la suite</span>
+                                    )}
+                                </td>
+                                <td>{truncateText(jobOffer.location, 20)}</td>
+                                <td>{formatSalary(jobOffer.salary)}</td>
+                                <td>{new Date(jobOffer.deadline).toLocaleDateString()}</td>
+                                <td>
+                                <div className="d-flex justify-content-between">                                    <Link to={`/dashboard/JobOfferEdit/${jobOffer.id}`} className="btn btn-primary mb-2">Modifier</Link>
+                                    <button onClick={() => handleDelete(jobOffer.id)} className="btn btn-danger mb-2">Supprimer</button></div>
                                 </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="7" className="text-center py-4">Aucune offre d'emploi disponible</td>
+                            <td colSpan="7" className="text-center">Aucune offre d'emploi disponible</td>
                         </tr>
                     )}
                 </tbody>

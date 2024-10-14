@@ -245,9 +245,9 @@ const MembreCreate = () => {
         <div className="mt-4">
           <button 
             type="submit" 
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Ajouter le Membre
+            className="bg-green-500 text-white py-1 px-4  rounded hover:bg-green-600"
+            >
+            Ajouter
           </button>
         </div>
       </form>

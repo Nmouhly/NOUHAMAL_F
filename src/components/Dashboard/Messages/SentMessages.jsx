@@ -62,7 +62,6 @@ const SentMessages = () => {
       );
 
       const receiverId = receiverResponse.data.user_id;
-      console.log(receiverId);
       if (!receiverId) {
         // Si l'email n'existe pas
         toast.error('Email introuvable !'); // Afficher un message d'erreur
@@ -97,10 +96,10 @@ const SentMessages = () => {
   };
 
   return (
-    <div>
+    <div className="container mt-4">
       <h1>Messages Envoyés</h1>
 
-      <button className="new-message-button" onClick={() => setIsModalOpen(true)}>
+      <button className="btn btn-primary mb-3" onClick={() => setIsModalOpen(true)}>
         Nouveau Message
       </button>
 
@@ -116,26 +115,26 @@ const SentMessages = () => {
               value={receiverEmail}
               onChange={(e) => setReceiverEmail(e.target.value)}
               required
-              className="message-input"
+              className="form-control mb-2"
             />
             <textarea
               placeholder="Votre message"
               value={messageContent}
               onChange={(e) => setMessageContent(e.target.value)}
               required
-              className="message-textarea"
+              className="form-control mb-2"
             />
-            <button onClick={handleSendMessage} className="send-button">
+            <button onClick={handleSendMessage} className="btn btn-success">
               Envoyer
             </button>
           </div>
         </div>
       )}
 
-      <ul className="sent-messages-list">
+      <ul className="list-group">
         {Array.isArray(messages) && messages.length > 0 ? (
           messages.map((message) => (
-            <li key={message.id} className="sent-message-item">
+            <li key={message.id} className="list-group-item">
               <Link 
                 to={userRole === 1 ? `/dashboard/message/${message.id}` : `/user/message/${message.id}`} 
                 className="message-link"
@@ -149,7 +148,7 @@ const SentMessages = () => {
             </li>
           ))
         ) : (
-          <li>Aucun message trouvé.</li>
+          <li className="list-group-item">Aucun message trouvé.</li>
         )}
       </ul>
 

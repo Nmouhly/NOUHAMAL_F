@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 import { AuthContext } from '../../context/authContext';
 
 const stripHtmlTags = (html) => {
@@ -11,6 +11,7 @@ const stripHtmlTags = (html) => {
 
 const AdminHomeDescription = () => {
     const [description, setDescription] = useState(null);
+    const [showFullContent, setShowFullContent] = useState(false); // State to toggle full content
     const { accessToken } = useContext(AuthContext);
 
     useEffect(() => {
@@ -24,7 +25,7 @@ const AdminHomeDescription = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            setDescription(response.data); // On suppose que c'est un objet
+            setDescription(response.data); // Assume it's an object
         } catch (error) {
             console.error("Erreur lors de la récupération de la description", error);
         }
@@ -39,7 +40,7 @@ const AdminHomeDescription = () => {
                     }
                 });
                 toast.success('Description supprimée avec succès');
-                fetchDescription(); // Rafraîchir la description après suppression
+                fetchDescription(); // Refresh description after deletion
             } catch (error) {
                 console.error("Erreur lors de la suppression de la description", error);
                 toast.error('Erreur lors de la suppression de la description');
@@ -47,9 +48,14 @@ const AdminHomeDescription = () => {
         }
     };
 
+    // Function to toggle content display
+    const toggleContent = () => {
+        setShowFullContent(!showFullContent);
+    };
+
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Gestion de la Description</h1>
+        <div className="container mt-5">
+            <h1 className="mb-4">Gestion de la Description</h1>
             <div className="mb-4">
                 <Link to="/dashboard/CreateDescription" className="btn btn-primary">
                     Ajouter une description
@@ -57,37 +63,44 @@ const AdminHomeDescription = () => {
             </div>
 
             {description ? (
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    
-                    {description.content ? (
-                        <table className="min-w-full">
-                            <thead>
-                                <tr>
-                                    <th className="border px-4 py-2 text-left">Contenu</th>
-                                    <th className="border px-4 py-2 text-left">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td className="border px-4 py-2">
-                                        {stripHtmlTags(description.content)}
-                                    </td>
-                                    <td>
-                                        <div className="text-right mt-4">
-                                            <Link to={`/dashboard/EditDescription/${description.id}`} className="btn btn-success mr-2">
-                                                Modifier
-                                            </Link>
-                                            <button className="btn btn-danger" onClick={() => handleDelete(description.id)}>
-                                                Supprimer
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    ) : (
-                        <p>Aucun contenu disponible.</p>
-                    )}
+                <div className="card shadow-sm">
+                    <div className="card-body">
+                        {description.content ? (
+                            <table className="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Contenu</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            {stripHtmlTags(showFullContent ? description.content : description.content.substring(0, 200))} {/* Show truncated content */}
+                                            {description.content.length > 200 && (
+                                                <button className="btn btn-link" onClick={toggleContent}>
+                                                    {showFullContent ? 'Lire moins' : 'Lire la suite'}
+                                                </button>
+                                            )}
+                                        </td>
+                                        <td>
+                                        <div className="d-flex justify-content-end">
+    <Link to={`/dashboard/EditDescription/${description.id}`} className="btn btn-primary mb-2"> {/* Blue button */}
+        Modifier
+    </Link>
+    <button className="btn btn-danger mb-2" onClick={() => handleDelete(description.id)}> {/* Red button */}
+        Supprimer
+    </button>
+</div>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p>Aucun contenu disponible.</p>
+                        )}
+                    </div>
                 </div>
             ) : (
                 <p>Aucune description de laboratoire disponible.</p>

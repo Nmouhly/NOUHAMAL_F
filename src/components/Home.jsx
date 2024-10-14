@@ -48,13 +48,15 @@ const Home = ({ currentUser, logoutUser, isSidebarVisible, toggleSidebar }) => {
             )}
 
             {/* Descriptions with Gradient Background */}
-            {descriptions && (
-                <div className="mb-6 text-center w-full max-w-2xl">
-                    <div className="bg-gradient-to-r from-sky-200 to-white p-4 rounded-lg shadow-lg h-auto">
-                        <p className="text-indigo-800">{parse(descriptions)}</p>
-                    </div>
-                </div>
-            )}
+           {/* Descriptions with Gradient Background */}
+{descriptions && (
+    <div className="mb-6 text-center w-full"> {/* Remove max-w for full width */}
+        <div className="bg-gradient-to-r from-sky-200 to-white p-6 rounded-lg shadow-lg h-auto w-full">
+            <p className="text-indigo-800 text-lg">{parse(descriptions)}</p> {/* Adjust text size for better readability */}
+        </div>
+    </div>
+)}
+
 
             {/* Animated Arrow */}
             <div className="flex flex-col items-center mb-6">

@@ -49,76 +49,80 @@ const UserOuvrage = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Liste des Ouvrages</h1>
-            <button
-                onClick={() => navigate('/user/UserCreateOuvrage')}
-                className="mb-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-            >
-                Ajouter un Ouvrage
-            </button>
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {ouvrages.length ? (
-                        ouvrages.map(ouvrage => (
-                            <tr key={ouvrage.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.author}</td>
-                                <td>
-                                    {ouvrage.DOI ? (
-                                        <a
-                                            href={`https://doi.org/${ouvrage.DOI}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => {
-                                                const isValidDOI = ouvrage.DOI.startsWith('10.');
-                                                if (!isValidDOI) {
-                                                    e.preventDefault();
-                                                    alert(
-                                                        'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
-                                                    );
-                                                }
-                                            }}
-                                        >
-                                            {ouvrage.DOI}
-                                        </a>
-                                    ) : (
-                                        'Pas de DOI disponible'
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.status}</td> {/* Nouvelle colonne pour le statut */}
-                                <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                                    <button
-                                        onClick={() => handleEdit(ouvrage.id)}
-                                        className="text-blue-500 hover:text-blue-600"
-                                    >
-                                        Modifier
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(ouvrage.id)}
-                                        className="text-red-500 hover:text-red-600"
-                                    >
-                                        Supprimer
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+        <div className="container mt-4">
+            <h1 className=" mb-4">Liste des Ouvrages</h1>
+            <div className=" mb-4">
+                <button
+                    onClick={() => navigate('/user/UserCreateOuvrage')}
+                    className="btn btn-primary"
+                >
+                    Ajouter un Ouvrage
+                </button>
+            </div>
+            <div className="table-responsive">
+                <table className="table table-striped">
+                    <thead className="thead-dark">
                         <tr>
-                            <td colSpan="5" className="text-center py-4">Aucun ouvrage disponible</td> {/* Mettez à jour le colspan ici */}
+                            <th scope="col">Titre</th>
+                            <th scope="col">Auteur</th>
+                            <th scope="col">DOI</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {ouvrages.length ? (
+                            ouvrages.map(ouvrage => (
+                                <tr key={ouvrage.id}>
+                                    <td>{ouvrage.title}</td>
+                                    <td>{ouvrage.author}</td>
+                                    <td>
+                                        {ouvrage.DOI ? (
+                                            <a
+                                                href={`https://doi.org/${ouvrage.DOI}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => {
+                                                    const isValidDOI = ouvrage.DOI.startsWith('10.');
+                                                    if (!isValidDOI) {
+                                                        e.preventDefault();
+                                                        alert(
+                                                            'Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.'
+                                                        );
+                                                    }
+                                                }}
+                                            >
+                                                {ouvrage.DOI}
+                                            </a>
+                                        ) : (
+                                            'Pas de DOI disponible'
+                                        )}
+                                    </td>
+                                    <td>{ouvrage.status}</td>
+                                    <td>
+                                    <div className="d-flex justify-content-between">                                        <button
+                                            onClick={() => handleEdit(ouvrage.id)}
+                                           className="btn btn-primary me-2"
+                                        >
+                                            Modifier
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(ouvrage.id)}
+                                            className="btn btn-danger btn-sm"
+                                        >
+                                            Supprimer
+                                        </button></div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="text-center">Aucun ouvrage disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

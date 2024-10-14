@@ -6,7 +6,7 @@ import { AuthContext } from '../../../context/authContext';
 const OuvrageAdmin = () => {
     const [ouvrages, setOuvrages] = useState([]);
     const [error, setError] = useState('');
-    const { accessToken, currentUser } = useContext(AuthContext); // Add currentUser here
+    const { accessToken, currentUser } = useContext(AuthContext);
 
     useEffect(() => {
         if (accessToken && currentUser) {
@@ -16,7 +16,7 @@ const OuvrageAdmin = () => {
 
     const fetchOuvrages = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/ouvragesAdmin`, {
+            const response = await axios.get('http://localhost:8000/api/ouvragesAdmin', {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -51,58 +51,59 @@ const OuvrageAdmin = () => {
     };
 
     return (
-        <div>
-            <h1>Gestion des Ouvrages</h1>
+        <div className="container mt-5">
+            <h1 className="mb-4">Gestion des Ouvrages</h1>
             <Link to="/dashboard/OuvrageCreate" className="btn btn-primary mb-4">Ajouter un Ouvrage</Link>
-            {error && <p className="text-red-500">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+            {error && <p className="text-danger">{error}</p>}
 
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            <table className="table table-striped table-hover">
+                <thead className="thead-dark">
+                    <tr>
+                        <th scope="col">Titre</th>
+                        <th scope="col">Auteur</th>
+                        <th scope="col">DOI</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody>
                     {ouvrages.length ? (
                         ouvrages.map(ouvrage => (
                             <tr key={ouvrage.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.author}</td>
+                                <td>{ouvrage.title}</td>
+                                <td>{ouvrage.author}</td>
                                 <td>
-                                  {ouvrage.DOI ? (
-                                    <a
-                                      href={`https://doi.org/${ouvrage.DOI}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      onClick={(e) => {
-                                        const isValidDOI = ouvrage.DOI.startsWith('10.');
-                                        if (!isValidDOI) {
-                                          e.preventDefault();
-                                          alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
-                                        }
-                                      }}
-                                    >
-                                      {ouvrage.DOI}
-                                    </a>
-                                  ) : (
-                                    'Pas de DOI disponible'
-                                  )}
+                                    {ouvrage.DOI ? (
+                                        <a
+                                            href={`https://doi.org/${ouvrage.DOI}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => {
+                                                const isValidDOI = ouvrage.DOI.startsWith('10.');
+                                                if (!isValidDOI) {
+                                                    e.preventDefault();
+                                                    alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                                }
+                                            }}
+                                        >
+                                            {ouvrage.DOI}
+                                        </a>
+                                    ) : (
+                                        'Pas de DOI disponible'
+                                    )}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{ouvrage.status}</td> {/* Nouvelle colonne pour le statut */}
-
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/OuvrageEdit/${ouvrage.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                    <button onClick={() => handleDelete(ouvrage.id)} className="btn btn-danger mb-2">Supprimer</button>
+                                <td>{ouvrage.status}</td>
+                                <td>
+                                    <div className="d-flex justify-content-between">
+                                        <Link to={`/dashboard/OuvrageEdit/${ouvrage.id}`} className="btn btn-primary mb-2">Modifier</Link>
+                                        <button onClick={() => handleDelete(ouvrage.id)} className="btn btn-danger mb-2">Supprimer</button>
+                                    </div>
                                 </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="5" className="text-center py-4">Aucun ouvrage disponible</td>
+                            <td colSpan="5" className="text-center">Aucun ouvrage disponible</td>
                         </tr>
                     )}
                 </tbody>

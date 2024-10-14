@@ -44,10 +44,10 @@ const CreateDescription = () => {
 
     return (
         <div className="max-w-6xl mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-4">Add Description</h1>
+            <h1 className="text-3xl font-bold mb-4">Ajouter une Description</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="content" className="block text-gray-700">Content</label>
+                    <label htmlFor="content" className="block text-gray-700">Contenu</label>
                     <ReactQuill
                         id="content"
                         value={content}
@@ -56,27 +56,41 @@ const CreateDescription = () => {
                         className="react-quill-editor border px-4 py-2 w-full"
                     />
                 </div>
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Add
+                <button type="submit" className="bg-green-500 text-white py-1 px-4  rounded hover:bg-green-600">
+                    Ajouter
                 </button>
             </form>
+
             <style jsx>{`
                 .react-quill-editor .ql-editor {
-                    text-align: left; /* Align text to the left */
-                    padding: 0;      /* Remove padding */
-                    margin: 0;       /* Remove margin */
+                    text-align: left;
+                    padding: 10px;
+                    min-height: 150px;
+                    background-color: #f9f9f9;
+                    border-radius: 8px;
                 }
-                
-                /* Optional: Adjust the styling for block elements within the editor */
+
+                /* Block elements in the editor */
                 .react-quill-editor .ql-editor p {
-                    margin: 0; /* Remove margin from paragraphs */
+                    margin: 0 0 10px; /* Set bottom margin for spacing */
                 }
 
                 .react-quill-editor .ql-editor h1,
                 .react-quill-editor .ql-editor h2,
                 .react-quill-editor .ql-editor h3 {
-                    margin-top: 0; /* Remove top margin from headers */
-                    margin-bottom: 0; /* Remove bottom margin from headers */
+                    margin: 10px 0; /* Add consistent margin for headings */
+                }
+
+                .react-quill-editor .ql-editor img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 5px;
+                }
+
+                /* Button hover effect */
+                button:hover {
+                    transform: scale(1.02);
+                    transition: transform 0.2s ease-in-out;
                 }
             `}</style>
         </div>

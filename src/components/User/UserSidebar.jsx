@@ -61,7 +61,7 @@ const UserSidebar = () => {
             </Link>
             <Link className="nav-link" to="/user/UserInfo">
               <div className="sb-nav-link-icon"><i className="fas fa-project-diagram"></i></div>
-             Settings
+             Paramètres
             </Link>
 
             {/* Publications */}

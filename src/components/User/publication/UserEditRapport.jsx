@@ -66,7 +66,7 @@ const UserEditRapport = () => {
 
     const checkDoiExists = async (doi, excludedDoi) => {
         try {
-            const response = await axios.post('http://localhost:8000/api/checkDOIExists', { doi }, {
+            const response = await axios.post('http://localhost:8000/api/checkDOIExistsRapport', { doi }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
@@ -178,7 +178,7 @@ const UserEditRapport = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s)</label>
+                    <label className="block text-sm font-medium mb-1">Membre(s)</label>
                     <select
     multiple
     value={selectedAuthors}
@@ -193,7 +193,7 @@ const UserEditRapport = () => {
 </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <label className="block text-sm font-medium mb-1">Autre auteur(s)</label>
                     <div className="space-y-2">
                         {optionalAuthors.map((author, index) => (
                             <div key={index} className="flex items-center mb-2">
@@ -218,7 +218,7 @@ const UserEditRapport = () => {
                         onClick={handleAddOptionalAuthor}
                         className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                     >
-                        Ajouter un auteur facultatif
+                        Ajouter un auteur 
                     </button>
                 </div>
                 <div>

@@ -51,60 +51,63 @@ const RevueAdmin = () => {
     };
 
     return (
-        <div>
-            <h1>Gestion des Revues</h1>
+        <div className="container mt-5">
+            <h1 className="mb-4">Gestion des Revues</h1>
             <Link to="/dashboard/RevueCreate" className="btn btn-primary mb-4">Ajouter une Revue</Link>
-            {error && <p className="text-red-500">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {revues.length ? (
-                        revues.map(revue => (
-                            <tr key={revue.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{revue.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{revue.author}</td>
-                                <td>
-                                    {revue.DOI ? (
-                                        <a
-                                            href={`https://doi.org/${revue.DOI}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => {
-                                                const isValidDOI = revue.DOI.startsWith('10.');
-                                                if (!isValidDOI) {
-                                                    e.preventDefault();
-                                                    alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
-                                                }
-                                            }}
-                                        >
-                                            {revue.DOI}
-                                        </a>
-                                    ) : (
-                                        'Pas de DOI disponible'
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{revue.status}</td> {/* Nouvelle colonne pour le statut */}
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/RevuesEdit/${revue.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                    <button onClick={() => handleDelete(revue.id)} className="btn btn-danger mb-2">Supprimer</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+            {error && <p className="text-danger">{error}</p>}
+            <div className="table-responsive">
+                <table className="table table-bordered table-hover">
+                    <thead className="thead-light">
                         <tr>
-                            <td colSpan="5" className="text-center py-4">Aucune revue disponible</td>
+                            <th>Titre</th>
+                            <th>Auteur</th>
+                            <th>DOI</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {revues.length ? (
+                            revues.map(revue => (
+                                <tr key={revue.id}>
+                                    <td>{revue.title}</td>
+                                    <td>{revue.author}</td>
+                                    <td>
+                                        {revue.DOI ? (
+                                            <a
+                                                href={`https://doi.org/${revue.DOI}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => {
+                                                    const isValidDOI = revue.DOI.startsWith('10.');
+                                                    if (!isValidDOI) {
+                                                        e.preventDefault();
+                                                        alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                                    }
+                                                }}
+                                            >
+                                                {revue.DOI}
+                                            </a>
+                                        ) : (
+                                            'Pas de DOI disponible'
+                                        )}
+                                    </td>
+                                    <td>{revue.status}</td>
+                                    <td className="d-flex align-items-center">
+    <Link to={`/dashboard/RevuesEdit/${revue.id}`} className="btn btn-primary mb-2">Modifier</Link>
+    <button onClick={() => handleDelete(revue.id)} className="btn btn-danger mb-2">Supprimer</button>
+</td>
+
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="text-center">Aucune revue disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

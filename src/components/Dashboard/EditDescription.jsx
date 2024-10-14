@@ -82,10 +82,10 @@ const EditDescription = () => {
 
     return (
         <div className="max-w-6xl mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-4">Edit Description</h1>
+            <h1 className="text-3xl font-bold mb-4">Modifier la  Description</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label htmlFor="content" className="block text-gray-700">Content</label>
+                    <label htmlFor="content" className="block text-gray-700">Contenu</label>
                     <ReactQuill
                         id="content"
                         value={content}
@@ -95,7 +95,7 @@ const EditDescription = () => {
                     />
                 </div>
                 <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Update
+                    Mettre à jour
                 </button>
             </form>
         </div>

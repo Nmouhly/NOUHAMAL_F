@@ -53,76 +53,76 @@ const UserRapport = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Liste des Rapports</h1>
+        <div className="container mt-4">
+            <h1 className="h2 mb-4">Liste des Rapports</h1>
             <button
                 onClick={() => navigate('/user/UserCreateRapport')}
-                className="mb-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                className="btn btn-primary mb-4"
             >
                 Ajouter un Rapport
             </button>
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {rapports.length ? (
-                        rapports.map(rapport => (
-                            <tr key={rapport.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{rapport.title || 'Titre non disponible'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{rapport.author || 'Auteur non disponible'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {rapport.DOI ? (
-                                        <a
-                                            href={`https://doi.org/${rapport.DOI}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => {
-                                                const isValidDOI = rapport.DOI.startsWith('10.');
-                                                if (!isValidDOI) {
-                                                    e.preventDefault();
-                                                    alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
-                                                }
-                                            }}
-                                        >
-                                            {rapport.DOI}
-                                        </a>
-                                    ) : (
-                                        'Pas de DOI disponible'
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{rapport.status}</td> {/* Nouvelle colonne pour le statut */}
-
-                                <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                                    <button
-                                        onClick={() => handleEdit(rapport.id)}
-                                        className="text-blue-500 hover:text-blue-600"
-                                    >
-                                        Modifier
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(rapport.id)}
-                                        className="text-red-500 hover:text-red-600"
-                                    >
-                                        Supprimer
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+            <div className="table-responsive">
+                <table className="table table-bordered">
+                    <thead className="thead-light">
                         <tr>
-                            <td colSpan="5" className="text-center py-4">Aucun rapport disponible</td>
+                            <th>Titre</th>
+                            <th>Auteur</th>
+                            <th>DOI</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {rapports.length ? (
+                            rapports.map(rapport => (
+                                <tr key={rapport.id}>
+                                    <td>{rapport.title || 'Titre non disponible'}</td>
+                                    <td>{rapport.author || 'Auteur non disponible'}</td>
+                                    <td>
+                                        {rapport.DOI ? (
+                                            <a
+                                                href={`https://doi.org/${rapport.DOI}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => {
+                                                    const isValidDOI = rapport.DOI.startsWith('10.');
+                                                    if (!isValidDOI) {
+                                                        e.preventDefault();
+                                                        alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                                    }
+                                                }}
+                                            >
+                                                {rapport.DOI}
+                                            </a>
+                                        ) : (
+                                            'Pas de DOI disponible'
+                                        )}
+                                    </td>
+                                    <td>{rapport.status}</td>
+                                    <td className="text-center">
+                                    <div className="d-flex justify-content-between">   
+                                        <button
+                                            onClick={() => handleEdit(rapport.id)}
+                                            className="btn btn-primary me-2"                                        >
+                                            Modifier
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(rapport.id)}
+                                            className="btn btn-danger btn-sm"
+                                        >
+                                            Supprimer
+                                        </button></div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="text-center">Aucun rapport disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

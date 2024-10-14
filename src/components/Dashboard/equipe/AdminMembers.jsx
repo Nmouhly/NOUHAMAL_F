@@ -6,6 +6,7 @@ import { AuthContext } from '../../../context/authContext';
 const MembreAdmin = () => {
     const [members, setMembers] = useState([]);
     const [teams, setTeams] = useState([]); // New state for teams
+    const [expandedBio, setExpandedBio] = useState({}); // State to manage expanded biographies
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
 
@@ -75,54 +76,76 @@ const MembreAdmin = () => {
         }
     };
 
+    const toggleBio = (id) => {
+        setExpandedBio(prevState => ({
+            ...prevState,
+            [id]: !prevState[id]
+        }));
+    };
+
     return (
-        <div>
-            <h1>Gestion des Membres</h1>
+        <div className="container">
+            <h1 className="my-4">Gestion des Membres</h1>
             <Link to="/dashboard/MembreCreate" className="btn btn-primary mb-4">Ajouter un Membre</Link>
-            {error && <p className="text-red-500">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th> {/* New column for image */}
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poste</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bio</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Infos de Contact</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Équipe</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {members.length ? (
-                        members.map(member => (
-                            <tr key={member.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {member.image ? (
-                                        <img src={`http://localhost:8000/storage/${member.image}`} alt={member.name} className="w-12 h-12 object-cover rounded-full" />
-                                    ) : (
-                                        <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{member.name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{member.position}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{member.bio}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{member.contact_info}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{getTeamNameById(member.team_id)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{member.statut}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/MembreEdit/${member.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                    <button onClick={() => handleDelete(member.id)} className="btn btn-danger mb-2">Supprimer</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+            {error && <div className="alert alert-danger">{error}</div>}
+            <div className="table-responsive">
+                <table className="table table-striped table-bordered">
+                    <thead className="thead-light">
                         <tr>
-                            <td colSpan="8" className="text-center py-4">Aucun membre disponible</td> {/* Updated colspan */}
+                            <th scope="col">Image</th>
+                            <th scope="col">Nom</th>
+                            <th scope="col">Poste</th>
+                            <th scope="col">Bio</th>
+                            <th scope="col">Infos de Contact</th>
+                            <th scope="col">Équipe</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {members.length ? (
+                            members.map(member => (
+                                <tr key={member.id}>
+                                    <td>
+                                        {member.image ? (
+                                            <img src={`http://localhost:8000/storage/${member.image}`} alt={member.name} className="img-thumbnail" style={{ width: '60px', height: '60px' }} />
+                                        ) : (
+                                            <div className="bg-secondary rounded-circle" style={{ width: '60px', height: '60px' }}></div>
+                                        )}
+                                    </td>
+                                    <td>{member.name}</td>
+                                    <td>{member.position}</td>
+                                    <td>
+                                        <div>
+                                            {expandedBio[member.id] 
+                                                ? member.bio 
+                                                : `${member.bio.substring(0, 50)}...`} {/* Display a snippet if not expanded */}
+                                            {member.bio.length > 50 && (
+                                                <button 
+                                                    className="btn btn-link p-0" 
+                                                    onClick={() => toggleBio(member.id)}>
+                                                    {expandedBio[member.id] ? 'Lire moins' : 'Lire suite'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td>{member.contact_info}</td>
+                                    <td>{getTeamNameById(member.team_id)}</td>
+                                    <td>{member.statut}</td>
+                                    <td>
+                                        <Link to={`/dashboard/MembreEdit/${member.id}`}  className="btn btn-primary mb-2">Modifier</Link>
+                                        <button onClick={() => handleDelete(member.id)} className="btn btn-danger mb-2">Supprimer</button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="8" className="text-center">Aucun membre disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

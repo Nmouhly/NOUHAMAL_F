@@ -6,6 +6,7 @@ import { AuthContext } from '../../../context/authContext';
 const SeminarList = () => {
     const [seminars, setSeminars] = useState([]);
     const [error, setError] = useState('');
+    const [expandedSeminars, setExpandedSeminars] = useState(new Set());
     const { accessToken } = useContext(AuthContext);
 
     useEffect(() => {
@@ -48,50 +49,79 @@ const SeminarList = () => {
         }
     };
 
+    const toggleDescription = (id) => {
+        setExpandedSeminars((prev) => {
+            const newExpandedSeminars = new Set(prev);
+            if (newExpandedSeminars.has(id)) {
+                newExpandedSeminars.delete(id);
+            } else {
+                newExpandedSeminars.add(id);
+            }
+            return newExpandedSeminars;
+        });
+    };
+
     return (
-        <div>
-            <h1>Gestion des Séminaires</h1>
+        <div className="container mt-4">
+            <h1 className="mb-4">Gestion des Séminaires</h1>
             <Link to="/dashboard/SeminarForm" className="btn btn-primary mb-4">Ajouter un Séminaire</Link>
-            {error && <p className="text-red-500">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure de Début</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heure de Fin</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intervenant</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th> {/* Ajouter la colonne pour le statut */}
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {seminars.length ? (
-                        seminars.map(seminar => (
-                            <tr key={seminar.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{seminar.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{seminar.description}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{seminar.date}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{seminar.start_time}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{seminar.end_time}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{seminar.location}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{seminar.speaker}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{seminar.status}</td> {/* Afficher le statut */}
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/SeminarDetails/${seminar.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                    <button onClick={() => handleDelete(seminar.id)} className="btn btn-danger mb-2">Supprimer</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+            {error && <p className="text-danger">{error}</p>}
+            <div className="table-responsive">
+                <table className="table table-bordered table-hover">
+                    <thead className="table-light">
                         <tr>
-                            <td colSpan="9" className="text-center py-4">Aucun séminaire disponible</td>
+                            <th>Titre</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Heure de Début</th>
+                            <th>Heure de Fin</th>
+                            <th>Lieu</th>
+                            <th>Intervenant</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {seminars.length ? (
+                            seminars.map(seminar => (
+                                <tr key={seminar.id}>
+                                    <td>{seminar.title}</td>
+                                    <td>
+                                        {expandedSeminars.has(seminar.id) ? (
+                                            <span>{seminar.description}</span>
+                                        ) : (
+                                            <span>
+                                                {seminar.description.length > 100 
+                                                    ? `${seminar.description.substring(0, 100)}... ` 
+                                                    : seminar.description}
+                                                {seminar.description.length > 100 && 
+                                                    <button 
+                                                        onClick={() => toggleDescription(seminar.id)} 
+                                                        className="btn btn-link p-0">Lire la suite</button>}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td>{seminar.date}</td>
+                                    <td>{seminar.start_time}</td>
+                                    <td>{seminar.end_time}</td>
+                                    <td>{seminar.location}</td>
+                                    <td>{seminar.speaker}</td>
+                                    <td>{seminar.status}</td>
+                                    <td>
+                                    <div className="d-flex justify-content-between">  
+                                       <Link to={`/dashboard/SeminarDetails/${seminar.id}`}className="btn btn-primary mb-2">Modifier</Link>
+                                        <button onClick={() => handleDelete(seminar.id)} className="btn btn-danger mb-2">Supprimer</button></div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="9" className="text-center">Aucun séminaire disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

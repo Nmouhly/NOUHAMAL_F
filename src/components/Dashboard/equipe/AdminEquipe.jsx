@@ -7,6 +7,7 @@ const EquipeAdmin = () => {
     const [equipes, setEquipes] = useState([]);
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
+    const [expandedDescription, setExpandedDescription] = useState({}); // State for expanded descriptions
 
     useEffect(() => {
         fetchEquipes();
@@ -48,28 +49,54 @@ const EquipeAdmin = () => {
         }
     };
 
+    // Fonction pour supprimer les balises HTML et n'afficher que le texte brut
+    const stripHtml = (html) => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || '';
+    };
+
+    const toggleDescription = (id) => {
+        setExpandedDescription(prevState => ({
+            ...prevState,
+            [id]: !prevState[id]
+        }));
+    };
+
     return (
-        <div>
+        <div className="container mt-4">
             <h1>Gestion des Équipes</h1>
             <Link to="/dashboard/EquipeCreate" className="btn btn-primary mb-4">Ajouter une Équipe</Link>
-            {error && <p className="text-red-500">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+            {error && <div className="alert alert-danger">{error}</div>}
+            <table className="table table-striped">
+                <thead className="thead-light">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spécialisation</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th scope="col">Nom</th>
+                        <th scope="col">Spécialisation</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody>
                     {equipes.length ? (
                         equipes.map(equipe => (
                             <tr key={equipe.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{equipe.name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{equipe.specialization}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{equipe.description}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td>{equipe.name}</td>
+                                <td>{equipe.specialization}</td>
+                                <td>
+                                    <div>
+                                        {expandedDescription[equipe.id] 
+                                            ? stripHtml(equipe.description) // Affiche le texte brut complet
+                                            : `${stripHtml(equipe.description).substring(0, 50)}...`} {/* Affiche une partie du texte brut */}
+                                        {stripHtml(equipe.description).length > 50 && (
+                                            <button 
+                                                className="btn btn-link p-0" 
+                                                onClick={() => toggleDescription(equipe.id)}>
+                                                {expandedDescription[equipe.id] ? 'Lire moins' : 'Lire suite'}
+                                            </button>
+                                        )}
+                                    </div>
+                                </td>
+                                <td>
                                     <Link to={`/dashboard/EquipeEdit/${equipe.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                     <button onClick={() => handleDelete(equipe.id)} className="btn btn-danger mb-2">Supprimer</button>
                                 </td>
@@ -77,7 +104,7 @@ const EquipeAdmin = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="4" className="text-center py-4">Aucune équipe disponible</td>
+                            <td colSpan="4" className="text-center">Aucune équipe disponible</td>
                         </tr>
                     )}
                 </tbody>

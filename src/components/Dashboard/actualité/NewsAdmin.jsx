@@ -1,91 +1,144 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../context/authContext';
 import { toast } from 'react-toastify';
 
+// Fonction pour enlever les balises HTML
+const stripHtmlTags = (html) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
+};
+
+// Fonction pour tronquer le texte
+const truncateText = (text, maxLength) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+};
+
+// Fonction pour tronquer le titre
+const truncateTitle = (title, maxLength) => {
+    return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
+};
+
 const NewsAdmin = () => {
-    const [news, setNews] = useState([]);
+    const [newsItems, setNewsItems] = useState([]);
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
+    const [expanded, setExpanded] = useState(null); // État pour gérer les éléments développés
+    const [expandedTitle, setExpandedTitle] = useState(null); // État pour gérer le titre développé
 
     useEffect(() => {
-        const fetchNews = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/api/news', {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
-                setNews(response.data);
-            } catch (err) {
-                console.error('Erreur lors de la récupération des actualités:', err.response ? err.response.data : err.message);
-                setError('Erreur lors de la récupération des actualités. Veuillez réessayer.');
-                toast.error('Erreur lors de la récupération des actualités.');
-            }
-        };
-
         fetchNews();
     }, [accessToken]);
+
+    const fetchNews = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/news', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (Array.isArray(response.data)) {
+                setNewsItems(response.data);
+            } else {
+                console.error('Les données reçues ne sont pas un tableau', response.data);
+                setError('Erreur de données : Les données reçues ne sont pas un tableau');
+            }
+        } catch (error) {
+            const errorMessage = error.response 
+                ? (error.response.data.message || 'Erreur inconnue du serveur') + ' - Code: ' + error.response.status
+                : error.message || 'Erreur inconnue';
+            console.error('Erreur lors de la récupération des actualités', errorMessage);
+            setError('Erreur lors de la récupération des actualités : ' + errorMessage);
+        }
+    };
 
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cette actualité ?')) {
             try {
                 await axios.delete(`http://localhost:8000/api/news/${id}`, {
                     headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
+                        'Authorization': `Bearer ${accessToken}`
+                    }
                 });
-                setNews(news.filter((item) => item.id !== id));
-                toast.success('Actualité supprimée avec succès.');
-            } catch (err) {
-                console.error('Erreur lors de la suppression de l\'actualité:', err.response ? err.response.data : err.message);
-                toast.error('Erreur lors de la suppression de l\'actualité.');
+                setNewsItems(newsItems.filter(news => news.id !== id));
+                toast.success('Actualité supprimée avec succès');
+            } catch (error) {
+                console.error('Erreur lors de la suppression de l\'actualité', error);
+                toast.error('Erreur lors de la suppression de l\'actualité');
             }
         }
     };
 
+    const toggleExpand = (id) => {
+        setExpanded(expanded === id ? null : id);
+    };
+
+    const toggleExpandTitle = (id) => {
+        setExpandedTitle(expandedTitle === id ? null : id);
+    };
+
     return (
-        <div className="max-w-6xl mx-auto p-4">
-     <Link to="/dashboard/NewsCreate" className="btn btn-primary mb-4">Ajouter une Actualité</Link>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            <table className="w-full border-collapse">
-                <thead>
-                    <tr>
-                        <th className="border px-4 py-2">ID</th>
-                        <th className="border px-4 py-2">Titre</th>
-                        <th className="border px-4 py-2">Image</th>
-                        <th className="border px-4 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {news.length > 0 ? (
-                        news.map((item) => (
-                            <tr key={item.id}>
-                                <td className="border px-4 py-2">{item.id}</td>
-                                <td className="border px-4 py-2">{item.title}</td>
-                                <td className="border px-4 py-2">
-                                    {item.image ? (
-                                        <img
-                                            src={`http://localhost:8000/storage/${item.image}`}
-                                            alt={item.title}
-                                            style={{ width: '100px', height: 'auto' }}
-                                        />
-                                    ) : 'Pas d\'image'}
-                                </td>
-                                <td className="border px-4 py-2">
-                                <Link to={`/dashboard/NewsEdit/${item.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                        <button onClick={() => handleDelete(item.id)} className="btn btn-primary mb-2">Supprimer</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+        <div className="container">
+            <h1 className="my-4">Gestion des Actualités</h1>
+            <Link to="/dashboard/NewsCreate" className="btn btn-primary mb-4">Ajouter une Actualité</Link>
+            {error && <p className="text-danger">{error}</p>}
+            <div className="table-responsive">
+                <table className="table table-bordered table-striped">
+                    <thead className="thead-light">
                         <tr>
-                            <td colSpan="4" className="border px-4 py-2 text-center">Aucune actualité disponible.</td>
+                            <th>Titre</th>
+                            <th>Contenu</th>
+                            <th>Image</th>
+                            <th>Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {newsItems.length ? (
+                            newsItems.map(news => (
+                                <tr key={news.id}>
+                                    <td>
+                                        {stripHtmlTags(expandedTitle === news.id ? news.title : truncateTitle(stripHtmlTags(news.title), 30))}
+                                        {stripHtmlTags(news.title).length > 30 && (
+                                            <button onClick={() => toggleExpandTitle(news.id)} className="btn btn-link">
+                                                {expandedTitle === news.id ? 'Réduire' : 'Lire plus'}
+                                            </button>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {expanded === news.id ? 
+                                            stripHtmlTags(news.content) 
+                                            : truncateText(stripHtmlTags(news.content), 50)}
+                                        <button onClick={() => toggleExpand(news.id)} className="btn btn-link">
+                                            {expanded === news.id ? 'Réduire' : 'Lire plus'}
+                                        </button>
+                                    </td>
+                                    <td>
+                                        {news.image ? (
+                                            <img
+                                                src={`http://localhost:8000/storage/${news.image}`}
+                                                alt={news.title}
+                                                style={{ width: '100px', height: 'auto' }}
+                                            />
+                                        ) : (
+                                            'Pas d\'image'
+                                        )}
+                                    </td>
+                                    <td>
+                                        <Link to={`/dashboard/NewsEdit/${news.id}`} className="btn btn-primary mb-2">Modifier</Link>
+                                        <button onClick={() => handleDelete(news.id)} className="btn btn-danger mb-2">Supprimer</button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="4" className="text-center">Aucune actualité disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

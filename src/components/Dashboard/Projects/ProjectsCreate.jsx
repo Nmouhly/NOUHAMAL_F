@@ -148,11 +148,11 @@ const ProjectsCreate = () => {
                     </select>
                 </div>
                 <button 
-                    type="submit" 
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
-                    Créer
-                </button>
+          type="submit" 
+          className="bg-green-500 text-white py-1 px-4  rounded hover:bg-green-600"
+        >
+          Ajouter
+        </button>
             </form>
         </div>
     );

@@ -64,7 +64,7 @@ const UserCreateRevue = () => {
 
         // Vérifier si le DOI existe déjà dans la base de données
         try {
-            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExists', {
+            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExistsRevue', {
                 doi: DOI,
             }, {
                 headers: {
@@ -174,11 +174,11 @@ const UserCreateRevue = () => {
     ))}
 </select>
                     <p className="text-sm text-gray-500 mt-2">
-                        Pour sélectionner plusieurs auteurs, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
+                        Pour sélectionner plusieurs membres, maintenez la touche <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) enfoncée en cliquant sur les noms souhaités.
                     </p>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Auteur(s) facultatif(s)</label>
+                    <label className="block text-sm font-medium mb-1">Autre auteur(s) </label>
                     <div className="space-y-2">
                         {optionalAuthors.map((author, index) => (
                             <div key={index} className="flex items-center mb-2">
@@ -204,7 +204,7 @@ const UserCreateRevue = () => {
                             onClick={handleAddOptionalAuthor}
                             className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                         >
-                            Ajouter plus d'auteur(s) facultatif(s)
+                            Ajouter plus d'auteur(s) 
                         </button>
                     </div>
                 </div>
@@ -217,12 +217,12 @@ const UserCreateRevue = () => {
                         className="w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
-                    Ajouter
-                </button>
+                <button 
+          type="submit" 
+          className="bg-green-500 text-white py-1 px-4  rounded hover:bg-green-600"
+        >
+          Ajouter
+        </button>
             </form>
         </div>
     );

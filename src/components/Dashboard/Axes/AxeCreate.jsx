@@ -119,19 +119,13 @@ const AxeCreate = () => {
                     </select>
                 </div>
                 <div className="flex gap-2">
-                    <button 
-                        type="submit" 
-                        className="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                    >
-                        Ajouter
-                    </button>
-                    <button 
-                        type="button" 
-                        onClick={handleBack} 
-                        className="flex-1 bg-gray-500 text-white p-2 rounded hover:bg-gray-600"
-                    >
-                        Retour
-                    </button>
+                <button 
+          type="submit" 
+          className="bg-green-500 text-white py-1 px-4  rounded hover:bg-green-600"
+        >
+          Ajouter
+        </button>
+                   
                 </div>
             </form>
         </div>

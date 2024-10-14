@@ -49,61 +49,64 @@ const BrevetAdmin = () => {
     };
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Gestion des Brevets</h1>
-        
-            <Link to="/dashboard/BrevetCreate" className="btn btn-primary mb-4">Ajouter un Brevet</Link>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auteur</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DOI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {brevets.length ? (
-                        brevets.map(brevet => (
-                            <tr key={brevet.id}>
-                                <td className="px-6 py-4 whitespace-nowrap">{brevet.title}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{brevet.author}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {brevet.doi ? (
-                                        <a
-                                            href={`https://doi.org/${brevet.doi}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => {
-                                                const isValidDOI = brevet.doi.startsWith('10.');
-                                                if (!isValidDOI) {
-                                                    e.preventDefault();
-                                                    alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
-                                                }
-                                            }}
-                                        >
-                                            {brevet.doi}
-                                        </a>
-                                    ) : (
-                                        'Pas de DOI disponible'
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{brevet.status}</td> {/* Nouvelle colonne pour le statut */}
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <Link to={`/dashboard/BrevetEdit/${brevet.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                    <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger mb-2">Supprimer</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
+        <div className="container ">
+            <h1 className="my-4">Gestion des Brevets</h1>
+                <Link to="/dashboard/BrevetCreate" className="btn btn-primary mb-4">Ajouter un Brevet</Link>
+            {error && <div className="alert alert-danger">{error}</div>}
+            <div className="table-responsive">
+                <table className="table table-striped">
+                    <thead className="thead-light">
                         <tr>
-                            <td colSpan="5" className="text-center py-4">Aucun brevet disponible</td>
+                            <th>Titre</th>
+                            <th>Auteur</th>
+                            <th>DOI</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {brevets.length ? (
+                            brevets.map(brevet => (
+                                <tr key={brevet.id}>
+                                    <td>{brevet.title}</td>
+                                    <td>{brevet.author}</td>
+                                    <td>
+                                        {brevet.doi ? (
+                                            <a
+                                                href={`https://doi.org/${brevet.doi}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => {
+                                                    const isValidDOI = brevet.doi.startsWith('10.');
+                                                    if (!isValidDOI) {
+                                                        e.preventDefault();
+                                                        alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
+                                                    }
+                                                }}
+                                            >
+                                                {brevet.doi}
+                                            </a>
+                                        ) : (
+                                            'Pas de DOI disponible'
+                                        )}
+                                    </td>
+                                    <td>{brevet.status}</td>
+                                    <td>
+                                    <div className="d-flex justify-content-between">    <Link to={`/dashboard/BrevetEdit/${brevet.id}`} className="btn btn-primary mb-2">Modifier</Link>
+    <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger mb-2">Supprimer</button>
+    </div>
+</td>
+
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="text-center">Aucun brevet disponible</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
