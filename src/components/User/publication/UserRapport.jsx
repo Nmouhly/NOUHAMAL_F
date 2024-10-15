@@ -103,12 +103,12 @@ const UserRapport = () => {
                                     <div className="d-flex justify-content-between">   
                                         <button
                                             onClick={() => handleEdit(rapport.id)}
-                                            className="btn btn-primary me-2"                                        >
-                                            Modifier
+                                            className="btn btn-primary mb-2"                                        >
+                                            Modifier            
                                         </button>
                                         <button
                                             onClick={() => handleDelete(rapport.id)}
-                                            className="btn btn-danger btn-sm"
+                                            className="btn btn-danger mb-2"
                                         >
                                             Supprimer
                                         </button></div>

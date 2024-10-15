@@ -62,8 +62,8 @@ const UserCreateOuvrage = () => {
         }
 
         try {
-            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExistsOuvrage', {
-                doi: upperCaseDOI, // Envoie le DOI en majuscules
+            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExistAdmin', {
+                DOI: upperCaseDOI, // Envoie le DOI en majuscules
             }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`

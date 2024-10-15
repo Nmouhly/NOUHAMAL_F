@@ -102,11 +102,11 @@ const UserBrevet = () => {
                                     
                                     
                                     
-                                      <button onClick={() => handleEdit(brevet.id)}                                            className="btn btn-primary me-2"
+                                      <button onClick={() => handleEdit(brevet.id)}                                            className="btn btn-primary mb-2"
                                       >Modifier</button>
-                                    <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger btn-sm">Supprimer</button></div>
+                                    <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger mb-2">Supprimer</button></div>
                                 </td>
-                            </tr>
+                            </tr>                                                             
                         ))
                     ) : (
                         <tr>

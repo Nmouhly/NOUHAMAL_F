@@ -64,37 +64,46 @@ const VisitorSidebar = () => {
           {visibility.equipes && (
             <li><Link to="/listEquipe">Équipes</Link></li>
           )}
-          {visibility.personnel.visible && (
-            <li className="no-indent">
-              <button 
-                onClick={() => toggleSubmenu('personnel')} 
-                className={`submenu-toggle ${isPersonnelSubmenuOpen ? 'open' : ''}`}
-              >
-                Personnel
-              </button>
-              <ul className={`submenu ${isPersonnelSubmenuOpen ? 'open' : ''}`}>
-                {visibility.personnel.membres && <li><Link to="/personnelMember">Membres</Link></li>}
-                {visibility.personnel.anciens && <li><Link to="/personnelAncien">Anciens</Link></li>}
-              </ul>
-            </li>
-          )}
-          {visibility.publications.visible && (
-            <li className="no-indent">
-              <button 
-                onClick={() => toggleSubmenu('publications')} 
-                className={`submenu-toggle ${isPublicationsSubmenuOpen ? 'open' : ''}`}
-              >
-                Publications
-              </button>
-              <ul className={`submenu ${isPublicationsSubmenuOpen ? 'open' : ''}`}>
-                {visibility.publications.ouvrages && <li><Link to="/ouvrages">Ouvrages</Link></li>}
-                {visibility.publications.revues && <li><Link to="/revues">Revues</Link></li>}
-                {visibility.publications.conferences && <li><Link to="/conferences">Conférences</Link></li>}
-                {visibility.publications.reports && <li><Link to="/reports">Rapports</Link></li>}
-                {visibility.publications.thesesDoctorat && <li><Link to="/theses">Thèses et Habilitation</Link></li>}
-              </ul>
-            </li>
-          )}
+         {visibility.personnel.visible && (
+  <li className="no-indent">
+    <button
+      onClick={() => toggleSubmenu('personnel')}
+      className={`submenu-toggle ${isPersonnelSubmenuOpen ? 'open' : ''}`}
+    >
+      Personnel
+    </button>
+    <ul className={`submenu ${isPersonnelSubmenuOpen ? 'open' : ''}`}>
+      {visibility.personnel.membres && (
+        <li>
+          <Link to="/personnelMember">Membres</Link>
+        </li>
+      )}
+      {visibility.personnel.anciens && (
+        <li>
+          <Link to="/personnelAncien">Anciens</Link>
+        </li>
+      )}
+    </ul>
+  </li>
+)}
+{visibility.publications.visible && (
+  <li className="no-indent">
+    <button 
+      onClick={() => toggleSubmenu('publications')} 
+      className={`submenu-toggle ${isPublicationsSubmenuOpen ? 'open' : ''}`}
+    >
+      Publications
+    </button>
+    <ul className={`submenu ${isPublicationsSubmenuOpen ? 'open' : ''}`}>
+      {visibility.publications.ouvrages && <li><Link to="/ouvrages">Ouvrages</Link></li>}
+      {visibility.publications.revues && <li><Link to="/revues">Revues</Link></li>}
+      {visibility.publications.conferences && <li><Link to="/conferences">Conférences</Link></li>}
+      {visibility.publications.reports && <li><Link to="/reports">Rapports et Brevets</Link></li>}
+      {visibility.publications.thesesDoctorat && <li><Link to="/theses">Thèses et Habilitation</Link></li>}
+    </ul>
+  </li>
+)}
+
           {visibility.projets && (
             <li><Link to="/ProjectsPage">Projets</Link></li>
           )}

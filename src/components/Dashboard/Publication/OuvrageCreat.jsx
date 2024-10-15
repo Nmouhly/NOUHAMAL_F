@@ -63,8 +63,8 @@ const UserCreateOuvrage = () => {
         }
     
         try {
-            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExistsOuvrage', {
-                doi: DOI,
+            const checkDOIResponse = await axios.post('http://localhost:8000/api/checkDOIExistAdmin', {
+                DOI: DOI,
             }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`

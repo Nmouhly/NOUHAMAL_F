@@ -5,14 +5,14 @@ import { AuthContext } from '../../../context/authContext';
 
 const MembreAdmin = () => {
     const [members, setMembers] = useState([]);
-    const [teams, setTeams] = useState([]); // New state for teams
-    const [expandedBio, setExpandedBio] = useState({}); // State to manage expanded biographies
+    const [teams, setTeams] = useState([]);
+    const [expandedBio, setExpandedBio] = useState({});
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
 
     useEffect(() => {
         fetchMembers();
-        fetchTeams(); // Fetch the teams
+        fetchTeams();
     }, [accessToken]);
 
     const fetchMembers = async () => {
@@ -118,14 +118,14 @@ const MembreAdmin = () => {
                                     <td>
                                         <div>
                                             {expandedBio[member.id] 
-                                                ? member.bio 
-                                                : `${member.bio.substring(0, 50)}...`} {/* Display a snippet if not expanded */}
-                                            {member.bio.length > 50 && (
-                                                <button 
-                                                    className="btn btn-link p-0" 
-                                                    onClick={() => toggleBio(member.id)}>
+                                                ? member.bio // Affiche la biographie complète si étendue
+                                                : `${member.bio.substring(0, 50)}...`} {/* Extrait de 50 caractères */}
+                                            {member.bio.length > 50 && ( // Affiche "Lire suite" si la biographie est plus longue
+                                                <span 
+                                                    onClick={() => toggleBio(member.id)} 
+                                                    className="text-primary cursor-pointer ml-1">
                                                     {expandedBio[member.id] ? 'Lire moins' : 'Lire suite'}
-                                                </button>
+                                                </span>
                                             )}
                                         </div>
                                     </td>
@@ -133,7 +133,7 @@ const MembreAdmin = () => {
                                     <td>{getTeamNameById(member.team_id)}</td>
                                     <td>{member.statut}</td>
                                     <td>
-                                        <Link to={`/dashboard/MembreEdit/${member.id}`}  className="btn btn-primary mb-2">Modifier</Link>
+                                        <Link to={`/dashboard/MembreEdit/${member.id}`} className="btn btn-primary mb-2">Modifier</Link>
                                         <button onClick={() => handleDelete(member.id)} className="btn btn-danger mb-2">Supprimer</button>
                                     </td>
                                 </tr>

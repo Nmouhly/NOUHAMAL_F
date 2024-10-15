@@ -17,6 +17,22 @@ const SeminarForm = () => {
   const navigate = useNavigate();
   const { accessToken } = useContext(AuthContext);
 
+  // Fonction pour vérifier la date et définir le statut
+  const handleDateChange = (e) => {
+    const selectedDate = new Date(e.target.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Réinitialiser l'heure de la date actuelle à minuit pour une comparaison juste
+
+    setDate(e.target.value);
+
+    // Si la date sélectionnée est dans le passé, définir automatiquement le statut sur "passé"
+    if (selectedDate < today) {
+      setStatus('passe');
+    } else {
+      setStatus('prevu'); // Si la date est future ou aujourd'hui, statut par défaut "prévu"
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -28,15 +44,15 @@ const SeminarForm = () => {
       end_time: endTime,
       location,
       speaker,
-      status
+      status,
     };
 
     try {
       const response = await axios.post('http://localhost:8000/api/seminars', seminarData, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        }
+          'Authorization': `Bearer ${accessToken}`,
+        },
       });
 
       console.log('Séminaire ajouté:', response.data);
@@ -78,7 +94,7 @@ const SeminarForm = () => {
           <input 
             type="date" 
             value={date} 
-            onChange={(e) => setDate(e.target.value)} 
+            onChange={handleDateChange} 
             required 
             className="w-full p-2 border border-gray-300 rounded"
           />
@@ -131,7 +147,6 @@ const SeminarForm = () => {
             required 
             className="w-full p-2 border border-gray-300 rounded"
           >
-            <option value="">Sélectionner un statut</option>
             <option value="prevu">Prévu</option>
             <option value="passe">Passé</option>
           </select>

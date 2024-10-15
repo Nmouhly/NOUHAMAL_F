@@ -9,7 +9,7 @@ const UserCreate = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
-  const [Etat, setEtat] = useState(''); // Nouvel état pour l'état de l'utilisateur
+  const [Etat, setEtat] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { accessToken } = useContext(AuthContext);
@@ -17,22 +17,27 @@ const UserCreate = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate password length
+    if (password.length < 8) {
+      setError('Le mot de passe doit être supérieur à 8 caractères');
+      toast.error('Le mot de passe doit être supérieur à 8 caractères');
+      return; // Stop the form submission
+    }
+
     try {
       const roleNumber = role === 'Admin' ? 1 : 0;
 
-      // Créez un objet FormData
       const formData = new FormData();
       formData.append('name', name);
       formData.append('email', email);
       formData.append('password', password);
       formData.append('role', roleNumber);
-      formData.append('Etat',Etat); //Etat Modification ici pour utiliser "Etat"
+      formData.append('Etat', Etat);
 
-      // Envoie les données au backend
       const response = await axios.post('http://localhost:8000/api/user/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${accessToken}`,
         },
       });
 

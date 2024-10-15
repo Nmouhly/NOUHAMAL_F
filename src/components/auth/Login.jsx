@@ -89,7 +89,7 @@ export default function Login() {
                         <div className="card-body">
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
-                                    <label htmlFor="email" className="form-label">Email address*</label>
+                                    <label htmlFor="email" className="form-label">Adresse email</label>
                                     <input
                                         type="email"
                                         id="email"
@@ -101,7 +101,7 @@ export default function Login() {
                                     {useValidation(errors, 'email')}
                                 </div>
                                 <div className="mb-3">
-                                    <label htmlFor="password" className="form-label">Password*</label>
+                                    <label htmlFor="password" className="form-label">Mot de passe</label>
                                     <input
                                         type="password"
                                         id="password"
@@ -119,13 +119,13 @@ export default function Login() {
                                         onChange={(e) => setRememberMe(e.target.checked)}
                                         className="form-check-input"
                                     />
-                                    <label className="form-check-label" htmlFor="rememberMe">Remember Me</label>
+                                    <label className="form-check-label" htmlFor="rememberMe">Se rappeler de moi</label>
                                 </div>
                                 {loading ? (
                                     <Spinner />
                                 ) : (
                                     <div className="d-flex justify-content-between">
-                                        <button type="submit" className="btn btn-primary">Submit</button>
+                                        <button type="submit" className="btn btn-primary">Connexion</button>
                                     </div>
                                 )}
                             </form>

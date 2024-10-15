@@ -89,15 +89,9 @@ const ProjectsAdmin = () => {
                             projects.map(project => (
                                 <tr key={project.id}>
                                     <td>
-                                        {expandedTitle[project.id] ? project.title : truncateText(project.title, 20)}
-                                        {project.title.length > 20 && !expandedTitle[project.id] && (
-                                            <span 
-                                                onClick={() => toggleExpandTitle(project.id)} 
-                                                className="text-primary cursor-pointer ml-1">
-                                                Lire la suite
-                                            </span>
-                                        )}
-                                    </td>
+                                        
+                                        {project.title}</td>
+                                          
                                     <td>
                                         {expandedDescription[project.id] ? project.description : truncateText(project.description, 40)}
                                         {project.description.length > 40 && !expandedDescription[project.id] && (

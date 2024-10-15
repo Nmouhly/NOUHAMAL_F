@@ -29,7 +29,7 @@ const Patents = () => {
                     patents.map(patent => (
                         <div className="patent-card" key={patent.id}>
                             <h3>{patent.title || 'Titre non disponible'}</h3>
-                            <p><strong>Auteur:</strong> {patent.author || 'Auteur non disponible'}</p>
+                            <p><strong>Auteur(s):</strong> {patent.author || 'Auteur non disponible'}</p>
                             <p><strong>DOI:</strong>{patent.doi ? (
                                 <a href={`https://doi.org/${patent.doi}`} target="_blank" rel="noopener noreferrer" className="doi-link">
                                     {patent.doi}

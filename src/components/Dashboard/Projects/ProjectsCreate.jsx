@@ -143,8 +143,8 @@ const ProjectsCreate = () => {
                         required 
                         className="w-full p-2 border border-gray-300 rounded"
                     >
-                        <option value="en_cours">En Cours</option>
-                        <option value="termine">Terminé</option>
+                        <option value="En Cours">En Cours</option>
+                        <option value="Terminé">Terminé</option>
                     </select>
                 </div>
                 <button 

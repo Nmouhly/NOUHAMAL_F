@@ -129,11 +129,7 @@ const PresentationAdmin = () => {
                                         {expandedTitle === presentation.id ? 
                                             stripHtmlTags(presentation.title) 
                                             : truncateText(stripHtmlTags(presentation.title), 30)} {/* Longueur du titre tronqué à 30 caractères */}
-                                        <button 
-                                            onClick={() => toggleExpandTitle(presentation.id)} 
-                                            className="btn btn-link p-0 ml-2">
-                                            {expandedTitle === presentation.id ? 'Réduire' : 'Lire plus'}
-                                        </button>
+                                       
                                     </td>
                                     <td className="align-middle">
                                         {expandedContent === presentation.id ? 

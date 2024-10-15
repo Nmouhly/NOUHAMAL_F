@@ -43,7 +43,7 @@ const Reports = () => {
                     reports.map(report => (
                         <div className="report-card" key={report.id}>
                             <h3>{report.title || 'Titre non disponible'}</h3>
-                            <p><strong>Auteur:</strong> {report.author || 'Auteur non disponible'}</p>
+                            <p><strong>Auteur(s):</strong> {report.author || 'Auteur non disponible'}</p>
                            
                             <p><strong>DOI:</strong> {report.DOI ? (
                                 <a href={`https://doi.org/${report.DOI}`} target="_blank" rel="noopener noreferrer" className="doi-link">

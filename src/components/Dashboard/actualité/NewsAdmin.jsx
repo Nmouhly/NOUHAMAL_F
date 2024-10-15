@@ -99,12 +99,7 @@ const NewsAdmin = () => {
                             newsItems.map(news => (
                                 <tr key={news.id}>
                                     <td>
-                                        {stripHtmlTags(expandedTitle === news.id ? news.title : truncateTitle(stripHtmlTags(news.title), 30))}
-                                        {stripHtmlTags(news.title).length > 30 && (
-                                            <button onClick={() => toggleExpandTitle(news.id)} className="btn btn-link">
-                                                {expandedTitle === news.id ? 'Réduire' : 'Lire plus'}
-                                            </button>
-                                        )}
+                                        {news.title}
                                     </td>
                                     <td>
                                         {expanded === news.id ? 

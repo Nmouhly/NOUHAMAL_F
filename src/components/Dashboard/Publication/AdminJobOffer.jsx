@@ -104,12 +104,8 @@ const JobOfferAdmin = () => {
                         jobOffers.map(jobOffer => (
                             <tr key={jobOffer.id}>
                                 <td>
-                                    {expandedTitle[jobOffer.id] ? jobOffer.title : truncateText(jobOffer.title, 20)}
-                                    {jobOffer.title.length > 20 && !expandedTitle[jobOffer.id] && (
-                                        <span 
-                                            onClick={() => toggleExpandTitle(jobOffer.id)} 
-                                            className="text-primary cursor-pointer ml-1">Lire la suite</span>
-                                    )}
+                                   
+                                    {jobOffer.title }
                                 </td>
                                 <td>
                                     {expandedDescription[jobOffer.id] ? jobOffer.description : truncateText(jobOffer.description, 20)}

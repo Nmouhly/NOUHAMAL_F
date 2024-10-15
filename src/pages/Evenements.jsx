@@ -40,7 +40,7 @@ const Evenements = () => {
   };
   
   const titlee= {
-    marginLeft: '600px',
+    marginLeft: '750px',
     borderBottom: '2px solid #d7005a', // Ajouter une ligne sous le texte
     paddingBottom: '15px', // Ajouter un espace entre le texte et la ligne
     marginBottom:'20px',
@@ -51,7 +51,7 @@ const Evenements = () => {
     <div>
       <Seminar />
       <h1 style={titlee}>Projets à venir</h1>
-      <h2 style={titleStyle}>Projets à venir</h2>
+      {/* <h2 style={titleStyle}>Projets à venir</h2> */}
       <div className="projects upcoming">
         {error && <p className="error">{error}</p>}
         {upcomingProjects.length > 0 ? (

@@ -85,8 +85,8 @@ const AdminUtilisateur = () => {
       <Link to="/dashboard/UserCreate" className="btn btn-primary mb-4">Ajouter un Utilisateur</Link>
       {error && <p className="text-red-500">{error}</p>}
       <div className="mb-4">
-        <button onClick={() => handleChangeStatus('approuve')} className="btn btn-success mr-2">Approuver</button>
-        <button onClick={() => handleChangeStatus('non approuve')} className="btn btn-danger">Désapprouver</button>
+        <button onClick={() => handleChangeStatus('approuve')} className="btn btn-primary mb-2">Approuver</button>
+        <button onClick={() => handleChangeStatus('non approuve')} className="btn btn-danger mb-2">Désapprouver</button>
       </div>
       <table className="table table-striped table-bordered">
         <thead className="thead-light">
@@ -128,7 +128,7 @@ const AdminUtilisateur = () => {
                   <button onClick={() => handleDelete(user.id)} className="btn btn-danger mb-2">Supprimer</button>
                 </td>
               </tr>
-            ))
+            ))               
           ) : (
             <tr>
               <td colSpan="4" className="text-center">Aucun utilisateur disponible</td>
