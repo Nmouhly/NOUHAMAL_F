@@ -207,7 +207,7 @@ const UserCreateHabilitation = () => {
                         onClick={handleAddOptionalAuthor}
                         className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                     >
-                            Ajouter plus d'auteur(s) facultatif(s)
+                            Ajouter plus d'auteur(s) 
                             </button>
                 </div>
 

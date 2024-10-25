@@ -5,16 +5,26 @@ import { AuthContext } from '../../../context/authContext';
 
 const ProjectsAdmin = () => {
     const [projects, setProjects] = useState([]);
+    const [filteredProjects, setFilteredProjects] = useState([]);
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
     
     // State to track expanded titles and descriptions
     const [expandedTitle, setExpandedTitle] = useState({});
     const [expandedDescription, setExpandedDescription] = useState({});
+    
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [projectsPerPage] = useState(10); // Adjust this value as needed
+    const [selectedProjects, setSelectedProjects] = useState([]);
 
     useEffect(() => {
         fetchProjects();
     }, [accessToken]);
+
+    useEffect(() => {
+        setFilteredProjects(projects);
+    }, [projects]);
 
     const fetchProjects = async () => {
         try {
@@ -46,16 +56,49 @@ const ProjectsAdmin = () => {
         }
     };
 
-    const truncateText = (text, length) => {
-        if (text.length <= length) return text;
-        return text.substring(0, length) + '...';
+    const handleBulkDelete = async () => {
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer les projets sélectionnés ?')) {
+            try {
+                await Promise.all(selectedProjects.map(id => 
+                    axios.delete(`http://localhost:8000/api/projects/${id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    })
+                ));
+                setProjects(projects.filter(project => !selectedProjects.includes(project.id)));
+                setSelectedProjects([]);
+            } catch (error) {
+                console.error('Erreur lors de la suppression en masse des projets', error);
+                setError('Erreur lors de la suppression en masse des projets');
+            }
+        }
     };
 
-    const toggleExpandTitle = (id) => {
-        setExpandedTitle(prevState => ({
-            ...prevState,
-            [id]: !prevState[id] // Toggle the expanded state for the specific project title
-        }));
+    const handleSelectProject = (id) => {
+        setSelectedProjects(prevState =>
+            prevState.includes(id) ? prevState.filter(item => item !== id) : [...prevState, id]
+        );
+    };
+
+    const handleSearch = (event) => {
+        const searchTerm = event.target.value.toLowerCase();
+        const filtered = projects.filter(project => 
+            project.title.toLowerCase().includes(searchTerm) ||
+            project.description.toLowerCase().includes(searchTerm)
+        );
+        setFilteredProjects(filtered);
+        setCurrentPage(1); // Reset to first page on search
+    };
+
+    // Pagination logic
+    const indexOfLastProject = currentPage * projectsPerPage;
+    const indexOfFirstProject = indexOfLastProject - projectsPerPage;
+    const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+    const pageCount = Math.ceil(filteredProjects.length / projectsPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
     };
 
     const toggleExpandDescription = (id) => {
@@ -67,13 +110,34 @@ const ProjectsAdmin = () => {
 
     return (
         <div className="container mt-5">
-            <h1 className="mb-4">Gérer les Projets</h1>
+            <h1 className="mb-4 font-weight-bold display-4">Gérer les Projets</h1>
+            <div className="mb-4 d-flex justify-content-end">
+
+            <input 
+                type="text" 
+                placeholder="Rechercher..." 
+                className="form-control w-25"
+                onChange={handleSearch} 
+            />
+            </div>
+            
             <Link to="/dashboard/ProjectsCreate" className="btn btn-primary mb-4">Ajouter un Projet</Link>
+            <div className="mb-4">
+
+            <button 
+                className="btn btn-danger mb-4" 
+                onClick={handleBulkDelete} 
+                disabled={selectedProjects.length === 0}
+            >
+                Supprimer 
+            </button>
+            </div>
             {error && <p className="text-danger">{error}</p>}
             <div className="table-responsive">
                 <table className="table table-striped table-hover">
                     <thead className="thead-dark">
                         <tr>
+                            <th scope="col"></th>
                             <th scope="col">Titre</th>
                             <th scope="col">Description</th>
                             <th scope="col">Équipe</th>
@@ -85,15 +149,19 @@ const ProjectsAdmin = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {projects.length ? (
-                            projects.map(project => (
+                        {currentProjects.length ? (
+                            currentProjects.map(project => (
                                 <tr key={project.id}>
                                     <td>
-                                        
-                                        {project.title}</td>
-                                          
+                                        <input 
+                                            type="checkbox" 
+                                            checked={selectedProjects.includes(project.id)} 
+                                            onChange={() => handleSelectProject(project.id)} 
+                                        />
+                                    </td>
+                                    <td>{project.title}</td>
                                     <td>
-                                        {expandedDescription[project.id] ? project.description : truncateText(project.description, 40)}
+                                        {expandedDescription[project.id] ? project.description : project.description.substring(0, 40) + '...'}
                                         {project.description.length > 40 && !expandedDescription[project.id] && (
                                             <span 
                                                 onClick={() => toggleExpandDescription(project.id)} 
@@ -108,29 +176,49 @@ const ProjectsAdmin = () => {
                                     <td>{project.funding_type}</td>
                                     <td>{project.status}</td>
                                     <td>
+                                       
                                         <div className="d-flex justify-content-between">
-                                            <Link 
-                                                to={`/dashboard/ProjectsEdit/${project.id}`} 
-                                                className="btn btn-primary btn-sm mb-2">
-                                                Modifier
-                                            </Link>
-                                            <button 
-                                                onClick={() => handleDelete(project.id)} 
-                                                className="btn btn-danger btn-sm mb-2">
-                                                Supprimer
-                                            </button>
-                                        </div>
+                                        <Link to={`/dashboard/ProjectsEdit/${project.id}`}  className="btn btn-primary mb-2">
+                                            <i className="bi bi-pencil"></i>
+                                        </Link>
+                                        <button onClick={() => handleDelete(project.id)}  className="btn btn-danger mb-2">
+                                            <i className="bi bi-trash"></i>
+                                        </button>
+                                    </div>
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="8" className="text-center">Aucun projet disponible</td>
+                                <td colSpan="9" className="text-center">Aucun projet disponible</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination */}
+            <nav>
+                <ul className="pagination justify-content-center">
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                            Précédent
+                        </button>
+                    </li>
+                    {[...Array(pageCount)].map((_, index) => (
+                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                            <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                                {index + 1}
+                            </button>
+                        </li>
+                    ))}
+                    <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                            Suivant
+                        </button>
+                    </li>
+                </ul>
+            </nav>
         </div>
     );
 };

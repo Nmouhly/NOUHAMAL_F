@@ -6,6 +6,11 @@ import { AuthContext } from '../../../context/authContext';
 const BrevetAdmin = () => {
     const [brevets, setBrevets] = useState([]);
     const [error, setError] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
+    const [selectedBrevets, setSelectedBrevets] = useState([]);
+    const [searchQuery, setSearchQuery] = useState(''); // State for search query
+
     const { accessToken } = useContext(AuthContext);
 
     useEffect(() => {
@@ -48,15 +53,76 @@ const BrevetAdmin = () => {
         }
     };
 
+    const handleBulkDelete = async () => {
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer les brevets sélectionnés ?')) {
+            try {
+                await Promise.all(selectedBrevets.map(id =>
+                    axios.delete(`http://localhost:8000/api/brevets/${id}`, {
+                        headers: { 'Authorization': `Bearer ${accessToken}` }
+                    })
+                ));
+                setBrevets(brevets.filter(brevet => !selectedBrevets.includes(brevet.id)));
+                setSelectedBrevets([]);
+            } catch (error) {
+                setError("Erreur lors de la suppression des brevets");
+            }
+        }
+    };
+
+    const pageCount = Math.ceil(brevets.length / itemsPerPage);
+    const offset = (currentPage - 1) * itemsPerPage;
+    const currentBrevets = brevets.slice(offset, offset + itemsPerPage);
+
+    // Filter brevets based on the search query
+    const filteredBrevets = currentBrevets.filter(brevet =>
+        brevet.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        brevet.author.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
-        <div className="container ">
-            <h1 className="my-4">Gestion des Brevets</h1>
-                <Link to="/dashboard/BrevetCreate" className="btn btn-primary mb-4">Ajouter un Brevet</Link>
+        <div className="container">
+            <h1 className="mb-4 font-weight-bold display-4">Gestion des Brevets</h1>
+              {/* Search Bar */}
+              <div className="mb-4 d-flex justify-content-end">
+                <input
+                    type="text"
+                    className="form-control w-25" // Adjust the width here
+                    placeholder="Rechercher..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
+
+            <Link to="/dashboard/BrevetCreate" className="btn btn-primary mb-2">Ajouter un Brevet</Link>
+
+          
+
+            {/* Bulk Delete Button */}
+            <div className="mb-4">
+                <button className="btn btn-danger" onClick={handleBulkDelete} disabled={selectedBrevets.length === 0}>
+                    Supprimer
+                </button>
+            </div>
+
             {error && <div className="alert alert-danger">{error}</div>}
+
             <div className="table-responsive">
                 <table className="table table-striped">
                     <thead className="thead-light">
                         <tr>
+                            <th scope="col">
+                                <input
+                                    type="checkbox"
+                                    onChange={(e) => {
+                                        if (e.target.checked) {
+                                            setSelectedBrevets(currentBrevets.map(brevet => brevet.id));
+                                        } else {
+                                            setSelectedBrevets([]);
+                                        }
+                                    }}
+                                    checked={selectedBrevets.length === currentBrevets.length && currentBrevets.length > 0}
+                                />
+                            </th>
                             <th>Titre</th>
                             <th>Auteur</th>
                             <th>DOI</th>
@@ -65,9 +131,22 @@ const BrevetAdmin = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {brevets.length ? (
-                            brevets.map(brevet => (
+                        {filteredBrevets.length ? (
+                            filteredBrevets.map(brevet => (
                                 <tr key={brevet.id}>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedBrevets.includes(brevet.id)}
+                                            onChange={() => {
+                                                if (selectedBrevets.includes(brevet.id)) {
+                                                    setSelectedBrevets(selectedBrevets.filter(id => id !== brevet.id));
+                                                } else {
+                                                    setSelectedBrevets([...selectedBrevets, brevet.id]);
+                                                }
+                                            }}
+                                        />
+                                    </td>
                                     <td>{brevet.title}</td>
                                     <td>{brevet.author}</td>
                                     <td>
@@ -91,22 +170,53 @@ const BrevetAdmin = () => {
                                         )}
                                     </td>
                                     <td>{brevet.status}</td>
-                                    <td>
-                                    <div className="d-flex justify-content-between">    <Link to={`/dashboard/BrevetEdit/${brevet.id}`} className="btn btn-primary mb-2">Modifier</Link>
-    <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger mb-2">Supprimer</button>
-    </div>
-</td>
+                                   
 
+
+
+                                    <td>
+                                    <div className="d-flex justify-content-between">
+                                        <Link to={`/dashboard/BrevetEdit/${brevet.id}`} className="btn btn-primary mb-2">
+                                            <i className="bi bi-pencil"></i>
+                                        </Link>
+                                        <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger mb-2">
+                                            <i className="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="5" className="text-center">Aucun brevet disponible</td>
+                                <td colSpan="6" className="text-center">Aucun brevet disponible</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Bootstrap Pagination */}
+            <nav>
+                <ul className="pagination justify-content-center">
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
+                            Précédent
+                        </button>
+                    </li>
+                    {[...Array(pageCount)].map((_, index) => (
+                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                            <button className="page-link" onClick={() => setCurrentPage(index + 1)}>
+                                {index + 1}
+                            </button>
+                        </li>
+                    ))}
+                    <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
+                        <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
+                            Suivant
+                        </button>
+                    </li>
+                </ul>
+            </nav>
         </div>
     );
 };

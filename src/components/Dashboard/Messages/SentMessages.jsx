@@ -99,9 +99,7 @@ const SentMessages = () => {
     <div className="container mt-4">
       <h1>Messages Envoyés</h1>
 
-      <button className="btn btn-primary mb-3" onClick={() => setIsModalOpen(true)}>
-        Nouveau Message
-      </button>
+     
 
       {isModalOpen && (
         <div className="modal-overlay">

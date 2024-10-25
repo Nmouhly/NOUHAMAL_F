@@ -7,7 +7,8 @@ const Navbar = ({ toggleSidebar }) => {
     <div className="flex flex-col h-screen">
     <header className="fixed top-0 left-0 right-0 bg-white shadow-md p-4 flex items-center justify-between z-10">
       <div className="navbar-container">
-        <h1 className="navbar-title">Université Cadi Ayyad / FSTG</h1>
+        <h1 className="navbar-title">Laboratoire d'Ingénierie Informatique et Systèmes / L2IS
+        </h1>
         <button
           onClick={toggleSidebar}
           style={{

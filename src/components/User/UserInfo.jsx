@@ -73,11 +73,12 @@ function UserInfo() {
                 <div style={styles.userInfo}>
                     {userData.image && (
                         <div style={styles.userImageContainer}>
-                            <img
-                                src={`http://localhost:8000/storage/${userData.image}`}
-                                alt="User"
-                                style={styles.userImage}
-                            />
+                          <img
+    src={`http://localhost:8000/storage/${userData.image}`} // Vérifiez que 'userData.image' contient le chemin correct
+    alt="User"
+    style={styles.userImage}
+/>
+
                         </div>
                     )}
                     <div style={styles.userDetails}>

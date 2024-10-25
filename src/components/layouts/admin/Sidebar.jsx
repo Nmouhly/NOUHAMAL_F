@@ -153,7 +153,7 @@ const Sidebar = () => {
               <li><Link to="/dashboard/ouvrage">Ouvrages</Link></li>
               <li><Link to="/dashboard/revues">Revues</Link></li>
               <li><Link to="/dashboard/report">Rapports</Link></li>
-              <li><Link to="/dashboard/patent">Brevets</Link></li>
+              <li><Link to="/dashboard/patents">Brevets</Link></li>
               <li><Link to="/dashboard/theses">Thèses et Doctorat</Link></li>
               <li><Link to="/dashboard/habilitation">Habilitation</Link></li>
               <li><Link to="/dashboard/conference">Conférences</Link></li>

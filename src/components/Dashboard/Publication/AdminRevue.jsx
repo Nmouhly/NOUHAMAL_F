@@ -6,11 +6,18 @@ import { AuthContext } from '../../../context/authContext';
 const RevueAdmin = () => {
     const [revues, setRevues] = useState([]);
     const [error, setError] = useState('');
-    const { accessToken } = useContext(AuthContext);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
+    const [selectedRevues, setSelectedRevues] = useState([]);
+    const [searchQuery, setSearchQuery] = useState(''); // State for search query
+
+    const { accessToken, currentUser } = useContext(AuthContext);
 
     useEffect(() => {
-        fetchRevues();
-    }, [accessToken]);
+        if (accessToken && currentUser) {
+            fetchRevues();
+        }
+    }, [accessToken, currentUser]);
 
     const fetchRevues = async () => {
         try {
@@ -19,95 +26,181 @@ const RevueAdmin = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-    
+
             if (Array.isArray(response.data)) {
-                const approvedRevues = response.data.filter(revue => revue.status === 'approuvé'); // Filtrer par statut
-                setRevues(approvedRevues);
+                setRevues(response.data);
             } else {
-                console.error('Les données reçues ne sont pas un tableau');
                 setError('Erreur de données');
             }
         } catch (error) {
-            console.error('Erreur lors de la récupération des revues', error);
             setError('Erreur lors de la récupération des revues');
         }
     };
-    
+
+    const pageCount = Math.ceil(revues.length / itemsPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const offset = (currentPage - 1) * itemsPerPage;
+    const currentRevues = revues.slice(offset, offset + itemsPerPage);
+
+    const handleSelect = (id) => {
+        if (selectedRevues.includes(id)) {
+            setSelectedRevues(selectedRevues.filter(revueId => revueId !== id));
+        } else {
+            setSelectedRevues([...selectedRevues, id]);
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer les revues sélectionnées ?')) {
+            try {
+                await Promise.all(selectedRevues.map(id => 
+                    axios.delete(`http://localhost:8000/api/revues/${id}`, {
+                        headers: { 'Authorization': `Bearer ${accessToken}` }
+                    })
+                ));
+                setRevues(revues.filter(revue => !selectedRevues.includes(revue.id)));
+                setSelectedRevues([]);
+            } catch (error) {
+                setError("Erreur lors de la suppression des revues");
+            }
+        }
+    };
 
     const handleDelete = async (id) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cette revue ?')) {
             try {
                 await axios.delete(`http://localhost:8000/api/revues/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
                 });
                 setRevues(revues.filter(revue => revue.id !== id));
             } catch (error) {
-                console.error('Erreur lors de la suppression de la revue', error);
                 setError('Erreur lors de la suppression de la revue');
             }
         }
     };
 
+    // Filter revues based on the search query
+    const filteredRevues = revues.filter(revue =>
+        revue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        revue.author.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className="container mt-5">
-            <h1 className="mb-4">Gestion des Revues</h1>
-            <Link to="/dashboard/RevueCreate" className="btn btn-primary mb-4">Ajouter une Revue</Link>
-            {error && <p className="text-danger">{error}</p>}
-            <div className="table-responsive">
-                <table className="table table-bordered table-hover">
-                    <thead className="thead-light">
-                        <tr>
-                            <th>Titre</th>
-                            <th>Auteur</th>
-                            <th>DOI</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {revues.length ? (
-                            revues.map(revue => (
-                                <tr key={revue.id}>
-                                    <td>{revue.title}</td>
-                                    <td>{revue.author}</td>
-                                    <td>
-                                        {revue.DOI ? (
-                                            <a
-                                                href={`https://doi.org/${revue.DOI}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => {
-                                                    const isValidDOI = revue.DOI.startsWith('10.');
-                                                    if (!isValidDOI) {
-                                                        e.preventDefault();
-                                                        alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
-                                                    }
-                                                }}
-                                            >
-                                                {revue.DOI}
-                                            </a>
-                                        ) : (
-                                            'Pas de DOI disponible'
-                                        )}
-                                    </td>
-                                    <td>{revue.status}</td>
-                                    <td className="d-flex align-items-center">
-    <Link to={`/dashboard/RevuesEdit/${revue.id}`} className="btn btn-primary mb-2">Modifier</Link>
-    <button onClick={() => handleDelete(revue.id)} className="btn btn-danger mb-2">Supprimer</button>
-</td>
-
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="5" className="text-center">Aucune revue disponible</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+            <h1 className="mb-4 font-weight-bold display-4">Gestion des Revues</h1>
+            
+            {/* Search Bar */}
+            <div className="mb-4 d-flex justify-content-end">
+                <input
+                    type="text"
+                    className="form-control w-25" // Adjust the width here
+                    placeholder="Rechercher..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
             </div>
+
+            <Link to="/dashboard/RevueCreate" className="btn btn-primary mb-2">Ajouter une Revue</Link>
+
+            <div className="mb-4">
+                <button className="btn btn-danger" onClick={handleBulkDelete} disabled={selectedRevues.length === 0}>
+                    Supprimer
+                </button>
+            </div>
+            {error && <p className="text-danger">{error}</p>}
+
+            <table className="table table-bordered table-striped table-hover">
+                <thead className="thead-dark">
+                    <tr>
+                        <th scope="col">
+                            <input
+                                type="checkbox"
+                                onChange={(e) => {
+                                    if (e.target.checked) {
+                                        setSelectedRevues(currentRevues.map(revue => revue.id));
+                                    } else {
+                                        setSelectedRevues([]);
+                                    }
+                                }}
+                                checked={selectedRevues.length === currentRevues.length && currentRevues.length > 0}
+                            />
+                        </th>
+                        <th scope="col">Titre</th>
+                        <th scope="col">Auteur</th>
+                        <th scope="col">DOI</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredRevues.length ? (
+                        filteredRevues.slice(offset, offset + itemsPerPage).map(revue => (
+                            <tr key={revue.id}>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedRevues.includes(revue.id)}
+                                        onChange={() => handleSelect(revue.id)}
+                                    />
+                                </td>
+                                <td>{revue.title}</td>
+                                <td>{revue.author}</td>
+                                <td>
+                                    {revue.DOI ? (
+                                        <a href={`https://doi.org/${revue.DOI}`} target="_blank" rel="noopener noreferrer">
+                                            {revue.DOI}
+                                        </a>
+                                    ) : (
+                                        'Pas de DOI disponible'
+                                    )}
+                                </td>
+                                <td>{revue.status}</td>
+                                <td>
+                                    <div className="d-flex justify-content-between">
+                                        <Link to={`/dashboard/RevuesEdit/${revue.id}`} className="btn btn-primary mb-2">
+                                            <i className="bi bi-pencil"></i>
+                                        </Link>
+                                        <button onClick={() => handleDelete(revue.id)} className="btn btn-danger mb-2">
+                                            <i className="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="6" className="text-center">Aucune revue disponible</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+
+            {/* Bootstrap Pagination */}
+            <nav>
+                <ul className="pagination justify-content-center">
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                            Précédent
+                        </button>
+                    </li>
+                    {[...Array(pageCount)].map((_, index) => (
+                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                            <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                                {index + 1}
+                            </button>
+                        </li>
+                    ))}
+                    <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                            Suivant
+                        </button>
+                    </li>
+                </ul>
+            </nav>
         </div>
     );
 };

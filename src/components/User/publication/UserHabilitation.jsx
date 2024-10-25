@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../../context/authContext';
+import { useNavigate } from 'react-router-dom';
 
-const UserHabilitation = () => {
+const HabilitationUser = () => {
     const [habilitations, setHabilitations] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedHabilitations, setSelectedHabilitations] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+    const { accessToken, currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
-    const { currentUser, accessToken } = useContext(AuthContext);
 
-    // Fonction pour récupérer les habilitations de l'utilisateur
+    // Fonction pour récupérer les habilitations
     const fetchHabilitations = async () => {
         try {
             const response = await axios.get(`http://localhost:8000/api/habilitations/user-or-contributor/${currentUser.id}`, {
@@ -24,26 +28,50 @@ const UserHabilitation = () => {
         }
     };
 
-    // Utiliser useEffect pour récupérer les habilitations lorsque le composant est monté
     useEffect(() => {
         fetchHabilitations();
-    }, [currentUser.id, accessToken]);
+    }, [accessToken]);
 
+    // Suppression d'une seule habilitation
     const handleDelete = async (id) => {
-        const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette habilitation ?");
-        if (!confirmDelete) return; // Si l'utilisateur annule, on arrête la fonction
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer cette habilitation ?')) {
+            try {
+                await axios.delete(`http://localhost:8000/api/habilitationsUser/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                toast.success('Habilitation supprimée avec succès');
+                fetchHabilitations();
+            } catch (error) {
+                console.error('Erreur lors de la suppression de l\'habilitation:', error);
+                toast.error('Erreur lors de la suppression de l\'habilitation');
+            }
+        }
+    };
 
-        try {
-            await axios.delete(`http://localhost:8000/api/habilitationsUser/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            toast.success('Habilitation supprimée avec succès');
-            fetchHabilitations(); // Recharger la liste des habilitations
-        } catch (error) {
-            console.error('Erreur lors de la suppression d\'habilitation:', error);
-            toast.error('Erreur lors de la suppression d\'habilitation');
+    // Suppression en masse des habilitations sélectionnées
+    const handleMassDelete = async () => {
+        if (selectedHabilitations.length === 0) {
+            alert("Veuillez sélectionner au moins une habilitation.");
+            return;
+        }
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer les habilitations sélectionnées ?')) {
+            try {
+                await Promise.all(selectedHabilitations.map(id =>
+                    axios.delete(`http://localhost:8000/api/habilitationsUser/${id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    })
+                ));
+                toast.success('Habilitations supprimées avec succès');
+                fetchHabilitations();
+                setSelectedHabilitations([]);
+            } catch (error) {
+                console.error("Erreur lors de la suppression en masse:", error);
+                toast.error("Erreur lors de la suppression en masse");
+            }
         }
     };
 
@@ -51,85 +79,147 @@ const UserHabilitation = () => {
         navigate(`/user/UserEditHabilitation/${id}`);
     };
 
+    const handleSelectHabilitation = (id) => {
+        setSelectedHabilitations(prevSelected =>
+            prevSelected.includes(id)
+                ? prevSelected.filter(selectedId => selectedId !== id)
+                : [...prevSelected, id]
+        );
+    };
+
+    // Filtrer les habilitations selon le terme de recherche
+    const filteredHabilitations = habilitations.filter(habilitation =>
+        habilitation.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        habilitation.author?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const pageCount = Math.ceil(filteredHabilitations.length / itemsPerPage);
+    const paginatedHabilitations = filteredHabilitations.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
     return (
         <div className="container mt-4">
-            <h1 className=" mb-4">Liste des Habilitations</h1>
-            <div className=" mb-4">
+            <h1 className="mb-4 font-weight-bold display-4">Liste des Habilitations</h1>
+            
+            <div className="mb-4 d-flex justify-content-end">
+                <input
+                    type="text"
+                    placeholder="Rechercher une habilitation..."
+                    className="form-control w-25"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+            <button
+                onClick={() => navigate('/user/UserCreateHabilitation')}
+                className="btn btn-primary mb-4"
+            >
+                Ajouter une Habilitation
+            </button>
+            <div className="mb-4">
                 <button
-                    onClick={() => navigate('/user/UserCreateHabilitation')}
-                    className="btn btn-primary"
+                    onClick={handleMassDelete}
+                    className="btn btn-danger mb-4"
+                    disabled={selectedHabilitations.length === 0}
                 >
-                    Ajouter une Habilitation
+                    Supprimer
                 </button>
             </div>
+
             <div className="table-responsive">
-                <table className="table table-striped">
+                <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
-                            <th scope="col">Titre</th>
-                            <th scope="col">Auteur</th>
-                            <th scope="col">DOI</th>
-                            <th scope="col">Lieu</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Statut</th>
-                            <th scope="col">Actions</th>
+                            <th scope="col">
+                                <input
+                                    type="checkbox"
+                                    onChange={(e) => {
+                                        if (e.target.checked) {
+                                            setSelectedHabilitations(filteredHabilitations.map(habilitation => habilitation.id));
+                                        } else {
+                                            setSelectedHabilitations([]);
+                                        }
+                                    }}
+                                    checked={selectedHabilitations.length === filteredHabilitations.length && filteredHabilitations.length > 0}
+                                />
+                            </th>
+                            <th>Titre</th>
+                            <th>Auteur(s)</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {habilitations.length ? (
-                            habilitations.map(habilitation => (
+                        {paginatedHabilitations.length ? (
+                            paginatedHabilitations.map(habilitation => (
                                 <tr key={habilitation.id}>
-                                    <td>{habilitation.title}</td>
-                                    <td>{habilitation.author}</td>
                                     <td>
-                                        {habilitation.doi ? (
-                                            <a
-                                                href={`https://doi.org/${habilitation.doi}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => {
-                                                    const isValidDOI = habilitation.doi.startsWith('10.');
-                                                    if (!isValidDOI) {
-                                                        e.preventDefault();
-                                                        alert('Le DOI fourni semble invalide ou non trouvé. Vous pouvez essayer le lien PDF si disponible.');
-                                                    }
-                                                }}
-                                            >
-                                                {habilitation.doi}
-                                            </a>
-                                        ) : (
-                                            'Pas de DOI disponible'
-                                        )}
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedHabilitations.includes(habilitation.id)}
+                                            onChange={() => handleSelectHabilitation(habilitation.id)}
+                                        />
                                     </td>
-                                    <td>{habilitation.lieu}</td>
-                                    <td>{new Date(habilitation.date).toLocaleDateString()}</td>
+                                    <td>{habilitation.title || 'Titre non disponible'}</td>
+                                    <td>{habilitation.author || 'Auteur non disponible'}</td>
                                     <td>{habilitation.status}</td>
-                                    <td className="text-center">
-                                    <div className="d-flex justify-content-between">   
-                                        <button
-                                            onClick={() => handleEdit(habilitation.id)}
-                                            className="btn btn-primary mb-2"                                        >
-                                            Modifier
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(habilitation.id)}
-                                            className="btn btn-danger mb-2"
-                                        >
-                                            Supprimer
-                                        </button></div>
+                                    <td>
+                                        <div className="d-flex justify-content-between">
+                                            <button
+                                                onClick={() => handleEdit(habilitation.id)}
+                                                className="btn btn-primary mb-2"
+                                            >
+                                                <i className="bi bi-pencil"></i>
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(habilitation.id)}
+                                                className="btn btn-danger mb-2"
+                                            >
+                                                <i className="bi bi-trash"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="7" className="text-center">Aucune habilitation disponible</td>
+                                <td colSpan="5" className="text-center">Aucune habilitation trouvée</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination */}
+            <nav>
+                <ul className="pagination justify-content-center">
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                            Précédent
+                        </button>
+                    </li>
+                    {[...Array(pageCount)].map((_, index) => (
+                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                            <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                                {index + 1}
+                            </button>
+                        </li>
+                    ))}
+                    <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                            Suivant
+                        </button>
+                    </li>
+                </ul>
+            </nav>
         </div>
     );
 };
 
-export default UserHabilitation;
+export default HabilitationUser;

@@ -30,6 +30,7 @@ import RevueEdit from './components/Dashboard/Publication/RevueEdit';
 import AdminAxes from './components/Dashboard/Axes/AdminAxes';
 import Ouvrages from './pages/Ouvrages';
 import UserProfile from './components/User/UserProfile.jsx';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import UserInfo from './components/User/UserInfo.jsx';
 import EditUser from './components/User/EditUser.jsx';
@@ -132,6 +133,7 @@ import RevueEnAttente from './components/Dashboard/Publication/RevueEnAttente.js
 import RapportEnAttente from './components/Dashboard/Publication/RapportEnAttente.jsx';
 import ThèseEnAttente from './components/Dashboard/Publication/ThèseEnAttente.jsx';
 import HabilitationEnAttente from './components/Dashboard/Publication/HabilitationEnAttente.jsx';
+import AdminBrevets from './components/Dashboard/Publication/BrevetAdmin.jsx';
 
 function App() {
   const [accessToken, setAccessToken] = useState(() => {
@@ -216,7 +218,7 @@ function App() {
             <Route path="message/:messageId" element={<MessageDetail />} />
             <Route path="habilitation" element={<AdminHabilitation />} />
             <Route path="HabilitationCreate" element={<HabilitationCreate />} />
-            <Route path="patent" element={<BrevetAdmin />} />
+            <Route path="patent" element={<AdminRevue />} />
             <Route path="BrevetEdit/:id" element={<BrevetEdit />} />
             <Route path="BrevetCreate" element={<BrevetCreate />} />
             <Route path="HabilitationEdit/:id" element={<HabilitationEdit />} />
@@ -231,7 +233,7 @@ function App() {
             <Route path="ouvrage" element={<AdminOuvrage />} />
             <Route path="OuvrageEdit/:id" element={<OuvrageEdit />} />
             <Route path="OuvrageCreate" element={<OuvrageCreat />} />
-            <Route path="patent" element={<AdminPatent />} />
+            <Route path="patents" element={<BrevetAdmin />} />
             <Route path="PatentEdit/:id" element={<PatentEdit />} />
             <Route path="PatentCreate" element={<PatentCreat />} />
             <Route path="JobOffer" element={<AdminJobOffer />} />
