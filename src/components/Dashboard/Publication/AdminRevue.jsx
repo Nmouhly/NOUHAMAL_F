@@ -86,7 +86,9 @@ const RevueAdmin = () => {
     // Filter revues based on the search query
     const filteredRevues = revues.filter(revue =>
         revue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        revue.author.toLowerCase().includes(searchQuery.toLowerCase())
+        revue.author.toLowerCase().includes(searchQuery.toLowerCase())||
+        revue.DOI?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        revue.status.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -179,28 +181,40 @@ const RevueAdmin = () => {
                 </tbody>
             </table>
 
-            {/* Bootstrap Pagination */}
-            <nav>
-                <ul className="pagination justify-content-center">
-                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                            Précédent
-                        </button>
-                    </li>
-                    {[...Array(pageCount)].map((_, index) => (
-                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                            <button className="page-link" onClick={() => handlePageChange(index + 1)}>
-                                {index + 1}
-                            </button>
-                        </li>
-                    ))}
-                    <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                            Suivant
-                        </button>
-                    </li>
-                </ul>
-            </nav>
+          {/* Pagination */}
+<nav aria-label="Page navigation example">
+    <ul className="pagination justify-content-center">
+        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+            <button 
+                className="page-link" 
+                onClick={() => handlePageChange(currentPage - 1)} 
+                aria-label="Previous"
+            >
+                <span aria-hidden="true">&laquo;</span>
+            </button>
+        </li>
+        {[...Array(pageCount)].map((_, index) => (
+            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                <button 
+                    className="page-link" 
+                    onClick={() => handlePageChange(index + 1)}
+                >
+                    {index + 1}
+                </button>
+            </li>
+        ))}
+        <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
+            <button 
+                className="page-link" 
+                onClick={() => handlePageChange(currentPage + 1)} 
+                aria-label="Next"
+            >
+                <span aria-hidden="true">&raquo;</span>
+            </button>
+        </li>
+    </ul>
+</nav>
+
         </div>
     );
 };

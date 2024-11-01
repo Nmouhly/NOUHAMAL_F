@@ -21,9 +21,7 @@ const AdminHabilitation = () => {
     const fetchHabilitations = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/habilitationAdmin', {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
 
             if (Array.isArray(response.data)) {
@@ -43,19 +41,20 @@ const AdminHabilitation = () => {
     };
 
     const offset = (currentPage - 1) * itemsPerPage;
+
+    // Filtrer par tous les attributs
     const currentHabilitations = habilitations
         .filter(habilitation => 
-            habilitation.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-            habilitation.author.toLowerCase().includes(searchQuery.toLowerCase())
+            Object.values(habilitation).some(attr => 
+                attr && attr.toString().toLowerCase().includes(searchQuery.toLowerCase())
+            )
         )
         .slice(offset, offset + itemsPerPage);
 
     const handleSelect = (id) => {
-        if (selectedHabilitations.includes(id)) {
-            setSelectedHabilitations(selectedHabilitations.filter(habilitationId => habilitationId !== id));
-        } else {
-            setSelectedHabilitations([...selectedHabilitations, id]);
-        }
+        setSelectedHabilitations(prev =>
+            prev.includes(id) ? prev.filter(habilitationId => habilitationId !== id) : [...prev, id]
+        );
     };
 
     const handleBulkDelete = async () => {
@@ -126,13 +125,14 @@ const AdminHabilitation = () => {
                                 <input
                                     type="checkbox"
                                     onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedHabilitations(currentHabilitations.map(habilitation => habilitation.id));
-                                        } else {
-                                            setSelectedHabilitations([]);
-                                        }
+                                        setSelectedHabilitations(
+                                            e.target.checked ? currentHabilitations.map(habilitation => habilitation.id) : []
+                                        );
                                     }}
-                                    checked={selectedHabilitations.length === currentHabilitations.length && currentHabilitations.length > 0}
+                                    checked={
+                                        selectedHabilitations.length === currentHabilitations.length && 
+                                        currentHabilitations.length > 0
+                                    }
                                 />
                             </th>
                             <th>Titre</th>
@@ -172,22 +172,14 @@ const AdminHabilitation = () => {
                                     <td>{habilitation.date || 'Pas de date disponible'}</td>
                                     <td>{habilitation.status}</td>
                                     <td>
-                                       
-
-
                                         <div className="d-flex justify-content-between">
-                                        <Link to={`/dashboard/HabilitationEdit/${habilitation.id}`} className="btn btn-primary mb-2">
-                                            <i className="bi bi-pencil"></i>
-                                        </Link>
-                                        <button onClick={() => handleDelete(habilitation.id)} className="btn btn-danger mb-2">
-                                            <i className="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-
-
-
-
-
+                                            <Link to={`/dashboard/HabilitationEdit/${habilitation.id}`} className="btn btn-primary mb-2">
+                                                <i className="bi bi-pencil"></i>
+                                            </Link>
+                                            <button onClick={() => handleDelete(habilitation.id)} className="btn btn-danger mb-2">
+                                                <i className="bi bi-trash"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
@@ -201,23 +193,34 @@ const AdminHabilitation = () => {
             </div>
 
             {/* Pagination */}
-            <nav>
+            <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center">
                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                            Précédent
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage - 1)} 
+                            aria-label="Previous"
+                        >
+                            <span aria-hidden="true">&laquo;</span>
                         </button>
                     </li>
                     {[...Array(pageCount)].map((_, index) => (
                         <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                            <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                            <button 
+                                className="page-link" 
+                                onClick={() => handlePageChange(index + 1)}
+                            >
                                 {index + 1}
                             </button>
                         </li>
                     ))}
                     <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                            Suivant
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                            aria-label="Next"
+                        >
+                            <span aria-hidden="true">&raquo;</span>
                         </button>
                     </li>
                 </ul>

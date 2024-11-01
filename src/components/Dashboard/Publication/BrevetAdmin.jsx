@@ -9,7 +9,7 @@ const BrevetAdmin = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
     const [selectedBrevets, setSelectedBrevets] = useState([]);
-    const [searchQuery, setSearchQuery] = useState(''); // State for search query
+    const [searchQuery, setSearchQuery] = useState('');
 
     const { accessToken } = useContext(AuthContext);
 
@@ -73,20 +73,26 @@ const BrevetAdmin = () => {
     const offset = (currentPage - 1) * itemsPerPage;
     const currentBrevets = brevets.slice(offset, offset + itemsPerPage);
 
-    // Filter brevets based on the search query
+    // Filter brevets based on the search query for all relevant attributes
     const filteredBrevets = currentBrevets.filter(brevet =>
         brevet.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        brevet.author.toLowerCase().includes(searchQuery.toLowerCase())
+        brevet.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        brevet.doi?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        brevet.status.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
 
     return (
         <div className="container">
             <h1 className="mb-4 font-weight-bold display-4">Gestion des Brevets</h1>
-              {/* Search Bar */}
-              <div className="mb-4 d-flex justify-content-end">
+            {/* Search Bar */}
+            <div className="mb-4 d-flex justify-content-end">
                 <input
                     type="text"
-                    className="form-control w-25" // Adjust the width here
+                    className="form-control w-25"
                     placeholder="Rechercher..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -94,8 +100,6 @@ const BrevetAdmin = () => {
             </div>
 
             <Link to="/dashboard/BrevetCreate" className="btn btn-primary mb-2">Ajouter un Brevet</Link>
-
-          
 
             {/* Bulk Delete Button */}
             <div className="mb-4">
@@ -170,20 +174,16 @@ const BrevetAdmin = () => {
                                         )}
                                     </td>
                                     <td>{brevet.status}</td>
-                                   
-
-
-
                                     <td>
-                                    <div className="d-flex justify-content-between">
-                                        <Link to={`/dashboard/BrevetEdit/${brevet.id}`} className="btn btn-primary mb-2">
-                                            <i className="bi bi-pencil"></i>
-                                        </Link>
-                                        <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger mb-2">
-                                            <i className="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
+                                        <div className="d-flex justify-content-between">
+                                            <Link to={`/dashboard/BrevetEdit/${brevet.id}`} className="btn btn-primary mb-2">
+                                                <i className="bi bi-pencil"></i>
+                                            </Link>
+                                            <button onClick={() => handleDelete(brevet.id)} className="btn btn-danger mb-2">
+                                                <i className="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))
                         ) : (
@@ -195,24 +195,35 @@ const BrevetAdmin = () => {
                 </table>
             </div>
 
-            {/* Bootstrap Pagination */}
-            <nav>
+            {/* Pagination */}
+            <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center">
                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)}>
-                            Précédent
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage - 1)} 
+                            aria-label="Previous"
+                        >
+                            <span aria-hidden="true">&laquo;</span>
                         </button>
                     </li>
                     {[...Array(pageCount)].map((_, index) => (
                         <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                            <button className="page-link" onClick={() => setCurrentPage(index + 1)}>
+                            <button 
+                                className="page-link" 
+                                onClick={() => handlePageChange(index + 1)}
+                            >
                                 {index + 1}
                             </button>
                         </li>
                     ))}
                     <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)}>
-                            Suivant
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                            aria-label="Next"
+                        >
+                            <span aria-hidden="true">&raquo;</span>
                         </button>
                     </li>
                 </ul>

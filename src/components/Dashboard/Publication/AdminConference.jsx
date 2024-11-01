@@ -11,7 +11,6 @@ const ConferenceAdmin = () => {
     const [selectedConferences, setSelectedConferences] = useState([]);
     const { accessToken } = useContext(AuthContext);
 
-    // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const conferencesPerPage = 5;
 
@@ -31,7 +30,7 @@ const ConferenceAdmin = () => {
 
             if (Array.isArray(response.data)) {
                 setConferences(response.data);
-                setFilteredConferences(response.data); // Initialize filtered conferences
+                setFilteredConferences(response.data);
             } else {
                 console.error('Les données reçues ne sont pas un tableau');
                 setError('Erreur de données');
@@ -70,7 +69,7 @@ const ConferenceAdmin = () => {
                 const updatedConferences = conferences.filter(conference => !selectedConferences.includes(conference.id));
                 setConferences(updatedConferences);
                 setFilteredConferences(updatedConferences);
-                setSelectedConferences([]); // Clear selection after deletion
+                setSelectedConferences([]);
             } catch (error) {
                 console.error('Erreur lors de la suppression en masse des conférences', error);
                 setError('Erreur lors de la suppression en masse des conférences');
@@ -82,10 +81,12 @@ const ConferenceAdmin = () => {
         const term = event.target.value.toLowerCase();
         setSearchQuery(term);
         const filtered = conferences.filter(conference =>
-            conference.title.toLowerCase().includes(term)
+            conference.title.toLowerCase().includes(term) ||
+            conference.date.toLowerCase().includes(term) ||
+            conference.location.toLowerCase().includes(term)
         );
         setFilteredConferences(filtered);
-        setCurrentPage(1); // Reset to first page
+        setCurrentPage(1);
     };
 
     const handleCheckboxChange = (id) => {
@@ -94,12 +95,10 @@ const ConferenceAdmin = () => {
         );
     };
 
-    // Pagination calculations
     const indexOfLastConference = currentPage * conferencesPerPage;
     const indexOfFirstConference = indexOfLastConference - conferencesPerPage;
     const currentConferences = filteredConferences.slice(indexOfFirstConference, indexOfLastConference);
-    
-    // Calculate total pages
+
     const pageCount = Math.ceil(filteredConferences.length / conferencesPerPage);
 
     const handlePageChange = (pageNumber) => {
@@ -112,12 +111,11 @@ const ConferenceAdmin = () => {
         <div className="container mt-5">
             <h1 className="mb-4 font-weight-bold display-4">Gestion des Conférences</h1>
 
-            {/* Search Bar */}
             <div className="mb-4 d-flex justify-content-end">
                 <input
                     type="text"
                     className="form-control w-25"
-                    placeholder="Rechercher..."
+                    placeholder="Rechercher par titre, date ou lieu..."
                     value={searchQuery}
                     onChange={handleSearch}
                 />
@@ -184,16 +182,17 @@ const ConferenceAdmin = () => {
                                     <td>{conference.title}</td>
                                     <td>{conference.date}</td>
                                     <td>{conference.location}</td>
-                                    <td>
-                                        <div className="d-flex justify-content-between">
-                                            <Link to={`/dashboard/ConferenceEdit/${conference.id}`} className="btn btn-primary mb-2">
-                                                <i className="bi bi-pencil"></i>
-                                            </Link>
-                                            <button onClick={() => handleDelete(conference.id)} className="btn btn-danger mb-2">
-                                                <i className="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
+                                   <td  style={{ width: '60px' }}>
+    <div className="d-flex gap-2">
+        <Link to={`/dashboard/ConferenceEdit/${conference.id}`} className="btn btn-primary mb-2 me-2">
+            <i className="bi bi-pencil"></i>
+        </Link>
+        <button onClick={() => handleDelete(conference.id)} className="btn btn-danger mb-2">
+            <i className="bi bi-trash"></i>
+        </button>
+    </div>
+</td>
+
                                 </tr>
                             ))
                         ) : (
@@ -204,24 +203,34 @@ const ConferenceAdmin = () => {
                     </tbody>
                 </table>
 
-                {/* Pagination */}
-                <nav>
+                <nav aria-label="Page navigation example">
                     <ul className="pagination justify-content-center">
                         <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                                Précédent
+                            <button 
+                                className="page-link" 
+                                onClick={() => handlePageChange(currentPage - 1)} 
+                                aria-label="Previous"
+                            >
+                                <span aria-hidden="true">&laquo;</span>
                             </button>
                         </li>
                         {[...Array(pageCount)].map((_, index) => (
                             <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                                <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                                <button 
+                                    className="page-link" 
+                                    onClick={() => handlePageChange(index + 1)}
+                                >
                                     {index + 1}
                                 </button>
                             </li>
                         ))}
                         <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
-                            <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                                Suivant
+                            <button 
+                                className="page-link" 
+                                onClick={() => handlePageChange(currentPage + 1)} 
+                                aria-label="Next"
+                            >
+                                <span aria-hidden="true">&raquo;</span>
                             </button>
                         </li>
                     </ul>

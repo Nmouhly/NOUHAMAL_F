@@ -42,10 +42,16 @@ const AdminThese = () => {
     };
 
     const offset = (currentPage - 1) * itemsPerPage;
-    const currentTheses = theses
+    
+    // Filtrage des thèses selon les attributs pertinents
+    const filteredTheses = theses
         .filter(these => 
             these.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-            these.author.toLowerCase().includes(searchQuery.toLowerCase())
+            these.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            these.doi?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (these.date && these.date.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (these.lieu && these.lieu.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            these.status.toLowerCase().includes(searchQuery.toLowerCase())
         )
         .slice(offset, offset + itemsPerPage);
 
@@ -91,18 +97,19 @@ const AdminThese = () => {
     return (
         <div className="container mt-5">
             <h1 className="mb-4 font-weight-bold display-4">Gestion des Thèses</h1>
-             {/* Search Bar */}
-             <div className="mb-4 d-flex justify-content-end">
+
+            {/* Barre de recherche */}
+            <div className="mb-4 d-flex justify-content-end">
                 <input
                     type="text"
-                    className="form-control w-25" // Adjust the width here
+                    className="form-control w-25"
                     placeholder="Rechercher..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
-            <Link to="/dashboard/heseCreate" className="btn btn-primary mb-2">Ajouter une thèse</Link>
 
+            <Link to="/dashboard/TheseCreate" className="btn btn-primary mb-2">Ajouter une thèse</Link>
 
             <div className="mb-4">
                 <button 
@@ -124,12 +131,12 @@ const AdminThese = () => {
                                 type="checkbox"
                                 onChange={(e) => {
                                     if (e.target.checked) {
-                                        setSelectedTheses(currentTheses.map(these => these.id));
+                                        setSelectedTheses(filteredTheses.map(these => these.id));
                                     } else {
                                         setSelectedTheses([]);
                                     }
                                 }}
-                                checked={selectedTheses.length === currentTheses.length && currentTheses.length > 0}
+                                checked={selectedTheses.length === filteredTheses.length && filteredTheses.length > 0}
                             />
                         </th>
                         <th>Titre</th>
@@ -142,8 +149,8 @@ const AdminThese = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentTheses.length ? (
-                        currentTheses.map(these => (
+                    {filteredTheses.length ? (
+                        filteredTheses.map(these => (
                             <tr key={these.id}>
                                 <td>
                                     <input
@@ -189,23 +196,34 @@ const AdminThese = () => {
             </table>
 
             {/* Pagination */}
-            <nav>
+            <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center">
                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                            Précédent
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage - 1)} 
+                            aria-label="Previous"
+                        >
+                            <span aria-hidden="true">&laquo;</span>
                         </button>
                     </li>
                     {[...Array(pageCount)].map((_, index) => (
                         <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                            <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                            <button 
+                                className="page-link" 
+                                onClick={() => handlePageChange(index + 1)}
+                            >
                                 {index + 1}
                             </button>
                         </li>
                     ))}
                     <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                            Suivant
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                            aria-label="Next"
+                        >
+                            <span aria-hidden="true">&raquo;</span>
                         </button>
                     </li>
                 </ul>
@@ -215,3 +233,4 @@ const AdminThese = () => {
 };
 
 export default AdminThese;
+

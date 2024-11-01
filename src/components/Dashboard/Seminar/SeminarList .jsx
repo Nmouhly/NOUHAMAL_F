@@ -4,34 +4,27 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../context/authContext';
 
 const SeminarList = () => {
-    const [seminars, setSeminars] = useState([]); // État pour stocker la liste des séminaires
-    const [error, setError] = useState(''); // État pour gérer les erreurs
-    const [searchTerm, setSearchTerm] = useState(''); // État pour gérer le terme de recherche
-    const [currentPage, setCurrentPage] = useState(1); // État pour gérer la page actuelle
-    const [seminarsPerPage] = useState(5); // Nombre de séminaires par page
-    const [selectedSeminars, setSelectedSeminars] = useState([]); // État pour les séminaires sélectionnés
-    const { accessToken } = useContext(AuthContext); // Récupération du jeton d'accès depuis le contexte d'authentification
+    const [seminars, setSeminars] = useState([]);
+    const [error, setError] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const seminarsPerPage = 5;
+    const [selectedSeminars, setSelectedSeminars] = useState([]);
+    const { accessToken } = useContext(AuthContext);
 
     useEffect(() => {
-        fetchSeminars(); // Appel à la fonction pour récupérer les séminaires lors du chargement du composant
+        if (accessToken) fetchSeminars();
     }, [accessToken]);
 
     const fetchSeminars = async () => {
         try {
             const response = await axios.get('http://localhost:8000/api/seminars', {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
-
-            if (Array.isArray(response.data)) {
-                setSeminars(response.data); // Mise à jour de l'état avec les données récupérées
-            } else {
-                console.error('Les données reçues ne sont pas un tableau');
-                setError('Erreur de données');
-            }
+            console.log("Data received from API:", response.data);
+            setSeminars(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
-            console.error('Erreur lors de la récupération des séminaires', error);
+            console.error("Fetch error:", error);
             setError('Erreur lors de la récupération des séminaires');
         }
     };
@@ -40,13 +33,11 @@ const SeminarList = () => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce séminaire ?')) {
             try {
                 await axios.delete(`http://localhost:8000/api/seminars/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
                 });
-                setSeminars(seminars.filter(seminar => seminar.id !== id)); // Filtrer le séminaire supprimé
+                setSeminars(seminars.filter(seminar => seminar.id !== id));
             } catch (error) {
-                console.error('Erreur lors de la suppression du séminaire', error);
+                console.error("Delete error:", error);
                 setError('Erreur lors de la suppression du séminaire');
             }
         }
@@ -57,75 +48,70 @@ const SeminarList = () => {
             alert('Veuillez sélectionner au moins un séminaire à supprimer.');
             return;
         }
-
         if (window.confirm('Êtes-vous sûr de vouloir supprimer les séminaires sélectionnés ?')) {
             try {
-                await Promise.all(selectedSeminars.map(id => 
-                    axios.delete(`http://localhost:8000/api/seminars/${id}`, {
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`
-                        }
-                    })
-                ));
-                setSeminars(seminars.filter(seminar => !selectedSeminars.includes(seminar.id))); // Filtrer les séminaires supprimés
-                setSelectedSeminars([]); // Réinitialiser la sélection
+                await Promise.all(
+                    selectedSeminars.map(id =>
+                        axios.delete(`http://localhost:8000/api/seminars/${id}`, {
+                            headers: { 'Authorization': `Bearer ${accessToken}` }
+                        })
+                    )
+                );
+                setSeminars(seminars.filter(seminar => !selectedSeminars.includes(seminar.id)));
+                setSelectedSeminars([]);
             } catch (error) {
-                console.error('Erreur lors de la suppression des séminaires', error);
+                console.error("Mass delete error:", error);
                 setError('Erreur lors de la suppression des séminaires');
             }
         }
     };
 
-    // Gérer la recherche des séminaires
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value);
-        setCurrentPage(1); // Réinitialiser à la première page lors de la recherche
-    };
-
-    // Pagination : calculer les séminaires à afficher
-    const indexOfLastSeminar = currentPage * seminarsPerPage;
-    const indexOfFirstSeminar = indexOfLastSeminar - seminarsPerPage;
     const filteredSeminars = seminars.filter(seminar =>
-        seminar.title.toLowerCase().includes(searchTerm.toLowerCase())
+        seminar.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        seminar.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        seminar.date?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        seminar.start_time?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        seminar.end_time?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        seminar.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        seminar.speaker?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        seminar.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    const currentSeminars = filteredSeminars.slice(indexOfFirstSeminar, indexOfLastSeminar); // Appliquer le filtre et la pagination
 
+    const currentSeminars = filteredSeminars.slice((currentPage - 1) * seminarsPerPage, currentPage * seminarsPerPage);
     const totalPages = Math.ceil(filteredSeminars.length / seminarsPerPage);
 
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber); // Mettre à jour la page actuelle
-    };
+    const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
-    // Gérer la sélection des séminaires
     const handleSelectChange = (id) => {
-        if (selectedSeminars.includes(id)) {
-            setSelectedSeminars(selectedSeminars.filter(s => s !== id)); // Retirer de la sélection
-        } else {
-            setSelectedSeminars([...selectedSeminars, id]); // Ajouter à la sélection
-        }
+        setSelectedSeminars(prevSelected =>
+            prevSelected.includes(id) ? prevSelected.filter(s => s !== id) : [...prevSelected, id]
+        );
     };
 
     return (
         <div className="container mt-4">
             <h1 className="mb-4 font-weight-bold display-4">Gestion des Séminaires</h1>
             <div className="mb-4 d-flex justify-content-end">
-
-            <input
-                type="text"
-                placeholder="Rechercher par titre"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="form-control w-25"
-            />
+                <input
+                    type="text"
+                    placeholder="Rechercher par titre, description, date, etc."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="form-control w-25"
+                />
             </div>
-                        <Link to="/dashboard/SeminarForm" className="btn btn-primary mb-4">Ajouter un Séminaire</Link>
-
+            <Link to="/dashboard/SeminarForm" className="btn btn-primary mb-2">Ajouter un Séminaire</Link>
+           
             <div className="mb-4">
-
-            <button onClick={handleMassDelete} className="btn btn-danger mb-4">Supprimer </button>
+                <button 
+                    onClick={handleMassDelete} 
+                    className="btn btn-danger mb-4" 
+                    disabled={selectedSeminars.length === 0}
+                >
+                    Supprimer
+                </button>
+                {error && <p className="text-danger">{error}</p>}
             </div>
-            {error && <p className="text-danger">{error}</p>} {/* Afficher les erreurs s'il y en a */}
-
             <div className="table-responsive">
                 <table className="table table-bordered table-hover">
                     <thead className="table-light">
@@ -133,13 +119,9 @@ const SeminarList = () => {
                             <th>
                                 <input
                                     type="checkbox"
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedSeminars(filteredSeminars.map(seminar => seminar.id)); // Sélectionner tous
-                                        } else {
-                                            setSelectedSeminars([]); // Désélectionner tous
-                                        }
-                                    }}
+                                    onChange={(e) => setSelectedSeminars(
+                                        e.target.checked ? filteredSeminars.map(s => s.id) : []
+                                    )}
                                     checked={selectedSeminars.length === filteredSeminars.length && filteredSeminars.length > 0}
                                 />
                             </th>
@@ -166,7 +148,7 @@ const SeminarList = () => {
                                         />
                                     </td>
                                     <td>{seminar.title}</td>
-                                    <td>{seminar.description.length > 100 
+                                    <td>{seminar.description?.length > 100 
                                         ? `${seminar.description.substring(0, 100)}...` 
                                         : seminar.description}
                                     </td>
@@ -177,15 +159,14 @@ const SeminarList = () => {
                                     <td>{seminar.speaker}</td>
                                     <td>{seminar.status}</td>
                                     <td>
-                                       
                                         <div className="d-flex justify-content-between">
-                                        <Link to={`/dashboard/SeminarDetails/${seminar.id}`}  className="btn btn-primary mb-2">
-                                            <i className="bi bi-pencil"></i>
-                                        </Link>
-                                        <button onClick={() => handleDelete(seminar.id)}  className="btn btn-danger mb-2">
-                                            <i className="bi bi-trash"></i>
-                                        </button>
-                                    </div>
+                                            <Link to={`/dashboard/SeminarDetails/${seminar.id}`} className="btn btn-primary mb-2">
+                                                <i className="bi bi-pencil"></i>
+                                            </Link>
+                                            <button onClick={() => handleDelete(seminar.id)} className="btn btn-danger mb-2">
+                                                <i className="bi bi-trash"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
@@ -197,19 +178,36 @@ const SeminarList = () => {
                     </tbody>
                 </table>
             </div>
-            {/* Pagination */}
-            <nav>
+            
+            <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center">
                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>Précédent</button>
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage - 1)} 
+                            aria-label="Previous"
+                        >
+                            <span aria-hidden="true">&laquo;</span>
+                        </button>
                     </li>
-                    {Array.from({ length: totalPages }, (_, index) => (
-                        <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                            <button onClick={() => handlePageChange(index + 1)} className="page-link">{index + 1}</button>
+                    {[...Array(totalPages)].map((_, index) => (
+                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                            <button 
+                                className="page-link" 
+                                onClick={() => handlePageChange(index + 1)}
+                            >
+                                {index + 1}
+                            </button>
                         </li>
                     ))}
                     <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>Suivant</button>
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                            aria-label="Next"
+                        >
+                            <span aria-hidden="true">&raquo;</span>
+                        </button>
                     </li>
                 </ul>
             </nav>

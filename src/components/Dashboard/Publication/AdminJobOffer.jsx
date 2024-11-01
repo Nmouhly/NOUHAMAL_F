@@ -6,15 +6,15 @@ import { AuthContext } from '../../../context/authContext';
 const JobOfferAdmin = () => {
     const [jobOffers, setJobOffers] = useState([]);
     const [error, setError] = useState('');
-    const [searchQuery, setSearchQuery] = useState(''); // State for search bar
-    const [selectedOffers, setSelectedOffers] = useState([]); // State for selected offers
-    const [expandedDescription, setExpandedDescription] = useState({}); // State for expanded descriptions
+    const [searchQuery, setSearchQuery] = useState(''); // État pour la barre de recherche
+    const [selectedOffers, setSelectedOffers] = useState([]); // État pour les offres sélectionnées
+    const [expandedDescription, setExpandedDescription] = useState({}); // État pour les descriptions étendues
     const { accessToken } = useContext(AuthContext);
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
-    const [offersPerPage] = useState(5); // Change this to the number of offers per page
-    const pageCount = Math.ceil(jobOffers.length / offersPerPage); // Set the total page count
+    const [offersPerPage] = useState(5); // Changez ceci en fonction du nombre d'offres par page
+    const pageCount = Math.ceil(jobOffers.length / offersPerPage); // Définir le nombre total de pages
 
     useEffect(() => {
         fetchJobOffers();
@@ -95,11 +95,16 @@ const JobOfferAdmin = () => {
         return !isNaN(numSalary) ? numSalary.toFixed(2) : 'N/A';
     };
 
+    // Filtrer les offres d'emploi selon la recherche sur tous les attributs
     const filteredJobOffers = jobOffers.filter(jobOffer =>
-        jobOffer.title.toLowerCase().includes(searchQuery.toLowerCase())
+        jobOffer.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        jobOffer.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        jobOffer.requirements.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        jobOffer.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        jobOffer.salary.toString().toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Calculate the current offers to display
+    // Calculer les offres actuelles à afficher
     const indexOfLastOffer = currentPage * offersPerPage;
     const indexOfFirstOffer = indexOfLastOffer - offersPerPage;
     const currentOffers = filteredJobOffers.slice(indexOfFirstOffer, indexOfLastOffer);
@@ -111,7 +116,7 @@ const JobOfferAdmin = () => {
     const toggleExpandDescription = (id) => {
         setExpandedDescription(prev => ({
             ...prev,
-            [id]: !prev[id] // Toggle the expanded state
+            [id]: !prev[id] // Basculer l'état étendu
         }));
     };
 
@@ -119,12 +124,12 @@ const JobOfferAdmin = () => {
         <div className="container mt-5">
             <h1 className="mb-4 font-weight-bold display-4">Gestion des Offres d'Emploi</h1>
             
-            {/* Search Bar */}
+            {/* Barre de recherche */}
             <div className="mb-4 d-flex justify-content-end">
                 <input
                     type="text"
                     className="form-control w-25"
-                    placeholder="Rechercher par titre..."
+                    placeholder="Rechercher par titre, description, exigences, lieu ou salaire..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -132,7 +137,13 @@ const JobOfferAdmin = () => {
             
             <Link to="/dashboard/JobOfferCreate" className="btn btn-primary mb-2">Ajouter une Offre</Link>
             <div className="mb-4">
-                <button onClick={handleBulkDelete} className="btn btn-danger mb-2">Supprimer</button>
+                <button 
+                    onClick={handleBulkDelete} 
+                    className="btn btn-danger mb-2"
+                    disabled={selectedOffers.length === 0} // Désactiver le bouton si aucune offre sélectionnée
+                >
+                    Supprimer
+                </button>
             </div>
             {error && <p className="alert alert-danger">{error}</p>}
             <table className="table table-striped table-bordered">
@@ -204,28 +215,40 @@ const JobOfferAdmin = () => {
                 </tbody>
             </table>
 
-            {/* Pagination */}
-            <nav>
-                <ul className="pagination justify-content-center">
-                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                            Précédent
-                        </button>
-                    </li>
-                    {[...Array(pageCount)].map((_, index) => (
-                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                            <button className="page-link" onClick={() => handlePageChange(index + 1)}>
-                                {index + 1}
-                            </button>
-                        </li>
-                    ))}
-                    <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                            Suivant
-                        </button>
-                    </li>
-                </ul>
-            </nav>
+         {/* Pagination */}
+<nav aria-label="Page navigation example">
+    <ul className="pagination justify-content-center">
+        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+            <button 
+                className="page-link" 
+                onClick={() => handlePageChange(currentPage - 1)} 
+                aria-label="Previous"
+            >
+                <span aria-hidden="true">&laquo;</span>
+            </button>
+        </li>
+        {[...Array(pageCount)].map((_, index) => (
+            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                <button 
+                    className="page-link" 
+                    onClick={() => handlePageChange(index + 1)}
+                >
+                    {index + 1}
+                </button>
+            </li>
+        ))}
+        <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
+            <button 
+                className="page-link" 
+                onClick={() => handlePageChange(currentPage + 1)} 
+                aria-label="Next"
+            >
+                <span aria-hidden="true">&raquo;</span>
+            </button>
+        </li>
+    </ul>
+</nav>
+
         </div>
     );
 };

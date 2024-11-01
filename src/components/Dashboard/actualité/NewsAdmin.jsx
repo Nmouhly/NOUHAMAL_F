@@ -3,20 +3,21 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../context/authContext';
 import { toast } from 'react-toastify';
+import 'bootstrap-icons/font/bootstrap-icons.css'; // Import Bootstrap Icons
 
-// Fonction pour enlever les balises HTML
+// Function to remove HTML tags
 const stripHtmlTags = (html) => {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || "";
 };
 
-// Fonction pour tronquer le texte
+// Function to truncate text
 const truncateText = (text, maxLength) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
 };
 
-// Fonction pour tronquer le titre
+// Function to truncate title
 const truncateTitle = (title, maxLength) => {
     return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
 };
@@ -25,8 +26,11 @@ const NewsAdmin = () => {
     const [newsItems, setNewsItems] = useState([]);
     const [error, setError] = useState('');
     const { accessToken } = useContext(AuthContext);
-    const [expanded, setExpanded] = useState(null); // État pour gérer les éléments développés
-    const [expandedTitle, setExpandedTitle] = useState(null); // État pour gérer le titre développé
+    const [expanded, setExpanded] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
+    const [selectedNews, setSelectedNews] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchNews();
@@ -71,23 +75,75 @@ const NewsAdmin = () => {
         }
     };
 
+    const handleBulkDelete = async () => {
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer les actualités sélectionnées ?')) {
+            try {
+                await Promise.all(selectedNews.map(id => 
+                    axios.delete(`http://localhost:8000/api/news/${id}`, {
+                        headers: { 'Authorization': `Bearer ${accessToken}` }
+                    })
+                ));
+                setNewsItems(newsItems.filter(news => !selectedNews.includes(news.id)));
+                setSelectedNews([]);
+                toast.success('Actualités supprimées avec succès');
+            } catch (error) {
+                console.error('Erreur lors de la suppression des actualités', error);
+                toast.error('Erreur lors de la suppression des actualités');
+            }
+        }
+    };
+
     const toggleExpand = (id) => {
         setExpanded(expanded === id ? null : id);
     };
 
-    const toggleExpandTitle = (id) => {
-        setExpandedTitle(expandedTitle === id ? null : id);
-    };
+    // Filter news items based on the search query
+    const filteredNewsItems = newsItems.filter(news =>
+        news.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Pagination logic
+    const pageCount = Math.ceil(filteredNewsItems.length / itemsPerPage);
+    const offset = (currentPage - 1) * itemsPerPage;
+    const currentNewsItems = filteredNewsItems.slice(offset, offset + itemsPerPage);
 
     return (
         <div className="container">
-            <h1 className="my-4">Gestion des Actualités</h1>
-            <Link to="/dashboard/NewsCreate" className="btn btn-primary mb-4">Ajouter une Actualité</Link>
+            <h1 className="mb-4 font-weight-bold display-4">Gestion des Actualités</h1>
+            <div className="mb-4 d-flex justify-content-end">
+                <input
+                    type="text"
+                    className="form-control w-25"
+                    placeholder="Rechercher..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
+            <Link to="/dashboard/NewsCreate" className="btn btn-primary mb-2">Ajouter une Actualité</Link>
+           
+            <div className="mb-4">
+                <button className="btn btn-danger" onClick={handleBulkDelete} disabled={selectedNews.length === 0}>
+                    Supprimer
+                </button>
+            </div>
             {error && <p className="text-danger">{error}</p>}
             <div className="table-responsive">
                 <table className="table table-bordered table-striped">
                     <thead className="thead-light">
                         <tr>
+                            <th scope="col">
+                                <input
+                                    type="checkbox"
+                                    onChange={(e) => {
+                                        if (e.target.checked) {
+                                            setSelectedNews(currentNewsItems.map(news => news.id));
+                                        } else {
+                                            setSelectedNews([]);
+                                        }
+                                    }}
+                                    checked={selectedNews.length === currentNewsItems.length && currentNewsItems.length > 0}
+                                />
+                            </th>
                             <th>Titre</th>
                             <th>Contenu</th>
                             <th>Image</th>
@@ -95,11 +151,24 @@ const NewsAdmin = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {newsItems.length ? (
-                            newsItems.map(news => (
+                        {currentNewsItems.length ? (
+                            currentNewsItems.map(news => (
                                 <tr key={news.id}>
                                     <td>
-                                        {news.title}
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedNews.includes(news.id)}
+                                            onChange={() => {
+                                                if (selectedNews.includes(news.id)) {
+                                                    setSelectedNews(selectedNews.filter(id => id !== news.id));
+                                                } else {
+                                                    setSelectedNews([...selectedNews, news.id]);
+                                                }
+                                            }}
+                                        />
+                                    </td>
+                                    <td>
+                                        {truncateTitle(news.title, 50)}
                                     </td>
                                     <td>
                                         {expanded === news.id ? 
@@ -121,19 +190,57 @@ const NewsAdmin = () => {
                                         )}
                                     </td>
                                     <td>
-                                        <Link to={`/dashboard/NewsEdit/${news.id}`} className="btn btn-primary mb-2">Modifier</Link>
-                                        <button onClick={() => handleDelete(news.id)} className="btn btn-danger mb-2">Supprimer</button>
+                                        <Link to={`/dashboard/NewsEdit/${news.id}`} className="btn btn-primary mb-2">
+                                            <i className="bi bi-pencil"></i> {/* Edit icon */}
+                                        </Link>
+                                        <button onClick={() => handleDelete(news.id)} className="btn btn-danger mb-2">
+                                            <i className="bi bi-trash"></i> {/* Delete icon */}
+                                        </button>
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="4" className="text-center">Aucune actualité disponible</td>
+                                <td colSpan="5" className="text-center">Aucune actualité disponible</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination */}
+            <nav aria-label="Page navigation example">
+                <ul className="pagination justify-content-center">
+                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button 
+                            className="page-link" 
+                            onClick={() => setCurrentPage(currentPage - 1)} 
+                            aria-label="Previous"
+                        >
+                            <span aria-hidden="true">&laquo;</span>
+                        </button>
+                    </li>
+                    {[...Array(pageCount)].map((_, index) => (
+                        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                            <button 
+                                className="page-link" 
+                                onClick={() => setCurrentPage(index + 1)}
+                            >
+                                {index + 1}
+                            </button>
+                        </li>
+                    ))}
+                    <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
+                        <button 
+                            className="page-link" 
+                            onClick={() => setCurrentPage(currentPage + 1)} 
+                            aria-label="Next"
+                        >
+                            <span aria-hidden="true">&raquo;</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
         </div>
     );
 };

@@ -51,7 +51,7 @@ const PatentAdmin = () => {
 
     return (
         <div>
-            <h1>Gestion des Brevets</h1>
+            <h1>Gestion des Brkkkkkevets</h1>
             <p>hiiiiiiiii</p>
             <Link to="/dashboard/PatentCreate" className="btn btn-primary mb-4">Ajouter un Brevet</Link>
             {error && <p className="text-red-500">{error}</p>}

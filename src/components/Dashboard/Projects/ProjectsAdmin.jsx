@@ -83,10 +83,13 @@ const ProjectsAdmin = () => {
 
     const handleSearch = (event) => {
         const searchTerm = event.target.value.toLowerCase();
-        const filtered = projects.filter(project => 
-            project.title.toLowerCase().includes(searchTerm) ||
-            project.description.toLowerCase().includes(searchTerm)
+
+        const filtered = projects.filter(project =>
+            Object.values(project).some(value =>
+                value && value.toString().toLowerCase().includes(searchTerm)
+            )
         );
+
         setFilteredProjects(filtered);
         setCurrentPage(1); // Reset to first page on search
     };
@@ -121,7 +124,7 @@ const ProjectsAdmin = () => {
             />
             </div>
             
-            <Link to="/dashboard/ProjectsCreate" className="btn btn-primary mb-4">Ajouter un Projet</Link>
+            <Link to="/dashboard/ProjectsCreate" className="btn btn-primary mb-2">Ajouter un Projet</Link>
             <div className="mb-4">
 
             <button 
@@ -176,15 +179,14 @@ const ProjectsAdmin = () => {
                                     <td>{project.funding_type}</td>
                                     <td>{project.status}</td>
                                     <td>
-                                       
                                         <div className="d-flex justify-content-between">
-                                        <Link to={`/dashboard/ProjectsEdit/${project.id}`}  className="btn btn-primary mb-2">
-                                            <i className="bi bi-pencil"></i>
-                                        </Link>
-                                        <button onClick={() => handleDelete(project.id)}  className="btn btn-danger mb-2">
-                                            <i className="bi bi-trash"></i>
-                                        </button>
-                                    </div>
+                                            <Link to={`/dashboard/ProjectsEdit/${project.id}`}  className="btn btn-primary mb-2">
+                                                <i className="bi bi-pencil"></i>
+                                            </Link>
+                                            <button onClick={() => handleDelete(project.id)}  className="btn btn-danger mb-2">
+                                                <i className="bi bi-trash"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
@@ -198,23 +200,34 @@ const ProjectsAdmin = () => {
             </div>
 
             {/* Pagination */}
-            <nav>
+            <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center">
                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                            Précédent
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage - 1)} 
+                            aria-label="Previous"
+                        >
+                            <span aria-hidden="true">&laquo;</span>
                         </button>
                     </li>
                     {[...Array(pageCount)].map((_, index) => (
                         <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                            <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                            <button 
+                                className="page-link" 
+                                onClick={() => handlePageChange(index + 1)}
+                            >
                                 {index + 1}
                             </button>
                         </li>
                     ))}
                     <li className={`page-item ${currentPage === pageCount ? 'disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                            Suivant
+                        <button 
+                            className="page-link" 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                            aria-label="Next"
+                        >
+                            <span aria-hidden="true">&raquo;</span>
                         </button>
                     </li>
                 </ul>
